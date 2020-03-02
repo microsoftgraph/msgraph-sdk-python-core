@@ -12,9 +12,6 @@ class HTTPClientFactory:
 
 
 class _HTTPClient(Session):
-    """
-    TODO: Add support for attaching multiple adapters
-    """
     def __init__(self, **kwargs):
         super(_HTTPClient, self).__init__()
         self.headers.update({'sdkVersion': SDK_VERSION})

@@ -1,7 +1,6 @@
 import unittest
 
-from requests_middleware import BaseMiddleware
-from requests.adapters import HTTPAdapter
+from requests_middleware import BaseMiddleware, MiddlewareHTTPAdapter
 
 from src.core.http_client_factory import HTTPClientFactory
 
@@ -13,9 +12,9 @@ class HTTPClientFactoryTest(unittest.TestCase):
         ]
 
         requests = HTTPClientFactory.with_graph_middlewares(middlewares)
-        _, mocked_middleware = requests.adapters.popitem()
+        mocked_middleware = requests.get_adapter('https://')
 
-        self.assertIsInstance(mocked_middleware, HTTPAdapter)
+        self.assertIsInstance(mocked_middleware, MiddlewareHTTPAdapter)
 
     def test_created_with_authentication_provider(self):
         """

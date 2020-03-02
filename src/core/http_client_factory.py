@@ -16,4 +16,26 @@ class _HTTPClient(Session):
         super(_HTTPClient, self).__init__()
         self.headers.update({'sdkVersion': SDK_VERSION})
         self._base_url = BASE_URL
-        self.adapter = MiddlewareHTTPAdapter(kwargs.get('middlewares'))
+
+        adapter = MiddlewareHTTPAdapter(kwargs.get('middlewares'))
+        self.mount('https://', adapter)
+
+    def get(self, url, **kwargs):
+        graph_url = self._base_url+url
+        super(_HTTPClient, self).get(graph_url, **kwargs)
+
+    def post(self, url, data=None, json=None, **kwargs):
+        graph_url = self._base_url+url
+        super(_HTTPClient, self).post(graph_url, data=None, json=None, **kwargs)
+
+    def put(self, url, data=None, **kwargs):
+        graph_url = self._base_url+url
+        super(_HTTPClient, self).put(graph_url, data=None, **kwargs)
+
+    def patch(self, url, data=None, **kwargs):
+        graph_url = self._base_url+url
+        super(_HTTPClient, self).patch(graph_url, data=None, **kwargs)
+
+    def delete(self, url, **kwargs):
+        graph_url = self._base_url+url
+        super(_HTTPClient, self).delete(graph_url, **kwargs)

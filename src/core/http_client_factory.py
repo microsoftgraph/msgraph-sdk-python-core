@@ -21,21 +21,25 @@ class _HTTPClient(Session):
         self.mount('https://', adapter)
 
     def get(self, url, **kwargs):
-        graph_url = self._base_url+url
-        super(_HTTPClient, self).get(graph_url, **kwargs)
+        request_url = self._get_url(url)
+        super(_HTTPClient, self).get(request_url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
-        graph_url = self._base_url+url
-        super(_HTTPClient, self).post(graph_url, data=None, json=None, **kwargs)
+        request_url = self._get_url(url)
+        super(_HTTPClient, self).post(request_url, data=None, json=None, **kwargs)
 
     def put(self, url, data=None, **kwargs):
-        graph_url = self._base_url+url
-        super(_HTTPClient, self).put(graph_url, data=None, **kwargs)
+        request_url = self._get_url(url)
+        super(_HTTPClient, self).put(request_url, data=None, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
-        graph_url = self._base_url+url
-        super(_HTTPClient, self).patch(graph_url, data=None, **kwargs)
+        request_url = self._get_url(url)
+        super(_HTTPClient, self).patch(request_url, data=None, **kwargs)
 
     def delete(self, url, **kwargs):
-        graph_url = self._base_url+url
-        super(_HTTPClient, self).delete(graph_url, **kwargs)
+        request_url = self._get_url(url)
+        super(_HTTPClient, self).delete(request_url, **kwargs)
+
+    def _get_url(self, url):
+        return self._base_url+url if (url[0] == '/') else url
+

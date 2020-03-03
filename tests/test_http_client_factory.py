@@ -1,14 +1,14 @@
-import unittest
+from unittest import TestCase
 
 from requests_middleware import BaseMiddleware, MiddlewareHTTPAdapter
 
 from src.core.http_client_factory import HTTPClientFactory
 
 
-class HTTPClientFactoryTest(unittest.TestCase):
+class HTTPClientFactoryTest(TestCase):
     def test_initialized_with_middlewares(self):
         middlewares = [
-            _MockMiddleware()
+            BaseMiddleware()
         ]
 
         requests = HTTPClientFactory.with_graph_middlewares(middlewares)
@@ -22,7 +22,3 @@ class HTTPClientFactoryTest(unittest.TestCase):
         :return:
         """
         pass
-
-
-class _MockMiddleware(BaseMiddleware):
-    pass

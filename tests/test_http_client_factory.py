@@ -9,7 +9,7 @@ from src.core.middleware_pipeline import MiddlewarePipeline
 class HTTPClientFactoryTest(TestCase):
     def test_initialized_with_middlewares(self):
         middlewares = [
-            HTTPAdapter() # Middlewares inherit from the HTTPAdapter class
+            HTTPAdapter()   # Middlewares inherit from the HTTPAdapter class
         ]
 
         requests = HTTPClientFactory.with_graph_middlewares(middlewares)

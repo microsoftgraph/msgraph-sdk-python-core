@@ -9,8 +9,11 @@ class MiddlewarePipeline(HTTPAdapter):
     def add_middleware(self, middleware):
         if self._head is None:
             self._head = middleware
+            return
+
         self._head._next = middleware
 
     def send(self, request, **kwargs):
         if self._head is not None:
             return self._head.send(request, **kwargs)
+        return super().send(request, **kwargs)

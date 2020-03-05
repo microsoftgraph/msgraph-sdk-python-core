@@ -1,8 +1,7 @@
 from requests import Session
 
-from requests_middleware import MiddlewareHTTPAdapter
-
 from src.constants import BASE_URL, SDK_VERSION
+from .middleware_pipeline import MiddlewarePipeline
 
 
 class HTTPClientFactory:
@@ -16,9 +15,15 @@ class _HTTPClient(Session):
         super(_HTTPClient, self).__init__()
         self.headers.update({'sdkVersion': SDK_VERSION})
         self._base_url = BASE_URL
+        middlewares = kwargs.get('middlewares')
 
-        adapter = MiddlewareHTTPAdapter(kwargs.get('middlewares'))
-        self.mount('https://', adapter)
+        middleware_adapter = MiddlewarePipeline()
+
+        for middleware in middlewares:
+            middleware_adapter.add_middleware(middleware)
+
+        self.mount('https://', middleware_adapter)
+        self.mount('http://', middleware_adapter)
 
     def get(self, url, **kwargs):
         request_url = self._get_url(url)

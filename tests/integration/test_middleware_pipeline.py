@@ -1,3 +1,4 @@
+import warnings
 from unittest import TestCase
 
 from requests.adapters import HTTPAdapter
@@ -5,6 +6,9 @@ from src.core.http_client_factory import HTTPClientFactory
 
 
 class MiddlewarePipelineTest(TestCase):
+    def setUp(self):
+        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+
     def test_middleware_pipeline(self):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
         middlewares = [
@@ -13,6 +17,7 @@ class MiddlewarePipelineTest(TestCase):
 
         requests = HTTPClientFactory.with_graph_middlewares(middlewares)
         result = requests.get(url)
+        requests.close()
 
         self.assertEqual(result.status_code, 200)
 

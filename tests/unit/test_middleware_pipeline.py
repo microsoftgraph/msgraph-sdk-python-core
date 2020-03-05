@@ -45,7 +45,7 @@ class MiddlewarePipelineTest(TestCase):
 
 class MockRequestMiddleware1(HTTPAdapter):
     def __init__(self):
-        super(MockRequestMiddleware1, self).__init__(self)
+        super().__init__()
         self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
@@ -59,7 +59,7 @@ class MockRequestMiddleware1(HTTPAdapter):
 
 class MockRequestMiddleware2(HTTPAdapter):
     def __init__(self):
-        super(MockRequestMiddleware2, self).__init__(self)
+        super().__init__()
         self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
@@ -73,7 +73,7 @@ class MockRequestMiddleware2(HTTPAdapter):
 
 class MockResponseMiddleware1(HTTPAdapter):
     def __init__(self):
-        super(MockResponseMiddleware1, self).__init__(self)
+        super().__init__()
         self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
@@ -87,7 +87,7 @@ class MockResponseMiddleware1(HTTPAdapter):
 
 class MockResponseMiddleware2(HTTPAdapter):
     def __init__(self):
-        super(MockResponseMiddleware2, self).__init__(self)
+        super().__init__()
         self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):

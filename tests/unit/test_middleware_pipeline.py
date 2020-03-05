@@ -13,7 +13,7 @@ class MiddlewarePipelineTest(TestCase):
         middleware_pipeline.add_middleware(MockRequestMiddleware2())
 
         first_middleware = middleware_pipeline._head
-        second_middleware = middleware_pipeline._head._next
+        second_middleware = middleware_pipeline._head.next
 
         self.assertIsInstance(first_middleware, MockRequestMiddleware1)
         self.assertIsInstance(second_middleware, MockRequestMiddleware2)
@@ -24,7 +24,7 @@ class MiddlewarePipelineTest(TestCase):
         middleware_pipeline.add_middleware(MockRequestMiddleware2())
 
         request = OrderedDict()
-        result = middleware_pipeline.send(request=request).items()
+        result = middleware_pipeline.send(request=request)
 
         second, _ = result.popitem()
         first, _ = result.popitem()
@@ -46,41 +46,41 @@ class MiddlewarePipelineTest(TestCase):
 class MockRequestMiddleware1(HTTPAdapter):
     def __init__(self):
         super(MockRequestMiddleware1, self).__init__(self)
-        self._next = None
+        self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         request['middleware1'] = 1
 
-        if self._next is None:
+        if self.next is None:
             return request
 
-        return self._next.send(request)
+        return self.next.send(request)
 
 
 class MockRequestMiddleware2(HTTPAdapter):
     def __init__(self):
         super(MockRequestMiddleware2, self).__init__(self)
-        self._next = None
+        self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
         request['middleware2'] = 2
 
-        if self._next is None:
+        if self.next is None:
             return request
 
-        return self._next.send(request)
+        return self.next.send(request)
 
 
 class MockResponseMiddleware1(HTTPAdapter):
     def __init__(self):
         super(MockResponseMiddleware1, self).__init__(self)
-        self._next = None
+        self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        if self._next is None:
+        if self.next is None:
             pass
 
-        resp = self._next.send(request)
+        resp = self.next.send(request)
         resp += 'World'
         return resp
 
@@ -88,14 +88,14 @@ class MockResponseMiddleware1(HTTPAdapter):
 class MockResponseMiddleware2(HTTPAdapter):
     def __init__(self):
         super(MockResponseMiddleware2, self).__init__(self)
-        self._next = None
+        self.next = None
 
     def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        if self._next is None:
+        if self.next is None:
             response = 'Hello '
             return response
 
-        resp = self._next.send(request)
+        resp = self.next.send(request)
         return resp
 
 

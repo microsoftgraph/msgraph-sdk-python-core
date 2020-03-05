@@ -16,14 +16,7 @@ class _HTTPClient(Session):
         self.headers.update({'sdkVersion': SDK_VERSION})
         self._base_url = BASE_URL
         middlewares = kwargs.get('middlewares')
-
-        middleware_adapter = MiddlewarePipeline()
-
-        for middleware in middlewares:
-            middleware_adapter.add_middleware(middleware)
-
-        self.mount('https://', middleware_adapter)
-        self.mount('http://', middleware_adapter)
+        self._register(middlewares)
 
     def get(self, url, **kwargs):
         request_url = self._get_url(url)
@@ -47,4 +40,14 @@ class _HTTPClient(Session):
 
     def _get_url(self, url):
         return self._base_url+url if (url[0] == '/') else url
+
+    def _register(self, middlewares):
+        if middlewares:
+            middleware_adapter = MiddlewarePipeline()
+
+            for middleware in middlewares:
+                middleware_adapter.add_middleware(middleware)
+
+            self.mount('https://', middleware_adapter)
+            self.mount('http://', middleware_adapter)
 

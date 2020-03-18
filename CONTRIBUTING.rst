@@ -172,7 +172,8 @@ To install dependencies that are necessary for development run,
 
 .. code::
 
-    pip install
+    pip install -r requirements.txt
+    pip install -r dev_requirements.txt
 
 To edit files, open them in an editor of your choice and modify them. To
 create a new file, use the editor of your choice and save the new file
@@ -196,7 +197,9 @@ To run tests,
 
 To run linting,
 
-TODO: Add instruction to run linting checks
+.. code::
+
+   pylint src/
 
 
 The files in ``C:\Users\<yourusername>\<repo name>`` are a working copy

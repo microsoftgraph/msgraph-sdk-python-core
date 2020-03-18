@@ -8,7 +8,7 @@ class MiddlewarePipeline(HTTPAdapter):
     def __init__(self):
         super().__init__()
         self._middleware = None
-        self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1)
+        self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1_2)
 
     def add_middleware(self, middleware):
         if self._middleware_present():

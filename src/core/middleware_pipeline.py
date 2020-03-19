@@ -3,6 +3,7 @@ import ssl
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
 
+
 class MiddlewarePipeline(HTTPAdapter):
     def __init__(self):
         super().__init__()

@@ -1,8 +1,11 @@
 import warnings
 from unittest import TestCase
 
-from requests.adapters import HTTPAdapter
 from src.core.http_client_factory import HTTPClientFactory
+
+from src.middleware.authorization_provider import AuthProviderBase
+from src.middleware.authorization_handler import AuthorizationHandler
+
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -11,8 +14,12 @@ class MiddlewarePipelineTest(TestCase):
 
     def test_middleware_pipeline(self):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
+
+        authProvider = _CustomAuthProvider()
+        authHandler = AuthorizationHandler(authProvider)
+
         middlewares = [
-            _AuthMiddleware()
+            authHandler
         ]
 
         requests = HTTPClientFactory.with_graph_middlewares(middlewares)
@@ -22,18 +29,10 @@ class MiddlewarePipelineTest(TestCase):
         self.assertEqual(result.status_code, 200)
 
 
-class _AuthMiddleware(HTTPAdapter):
-    def __init__(self):
-        super().__init__()
-        self.next = None
+class _CustomAuthProvider(AuthProviderBase):
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        request.headers.update({'Authorization': 'Bearer {token:https://graph.microsoft.com/}'})
+    def get_access_token(self):
+        return '{token:https://graph.microsoft.com/}'
 
-        if self.next is None:
-            return super().send(request, stream, timeout, verify, cert, proxies)
-
-        response = self.next.send(request, stream, timeout, verify, cert, proxies)
-        return response
 
 

@@ -49,5 +49,3 @@ class _HTTPClient(Session):
                 middleware_adapter.add_middleware(middleware)
 
             self.mount('https://', middleware_adapter)
-            self.mount('http://', middleware_adapter)
-

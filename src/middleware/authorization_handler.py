@@ -27,6 +27,6 @@ class AuthorizationHandler(HTTPAdapter):
         return self.next.send(request, stream, timeout, verify, cert, proxies)
 
     def _get_middleware_options(self, request):
-        options = request.middleware_controle.get(AUTH_MIDDLEWARE_OPTION) or self.auth_provider_options
+        options = request.middleware_control.get(AUTH_MIDDLEWARE_OPTION) or self.auth_provider_options
         return options.scopes
 

@@ -21,20 +21,22 @@ class MiddlewarePipeline(HTTPAdapter):
             self._middleware = middleware
 
     def send(self, request, **kwargs):
-        self._attach_middleware_control(request, **kwargs)
+        args = self._attach_middleware_control(request, **kwargs)
 
         if self._middleware_present():
-            return self._middleware.send(request, **kwargs)
+            return self._middleware.send(request, **args)
         # No middleware in pipeline, call superclass' send
-        return super().send(request, **kwargs)
+        return super().send(request, **args)
 
     def _attach_middleware_control(self, request, **kwargs):
-        scopes = kwargs.get('scopes')
+        scopes = kwargs.pop('scopes')
         request.middleware_control = MiddlewareControl()
 
         if scopes:
             auth_middleware_options = AuthMiddlewareOptions(scopes)
             request.middleware_control.set(AUTH_MIDDLEWARE_OPTION, auth_middleware_options)
+
+        return kwargs
 
     def _middleware_present(self):
         return self._middleware

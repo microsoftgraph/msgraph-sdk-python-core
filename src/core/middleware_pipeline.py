@@ -5,7 +5,7 @@ from urllib3 import PoolManager
 
 from ..middleware.options.auth_middleware_options import AuthMiddlewareOptions
 from ..middleware.options.middleware_control import MiddlewareControl
-from ..middleware.options.constants import AUTH_MIDDLEWARE_OPTION
+from ..middleware.options.constants import AUTH_MIDDLEWARE_OPTIONS
 
 
 class MiddlewarePipeline(HTTPAdapter):
@@ -34,7 +34,7 @@ class MiddlewarePipeline(HTTPAdapter):
 
         if scopes:
             auth_middleware_options = AuthMiddlewareOptions(scopes)
-            request.middleware_control.set(AUTH_MIDDLEWARE_OPTION, auth_middleware_options)
+            request.middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, auth_middleware_options)
 
         return kwargs
 

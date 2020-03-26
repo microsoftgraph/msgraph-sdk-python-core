@@ -1,7 +1,7 @@
 from requests.adapters import HTTPAdapter
 
 from ._base import AuthProviderBase
-from .options.constants import AUTH_MIDDLEWARE_OPTION
+from .options.constants import AUTH_MIDDLEWARE_OPTIONS
 
 
 class AuthorizationHandler(HTTPAdapter):
@@ -27,6 +27,6 @@ class AuthorizationHandler(HTTPAdapter):
         return self.next.send(request, stream, timeout, verify, cert, proxies)
 
     def _get_middleware_options(self, request):
-        options = request.middleware_control.get(AUTH_MIDDLEWARE_OPTION) or self.auth_provider_options
+        options = request.middleware_control.get(AUTH_MIDDLEWARE_OPTIONS) or self.auth_provider_options
         return options.scopes
 

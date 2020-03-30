@@ -1,7 +1,7 @@
-from requests import Session
+from requests import Session, Request
 
 from src.constants import BASE_URL, SDK_VERSION
-from .middleware_pipeline import MiddlewarePipeline
+from src.middleware._middleware import MiddlewarePipeline
 
 
 class HTTPClientFactory:
@@ -19,27 +19,30 @@ class _HTTPClient(Session):
         self._register(middlewares)
 
     def get(self, url, **kwargs):
-        request_url = self._get_url(url)
-        return super().get(request_url, **kwargs)
+        return self._prepare_and_send_request('GET', url, **kwargs)
 
-    def post(self, url, data=None, json=None, **kwargs):
-        request_url = self._get_url(url)
-        return super().post(request_url, data=None, json=None, **kwargs)
+    def post(self, url, **kwargs):
+        return self._prepare_and_send_request('POST', url, **kwargs)
 
-    def put(self, url, data=None, **kwargs):
-        request_url = self._get_url(url)
-        return super().put(request_url, data=None, **kwargs)
+    def put(self, url, **kwargs):
+        return self._prepare_and_send_request('PUT', url, **kwargs)
 
-    def patch(self, url, data=None, **kwargs):
-        request_url = self._get_url(url)
-        return super().patch(request_url, data=None, **kwargs)
+    def patch(self, url, **kwargs):
+        return self._prepare_and_send_request('PATCH', url, **kwargs)
 
     def delete(self, url, **kwargs):
-        request_url = self._get_url(url)
-        return super().delete(request_url, **kwargs)
+        return self._prepare_and_send_request('DELETE', url, **kwargs)
 
     def _get_url(self, url):
         return self._base_url+url if (url[0] == '/') else url
+
+    def _prepare_and_send_request(self, method='', url='', **kwargs):
+        request_url = self._get_url(url)
+
+        request = Request(method, request_url, kwargs)
+        prepared_request = self.prepare_request(request)
+
+        return self.send(prepared_request, **kwargs)
 
     def _register(self, middlewares):
         if middlewares:

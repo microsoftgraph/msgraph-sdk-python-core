@@ -1,9 +1,7 @@
 from collections import OrderedDict
 from unittest import TestCase
 
-from requests.adapters import HTTPAdapter
-
-from src.core.middleware_pipeline import MiddlewarePipeline
+from src.middleware._middleware import MiddlewarePipeline, Middleware
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -38,65 +36,45 @@ class MiddlewarePipelineTest(TestCase):
         middleware_pipeline.add_middleware(MockResponseMiddleware2()) # returns hello as the response
 
         # Responses are passed through the list of middlewares in reverse order. This will return hello world
-        resp = middleware_pipeline.send({})
+        resp = middleware_pipeline.send(OrderedDict())
 
         self.assertEqual(resp, 'Hello World')
 
 
-class MockRequestMiddleware1(HTTPAdapter):
+class MockRequestMiddleware1(Middleware):
     def __init__(self):
         super().__init__()
-        self.next = None
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, **kwargs):
         request['middleware1'] = 1
-
-        if self.next is None:
-            return request
-
-        return self.next.send(request)
+        return super().send(request, **kwargs)
 
 
-class MockRequestMiddleware2(HTTPAdapter):
+class MockRequestMiddleware2(Middleware):
     def __init__(self):
         super().__init__()
-        self.next = None
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, **kwargs):
         request['middleware2'] = 2
-
-        if self.next is None:
-            return request
-
-        return self.next.send(request)
+        return request
 
 
-class MockResponseMiddleware1(HTTPAdapter):
+class MockResponseMiddleware1(Middleware):
     def __init__(self):
         super().__init__()
-        self.next = None
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        if self.next is None:
-            pass
-
-        resp = self.next.send(request)
+    def send(self, request, **kwargs):
+        resp = super().send(request, **kwargs)
         resp += 'World'
         return resp
 
 
-class MockResponseMiddleware2(HTTPAdapter):
+class MockResponseMiddleware2(Middleware):
     def __init__(self):
         super().__init__()
-        self.next = None
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
-        if self.next is None:
-            response = 'Hello '
-            return response
-
-        resp = self.next.send(request)
-        return resp
+    def send(self, request, **kwargs):
+        return 'Hello '
 
 
 

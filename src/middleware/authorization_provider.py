@@ -1,4 +1,4 @@
-from ._base import AuthProviderBase, TokenCredential
+from ._base_auth import AuthProviderBase, TokenCredential
 
 
 class TokenCredentialAuthProvider(AuthProviderBase):

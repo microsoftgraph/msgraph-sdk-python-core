@@ -1,7 +1,7 @@
 from requests import Session, Request
 
 from src.constants import BASE_URL, SDK_VERSION
-from .middleware_pipeline import MiddlewarePipeline
+from src.middleware._middleware import MiddlewarePipeline
 
 
 class HTTPClientFactory:

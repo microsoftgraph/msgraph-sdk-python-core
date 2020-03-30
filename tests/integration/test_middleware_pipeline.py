@@ -5,6 +5,7 @@ from src.core.http_client_factory import HTTPClientFactory
 
 from src.middleware.authorization_provider import AuthProviderBase
 from src.middleware.authorization_handler import AuthorizationHandler
+from src.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -15,7 +16,8 @@ class MiddlewarePipelineTest(TestCase):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
 
         auth_provider = _CustomAuthProvider()
-        auth_handler = AuthorizationHandler(auth_provider)
+        options = AuthMiddlewareOptions('user.read')
+        auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
 
         middlewares = [
             auth_handler

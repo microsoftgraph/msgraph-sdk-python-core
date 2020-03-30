@@ -29,7 +29,7 @@ class MiddlewarePipeline(HTTPAdapter):
         return super().send(request, **args)
 
     def _attach_middleware_control(self, request, **kwargs):
-        request['middleware_control'] = MiddlewareControl()
+        request.middleware_control = MiddlewareControl()
 
         try:
             scopes = kwargs.pop('scopes')

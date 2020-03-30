@@ -36,7 +36,7 @@ class MiddlewarePipelineTest(TestCase):
         middleware_pipeline.add_middleware(MockResponseMiddleware2()) # returns hello as the response
 
         # Responses are passed through the list of middlewares in reverse order. This will return hello world
-        resp = middleware_pipeline.send({})
+        resp = middleware_pipeline.send(OrderedDict())
 
         self.assertEqual(resp, 'Hello World')
 

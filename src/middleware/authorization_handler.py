@@ -1,6 +1,6 @@
 from ._base_auth import AuthProviderBase
 from .options.constants import AUTH_MIDDLEWARE_OPTIONS
-from ..core._middleware import Middleware
+from ._middleware import Middleware
 
 
 class AuthorizationHandler(Middleware):
@@ -23,5 +23,5 @@ class AuthorizationHandler(Middleware):
 
     def _get_middleware_options(self, request):
         options = request.middleware_control.get(AUTH_MIDDLEWARE_OPTIONS) or self.auth_provider_options
-        return ''
+        return options
 

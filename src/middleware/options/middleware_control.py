@@ -6,4 +6,4 @@ class MiddlewareControl:
         self.middleware_options.update({middleware_option_name: middleware_option})
 
     def get(self, middleware_option_name):
-        return self.middleware_options.get(middleware_option_name)
+        return self.middleware_options.get(middleware_option_name, None)

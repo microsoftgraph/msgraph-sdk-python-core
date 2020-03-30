@@ -3,7 +3,7 @@ from unittest import TestCase
 from requests.adapters import HTTPAdapter
 
 from src.core.http_client_factory import HTTPClientFactory
-from src.core.middleware_pipeline import MiddlewarePipeline
+from src.middleware._middleware import MiddlewarePipeline
 
 
 class HTTPClientFactoryTest(TestCase):

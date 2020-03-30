@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from requests.adapters import HTTPAdapter
 
-from src.core.middleware_pipeline import MiddlewarePipeline
+from src.middleware._middleware import MiddlewarePipeline
 
 
 class MiddlewarePipelineTest(TestCase):

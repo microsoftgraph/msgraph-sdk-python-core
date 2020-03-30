@@ -3,9 +3,9 @@ import ssl
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
 
-from ..middleware.options.auth_middleware_options import AuthMiddlewareOptions
-from ..middleware.options.middleware_control import MiddlewareControl
-from ..middleware.options.constants import AUTH_MIDDLEWARE_OPTIONS
+from .options.auth_middleware_options import AuthMiddlewareOptions
+from .options.middleware_control import MiddlewareControl
+from .options.constants import AUTH_MIDDLEWARE_OPTIONS
 
 
 class MiddlewarePipeline(HTTPAdapter):
@@ -29,15 +29,29 @@ class MiddlewarePipeline(HTTPAdapter):
         return super().send(request, **args)
 
     def _attach_middleware_control(self, request, **kwargs):
-        scopes = kwargs.pop('scopes')
         request.middleware_control = MiddlewareControl()
 
-        if scopes:
+        try:
+            scopes = kwargs.pop('scopes')
             auth_middleware_options = AuthMiddlewareOptions(scopes)
             request.middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, auth_middleware_options)
-
-        return kwargs
+        except KeyError:
+            # do nothing for now
+            pass
+        finally:
+            return kwargs
 
     def _middleware_present(self):
         return self._middleware
 
+
+class Middleware(HTTPAdapter):
+    def __init__(self):
+        super().__init__()
+        self.next = None
+
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+        if self.next is None:
+            return super().send(request, stream, timeout, verify, cert, proxies)
+
+        return self.next.send(request, stream, timeout, verify, cert, proxies)

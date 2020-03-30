@@ -53,5 +53,4 @@ class Middleware(HTTPAdapter):
     def send(self, request, **kwargs):
         if self.next is None:
             return super().send(request, **kwargs)
-
         return self.next.send(request, **kwargs)

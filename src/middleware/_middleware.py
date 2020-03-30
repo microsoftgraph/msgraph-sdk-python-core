@@ -29,7 +29,7 @@ class MiddlewarePipeline(HTTPAdapter):
         return super().send(request, **args)
 
     def _attach_middleware_control(self, request, **kwargs):
-        request.middleware_control = MiddlewareControl()
+        request['middleware_control'] = MiddlewareControl()
 
         try:
             scopes = kwargs.pop('scopes')
@@ -50,8 +50,8 @@ class Middleware(HTTPAdapter):
         super().__init__()
         self.next = None
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, **kwargs):
         if self.next is None:
-            return super().send(request, stream, timeout, verify, cert, proxies)
+            return super().send(request, **kwargs)
 
-        return self.next.send(request, stream, timeout, verify, cert, proxies)
+        return self.next.send(request, **kwargs)

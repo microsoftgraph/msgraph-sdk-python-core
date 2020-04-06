@@ -42,3 +42,4 @@ class HTTPClientTest(TestCase):
         request_url = responses.calls[0].request.url
 
         self.assertEqual(other_url, request_url)
+

@@ -50,14 +50,6 @@ class _HTTPClient(Session):
     def _get_url(self, url):
         return self._base_url+url if (url[0] == '/') else url
 
-    def _prepare_and_send_request(self, method='', url='', **kwargs):
-        request_url = self._get_url(url)
-
-        request = Request(method, request_url, kwargs)
-        prepared_request = self.prepare_request(request)
-
-        return self.send(prepared_request, **kwargs)
-
     def _register(self, middlewares):
         if middlewares:
             middleware_adapter = MiddlewarePipeline()
@@ -66,3 +58,22 @@ class _HTTPClient(Session):
                 middleware_adapter.add_middleware(middleware)
 
             self.mount('https://', middleware_adapter)
+
+    def _prepare_and_send_request(self, method='', url='', **kwargs):
+        # Retrieve middleware options
+        list_of_scopes = kwargs.pop('scopes')
+
+        # Prepare request
+        request_url = self._get_url(url)
+        request = Request(method, request_url, kwargs)
+        prepared_request = self.prepare_request(request)
+
+        # prepare scopes middleware option
+        graph_scopes = BASE_URL + '?scopes='
+        for scope in list_of_scopes:
+            graph_scopes += scope + '%20'
+
+        # Append middleware options to the request object, will be used by MiddlewareController
+        prepared_request.scopes = graph_scopes
+
+        return self.send(prepared_request, **kwargs)

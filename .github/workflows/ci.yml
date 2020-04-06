@@ -30,7 +30,7 @@ jobs:
         pip install -r dev_requirements.txt
     - name: Lint with Pylint
       run: |
-        pylint src
+        pylint src --disable=W --rcfile=.pylintrc
     - name: Test with pytest
       run: |
         coverage run --omit 'venv/*' -m unittest discover tests/unit

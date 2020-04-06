@@ -22,4 +22,3 @@ class AuthorizationHandler(Middleware):
 
     def _get_middleware_options(self, request):
         return request.middleware_control.get(AUTH_MIDDLEWARE_OPTIONS) or self.auth_provider_options
-

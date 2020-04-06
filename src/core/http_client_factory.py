@@ -1,3 +1,6 @@
+"""
+Creates a session object
+"""
 from requests import Session, Request
 
 from src.constants import BASE_URL, SDK_VERSION
@@ -5,12 +8,23 @@ from src.middleware._middleware import MiddlewarePipeline
 
 
 class HTTPClientFactory:
+    """
+    Passes middleware to _HTTPClient
+    """
     @classmethod
     def with_graph_middlewares(cls, middlewares):
+        """
+        Passes middleware to _HTTPClient
+        :param middlewares:
+        :return: Session
+        """
         return _HTTPClient(middlewares=middlewares)
 
 
 class _HTTPClient(Session):
+    """
+    Extends session object with graph functionality
+    """
     def __init__(self, **kwargs):
         super().__init__()
         self.headers.update({'sdkVersion': SDK_VERSION})

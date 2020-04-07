@@ -7,21 +7,7 @@ from src.constants import BASE_URL, SDK_VERSION
 from src.middleware._middleware import MiddlewarePipeline
 
 
-class HTTPClientFactory:
-    """
-    Passes middleware to _HTTPClient
-    """
-    @classmethod
-    def with_graph_middlewares(cls, middlewares):
-        """
-        Passes middleware to _HTTPClient
-        :param middlewares:
-        :return: Session
-        """
-        return _HTTPClient(middlewares=middlewares)
-
-
-class _HTTPClient(Session):
+class GraphSession(Session):
     """
     Extends session object with graph functionality
     """

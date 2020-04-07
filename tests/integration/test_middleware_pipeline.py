@@ -1,7 +1,7 @@
 import warnings
 from unittest import TestCase
 
-from src.core.http_client_factory import HTTPClientFactory
+from src.core.graph_session import HTTPClientFactory
 
 from src.middleware.authorization_provider import AuthProviderBase
 from src.middleware.authorization_handler import AuthorizationHandler

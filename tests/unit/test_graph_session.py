@@ -1,15 +1,17 @@
 from unittest import TestCase
 
 from requests import Session
+from requests.adapters import HTTPAdapter
 import responses
 
-from src.core.http_client_factory import _HTTPClient
+from src.core.graph_session import GraphSession
 from src.constants import BASE_URL, SDK_VERSION
+from src.middleware._middleware import MiddlewarePipeline
 
 
-class HTTPClientTest(TestCase):
+class GraphSessionTest(TestCase):
     def setUp(self) -> None:
-        self.requests = _HTTPClient()
+        self.requests = GraphSession()
 
     def tearDown(self) -> None:
         self.requests = None
@@ -22,6 +24,16 @@ class HTTPClientTest(TestCase):
 
     def test_has_sdk_version_header(self):
         self.assertEqual(self.requests.headers.get('sdkVersion'), SDK_VERSION)
+
+    def test_initialized_with_middlewares(self):
+        middlewares = [
+            HTTPAdapter()   # Middlewares inherit from the HTTPAdapter class
+        ]
+
+        graph_session = GraphSession(middlewares=middlewares)
+        mocked_middleware = graph_session.get_adapter('https://')
+
+        self.assertIsInstance(mocked_middleware, MiddlewarePipeline)
 
     @responses.activate
     def test_builds_graph_urls(self):

@@ -15,8 +15,8 @@ class GraphSession(Session):
         super().__init__()
         self.headers.update({'sdkVersion': SDK_VERSION})
         self._base_url = BASE_URL
-        middlewares = kwargs.get('middlewares')
-        self._register(middlewares)
+        middleware = kwargs.get('middleware')
+        self._register(middleware)
 
     def get(self, url, **kwargs):
         return self._prepare_and_send_request('GET', url, **kwargs)
@@ -36,12 +36,12 @@ class GraphSession(Session):
     def _get_url(self, url):
         return self._base_url+url if (url[0] == '/') else url
 
-    def _register(self, middlewares):
-        if middlewares:
+    def _register(self, middleware):
+        if middleware:
             middleware_adapter = MiddlewarePipeline()
 
-            for middleware in middlewares:
-                middleware_adapter.add_middleware(middleware)
+            for ware in middleware:
+                middleware_adapter.add_middleware(ware)
 
             self.mount('https://', middleware_adapter)
 

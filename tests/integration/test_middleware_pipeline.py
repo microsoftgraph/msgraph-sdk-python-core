@@ -1,7 +1,7 @@
 import warnings
 from unittest import TestCase
 
-from src.core.graph_session import HTTPClientFactory
+from src.core.graph_session import GraphSession
 
 from src.middleware.authorization_provider import AuthProviderBase
 from src.middleware.authorization_handler import AuthorizationHandler
@@ -16,16 +16,15 @@ class MiddlewarePipelineTest(TestCase):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
 
         auth_provider = _CustomAuthProvider()
-        options = AuthMiddlewareOptions('user.read')
+        options = AuthMiddlewareOptions(['user.read'])
         auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
 
-        middlewares = [
+        middleware = [
             auth_handler
         ]
 
-        requests = HTTPClientFactory.with_graph_middlewares(middlewares)
-        result = requests.get(url)
-        requests.close()
+        graph_session = GraphSession(middleware=middleware)
+        result = graph_session.get(url)
 
         self.assertEqual(result.status_code, 200)
 

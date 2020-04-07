@@ -47,19 +47,20 @@ class GraphSession(Session):
 
     def _prepare_and_send_request(self, method='', url='', **kwargs):
         # Retrieve middleware options
-        list_of_scopes = kwargs.pop('scopes')
+        list_of_scopes = kwargs.pop('scopes', None)
 
         # Prepare request
         request_url = self._get_url(url)
         request = Request(method, request_url, kwargs)
         prepared_request = self.prepare_request(request)
 
-        # prepare scopes middleware option
-        graph_scopes = BASE_URL + '?scopes='
-        for scope in list_of_scopes:
-            graph_scopes += scope + '%20'
+        if list_of_scopes is not None:
+            # prepare scopes middleware option
+            graph_scopes = BASE_URL + '?scopes='
+            for scope in list_of_scopes:
+                graph_scopes += scope + '%20'
 
-        # Append middleware options to the request object, will be used by MiddlewareController
-        prepared_request.scopes = graph_scopes
+            # Append middleware options to the request object, will be used by MiddlewareController
+            prepared_request.scopes = graph_scopes
 
         return self.send(prepared_request, **kwargs)

@@ -3,8 +3,8 @@ Creates a session object
 """
 from requests import Session, Request
 
-from src.constants import BASE_URL, SDK_VERSION
-from src.middleware._middleware import MiddlewarePipeline
+from msgraphcore.constants import BASE_URL, SDK_VERSION
+from msgraphcore.middleware._middleware import MiddlewarePipeline
 
 
 class GraphSession(Session):
@@ -13,7 +13,7 @@ class GraphSession(Session):
     """
     def __init__(self, **kwargs):
         super().__init__()
-        self.headers.update({'sdkVersion': SDK_VERSION})
+        self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL
         middleware = kwargs.get('middleware')
         self._register(middleware)

@@ -1,5 +1,5 @@
 from ._base_auth import AuthProviderBase
-from .options.constants import AUTH_MIDDLEWARE_OPTIONS
+from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from ._middleware import Middleware
 
 

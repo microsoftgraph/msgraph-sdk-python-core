@@ -5,7 +5,7 @@ from urllib3 import PoolManager
 
 from .options.auth_middleware_options import AuthMiddlewareOptions
 from .options.middleware_control import MiddlewareControl
-from .options.constants import AUTH_MIDDLEWARE_OPTIONS
+from ..constants import AUTH_MIDDLEWARE_OPTIONS
 
 
 class MiddlewarePipeline(HTTPAdapter):
@@ -45,7 +45,7 @@ class MiddlewarePipeline(HTTPAdapter):
         return self._middleware
 
 
-class Middleware(HTTPAdapter):
+class BaseMiddleware(HTTPAdapter):
     def __init__(self):
         super().__init__()
         self.next = None

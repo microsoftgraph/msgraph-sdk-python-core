@@ -1,9 +1,9 @@
 from ._base_auth import AuthProviderBase
-from .options.constants import AUTH_MIDDLEWARE_OPTIONS
-from ._middleware import Middleware
+from ..constants import AUTH_MIDDLEWARE_OPTIONS
+from ._middleware import BaseMiddleware
 
 
-class AuthorizationHandler(Middleware):
+class AuthorizationHandler(BaseMiddleware):
     def __init__(self, auth_provider: AuthProviderBase, auth_provider_options=None):
         super().__init__()
         self.auth_provider = auth_provider

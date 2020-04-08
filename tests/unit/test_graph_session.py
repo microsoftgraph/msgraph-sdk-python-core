@@ -4,9 +4,8 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 import responses
 
-from msgraphcore.core.graph_session import GraphSession
+from msgraphcore.graph_session import GraphSession
 from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.middleware._middleware import MiddlewarePipeline
 
 
 class GraphSessionTest(TestCase):

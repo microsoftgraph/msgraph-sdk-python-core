@@ -32,7 +32,7 @@ class MiddlewarePipeline(HTTPAdapter):
         request.middleware_control = MiddlewareControl()
 
         try:
-            scopes = kwargs.pop('scopes')
+            scopes = request.scopes
             auth_middleware_options = AuthMiddlewareOptions(scopes)
             request.middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, auth_middleware_options)
         except KeyError:

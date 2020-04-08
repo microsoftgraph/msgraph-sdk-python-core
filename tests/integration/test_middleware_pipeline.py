@@ -1,11 +1,11 @@
 import warnings
 from unittest import TestCase
 
-from src.core.graph_session import GraphSession
+from msgraphcore.core.graph_session import GraphSession
 
-from src.middleware.authorization_provider import AuthProviderBase
-from src.middleware.authorization_handler import AuthorizationHandler
-from src.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.authorization_provider import AuthProviderBase
+from msgraphcore.middleware.authorization_handler import AuthorizationHandler
+from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 
 
 class MiddlewarePipelineTest(TestCase):

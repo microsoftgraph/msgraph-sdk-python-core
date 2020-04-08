@@ -3,8 +3,8 @@ Creates a session object
 """
 from requests import Session, Request
 
-from src.constants import BASE_URL, SDK_VERSION
-from src.middleware._middleware import MiddlewarePipeline
+from msgraphcore.constants import BASE_URL, SDK_VERSION
+from msgraphcore.middleware._middleware import MiddlewarePipeline
 
 
 class GraphSession(Session):

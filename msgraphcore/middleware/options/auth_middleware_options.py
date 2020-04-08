@@ -1,4 +1,4 @@
-from src.constants import BASE_URL
+from msgraphcore.constants import BASE_URL
 
 
 class AuthMiddlewareOptions:

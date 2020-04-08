@@ -3,9 +3,9 @@ requires = ["flit_core >=2,<3", "requests = 2.23.0"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.metadata]
-module = "src"
+module = "msgraphcore"
 author = "Microsoft"
 author-email = "graphtooling@microsoft.com"
-dist-name = "msgraph_core"
 classifiers = ["License :: OSI Approved :: MIT License"]
+description-file = "README.md"
 

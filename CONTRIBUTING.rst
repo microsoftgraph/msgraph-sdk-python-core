@@ -184,9 +184,11 @@ working, save your work frequently.
 
 | Once you have done with your changes, You have to build and test your changes
 
-| To build the library run,
+| To install the library run,
 
-TODO: Add instruction for building the library
+.. code::
+
+    flit install
 
 To run tests,
 

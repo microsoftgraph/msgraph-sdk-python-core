@@ -23,7 +23,7 @@ class GraphSessionTest(TestCase):
         self.assertEqual(self.requests._base_url, BASE_URL)
 
     def test_has_sdk_version_header(self):
-        self.assertEqual(self.requests.headers.get('sdkVersion'), SDK_VERSION)
+        self.assertEqual(self.requests.headers.get('sdkVersion'), 'graph-python-'+SDK_VERSION)
 
     def test_initialized_with_middlewares(self):
         middlewares = [
@@ -33,7 +33,7 @@ class GraphSessionTest(TestCase):
         graph_session = GraphSession(middlewares=middlewares)
         mocked_middleware = graph_session.get_adapter('https://')
 
-        self.assertIsInstance(mocked_middleware, MiddlewarePipeline)
+        self.assertIsInstance(mocked_middleware, HTTPAdapter)
 
     @responses.activate
     def test_builds_graph_urls(self):

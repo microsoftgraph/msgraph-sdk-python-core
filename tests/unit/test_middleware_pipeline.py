@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from unittest import TestCase
 
-from msgraphcore.middleware._middleware import MiddlewarePipeline, Middleware
+from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -41,7 +41,7 @@ class MiddlewarePipelineTest(TestCase):
         self.assertEqual(resp, 'Hello World')
 
 
-class MockRequestMiddleware1(Middleware):
+class MockRequestMiddleware1(BaseMiddleware):
     def __init__(self):
         super().__init__()
 
@@ -50,7 +50,7 @@ class MockRequestMiddleware1(Middleware):
         return super().send(request, **kwargs)
 
 
-class MockRequestMiddleware2(Middleware):
+class MockRequestMiddleware2(BaseMiddleware):
     def __init__(self):
         super().__init__()
 
@@ -59,7 +59,7 @@ class MockRequestMiddleware2(Middleware):
         return request
 
 
-class MockResponseMiddleware1(Middleware):
+class MockResponseMiddleware1(BaseMiddleware):
     def __init__(self):
         super().__init__()
 
@@ -69,7 +69,7 @@ class MockResponseMiddleware1(Middleware):
         return resp
 
 
-class MockResponseMiddleware2(Middleware):
+class MockResponseMiddleware2(BaseMiddleware):
     def __init__(self):
         super().__init__()
 

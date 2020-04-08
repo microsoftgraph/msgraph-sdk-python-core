@@ -45,7 +45,7 @@ class MiddlewarePipeline(HTTPAdapter):
         return self._middleware
 
 
-class Middleware(HTTPAdapter):
+class BaseMiddleware(HTTPAdapter):
     def __init__(self):
         super().__init__()
         self.next = None

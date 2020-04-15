@@ -27,7 +27,7 @@ device_credential = DeviceCodeCredential(
     'set-clientId')
 
 # There are many other options for getting an access token. See the following for more information.
-# https://github.com/Azure/azure-sdk-for-python/blob/master/sdk/identity/azure-identity/azure/identity/_credentials/__init__.py
+# https://pypi.org/project/azure-identity/
 
 ```
 

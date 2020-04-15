@@ -18,22 +18,22 @@ class GraphSession(Session):
         middleware = kwargs.get('middleware')
         self._register(middleware)
 
-    def get(self, url: str, **kwargs):
+    def get(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('GET', url, **kwargs)
 
-    def post(self, url: str, **kwargs):
+    def post(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('POST', url, **kwargs)
 
-    def put(self, url: str, **kwargs):
+    def put(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('PUT', url, **kwargs)
 
-    def patch(self, url: str, **kwargs):
+    def patch(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('PATCH', url, **kwargs)
 
-    def delete(self, url: str, **kwargs):
+    def delete(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('DELETE', url, **kwargs)
 
-    def _get_url(self, url: str):
+    def _get_url(self, url: str) -> Response:
         return self._base_url+url if (url[0] == '/') else url
 
     def _register(self, middleware: [BaseMiddleware]) -> None:

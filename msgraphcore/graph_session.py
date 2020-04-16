@@ -4,18 +4,29 @@ Creates a session object
 from requests import Session, Request
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.middleware._middleware import MiddlewarePipeline
+from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
+from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware._base_auth import AuthProviderBase
+from msgraphcore.middleware.authorization_handler import AuthorizationHandler
 
 
 class GraphSession(Session):
     """
     Extends session object with graph functionality
     """
-    def __init__(self, **kwargs):
+    def __init__(self, scopes: [str], auth_provider: AuthProviderBase, **kwargs):
         super().__init__()
         self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL
         middleware = kwargs.get('middleware')
+
+        if scopes:
+            options = AuthMiddlewareOptions(scopes)
+            auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
+            self._register([auth_handler])
+        else:
+            raise Exception('Missing Microsoft Graph scopes')
+
         self._register(middleware)
 
     def get(self, url, **kwargs):

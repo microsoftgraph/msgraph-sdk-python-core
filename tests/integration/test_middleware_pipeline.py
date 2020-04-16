@@ -4,8 +4,6 @@ from unittest import TestCase
 from msgraphcore.graph_session import GraphSession
 
 from msgraphcore.middleware.authorization_provider import AuthProviderBase
-from msgraphcore.middleware.authorization_handler import AuthorizationHandler
-from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -16,14 +14,8 @@ class MiddlewarePipelineTest(TestCase):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
 
         auth_provider = _CustomAuthProvider()
-        options = AuthMiddlewareOptions(['user.read'])
-        auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
-
-        middleware = [
-            auth_handler
-        ]
-
-        graph_session = GraphSession(middleware=middleware)
+        scopes = ['user.read']
+        graph_session = GraphSession(scopes, auth_provider)
         result = graph_session.get(url)
 
         self.assertEqual(result.status_code, 200)

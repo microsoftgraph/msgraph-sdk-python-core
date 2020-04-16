@@ -31,19 +31,14 @@ device_credential = DeviceCodeCredential(
 
 ```
 
-Create AuthorizationProvider, AuthorizationHandler and list of middleware
+Create an authorization provider object and a list of scopes
 ```python
 auth_provider = TokenCredentialAuthProvider(device_credential)
-options = AuthMiddlewareOptions(['mail.send', 'user.read'])
-auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
-
-middleware = [
-    auth_handler
-]
+scopes = ['mail.send', 'user.read']
 ```
 
 ```python
-graph_session = GraphSession(middleware=middleware)
+graph_session = GraphSession(scopes, auth_provider)
 result = graph_session.get('/me')
 print(result.json())
 ```

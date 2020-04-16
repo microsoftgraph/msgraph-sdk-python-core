@@ -1,5 +1,5 @@
 """
-Creates a session object
+Graph Session
 """
 from requests import Session, Request, Response
 

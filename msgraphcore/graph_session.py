@@ -1,7 +1,7 @@
 """
 Creates a session object
 """
-from requests import Session, Request
+from requests import Session, Request, Response
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
@@ -14,40 +14,36 @@ class GraphSession(Session):
     """
     Extends session object with graph functionality
     """
-    def __init__(self, scopes: [str], auth_provider: AuthProviderBase, **kwargs):
+    def __init__(self, scopes: [str], auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
         self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL
-        middleware = kwargs.get('middleware')
 
-        if scopes:
-            options = AuthMiddlewareOptions(scopes)
-            auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
-            self._register([auth_handler])
-        else:
-            raise Exception('Missing Microsoft Graph scopes')
+        options = AuthMiddlewareOptions(scopes)
+        auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
 
+        middleware.insert(0, auth_handler)
         self._register(middleware)
 
-    def get(self, url, **kwargs):
+    def get(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('GET', url, **kwargs)
 
-    def post(self, url, **kwargs):
+    def post(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('POST', url, **kwargs)
 
-    def put(self, url, **kwargs):
+    def put(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('PUT', url, **kwargs)
 
-    def patch(self, url, **kwargs):
+    def patch(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('PATCH', url, **kwargs)
 
-    def delete(self, url, **kwargs):
+    def delete(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('DELETE', url, **kwargs)
 
-    def _get_url(self, url):
+    def _get_url(self, url: str) -> Response:
         return self._base_url+url if (url[0] == '/') else url
 
-    def _register(self, middleware):
+    def _register(self, middleware: [BaseMiddleware]) -> None:
         if middleware:
             middleware_adapter = MiddlewarePipeline()
 
@@ -56,7 +52,7 @@ class GraphSession(Session):
 
             self.mount('https://', middleware_adapter)
 
-    def _prepare_and_send_request(self, method='', url='', **kwargs):
+    def _prepare_and_send_request(self, method: str = '', url: str = '', **kwargs) -> Response:
         # Retrieve middleware options
         list_of_scopes = kwargs.pop('scopes', None)
 

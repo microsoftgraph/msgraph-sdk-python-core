@@ -13,19 +13,27 @@ Install packages
 Import modules
 
 ```python
-from azure.identity import XCredential
+from azure.identity import UsernamePasswordCredential, DeviceCodeCredential
 from msgraphcore import GraphSession, AuthorizationHandler, AuthMiddlewareOptions, TokenCredentialAuthProvider
 ```
 
 Configure Credential Object
 
 ```python
-browser_credential = XCredential(<tenant_id>, <client_id>)
+# Added UsernamePassword for demo purposes only, please don't use this in production.
+# ugly_credential = UsernamePasswordCredential('set-clientId', 'set-username', 'set-password')
+
+device_credential = DeviceCodeCredential(
+    'set-clientId')
+
+# There are many other options for getting an access token. See the following for more information.
+# https://pypi.org/project/azure-identity/
+
 ```
 
 Create AuthorizationProvider, AuthorizationHandler and list of middleware
 ```python
-auth_provider = TokenCredentialAuthProvider(browser_credential)
+auth_provider = TokenCredentialAuthProvider(device_credential)
 options = AuthMiddlewareOptions(['mail.send', 'user.read'])
 auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
 
@@ -35,7 +43,7 @@ middleware = [
 ```
 
 ```python
-requests = GraphSession(middleware=middleware)
+graph_session = GraphSession(middleware=middleware)
 result = graph_session.get('/me')
 print(result.json())
 ```

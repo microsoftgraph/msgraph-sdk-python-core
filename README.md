@@ -33,8 +33,8 @@ device_credential = DeviceCodeCredential(
 
 Create an authorization provider object and a list of scopes
 ```python
-auth_provider = TokenCredentialAuthProvider(device_credential)
 scopes = ['mail.send', 'user.read']
+auth_provider = TokenCredentialAuthProvider(scopes, device_credential)
 ```
 
 ```python

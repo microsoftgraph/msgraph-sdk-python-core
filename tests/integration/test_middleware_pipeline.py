@@ -11,16 +11,17 @@ class MiddlewarePipelineTest(TestCase):
 
     def test_middleware_pipeline(self):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
-
-        auth_provider = _CustomAuthProvider()
         scopes = ['user.read']
-        graph_session = GraphSession(scopes, auth_provider)
+        auth_provider = _CustomAuthProvider(scopes)
+        graph_session = GraphSession(auth_provider)
         result = graph_session.get(url)
 
         self.assertEqual(result.status_code, 200)
 
 
 class _CustomAuthProvider(AuthProviderBase):
+    def __init__(self, scopes):
+        pass
 
     def get_access_token(self):
         return '{token:https://graph.microsoft.com/}'

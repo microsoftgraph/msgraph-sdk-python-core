@@ -4,10 +4,9 @@ from ._middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, auth_provider: AuthProviderBase, auth_provider_options=None):
+    def __init__(self, auth_provider: AuthProviderBase):
         super().__init__()
         self.auth_provider = auth_provider
-        self.auth_provider_options = auth_provider_options
         self.retry_count = 0
 
     def send(self, request, **kwargs):

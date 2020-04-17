@@ -14,13 +14,12 @@ class GraphSession(Session):
     """
     Extends session object with graph functionality
     """
-    def __init__(self, scopes: [str], auth_provider: AuthProviderBase, middleware: list = []):
+    def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
         self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL
 
-        options = AuthMiddlewareOptions(scopes)
-        auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
+        auth_handler = AuthorizationHandler(auth_provider)
 
         middleware.insert(0, auth_handler)
         self._register(middleware)

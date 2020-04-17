@@ -2,9 +2,9 @@ from ._base_auth import AuthProviderBase, TokenCredential
 
 
 class TokenCredentialAuthProvider(AuthProviderBase):
-    def __init__(self, credential: TokenCredential):
+    def __init__(self, scopes: str, credential: TokenCredential):
         self.credential = credential
-        self.scopes = ''
+        self.scopes = scopes
 
     def get_access_token(self):
         return self.credential.get_token(self.scopes)[0]

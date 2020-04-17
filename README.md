@@ -38,7 +38,7 @@ auth_provider = TokenCredentialAuthProvider(scopes, device_credential)
 ```
 
 ```python
-graph_session = GraphSession(scopes, auth_provider)
+graph_session = GraphSession(auth_provider)
 result = graph_session.get('/me')
 print(result.json())
 ```

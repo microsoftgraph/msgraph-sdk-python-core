@@ -2,8 +2,7 @@ import warnings
 from unittest import TestCase
 
 from msgraphcore.graph_session import GraphSession
-
-from msgraphcore.middleware.authorization_provider import AuthProviderBase
+from msgraphcore.middleware.authorization import AuthProviderBase
 
 
 class MiddlewarePipelineTest(TestCase):

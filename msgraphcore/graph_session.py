@@ -1,6 +1,8 @@
 """
 Graph Session
 """
+from pprint import pprint
+
 from requests import Session, Request, Response
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
@@ -26,8 +28,8 @@ class GraphSession(Session):
     def get(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('GET', url, **kwargs)
 
-    def post(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('POST', url, **kwargs)
+    def post(self, url: str, data=None, json=None, **kwargs) -> Response:
+        return self._prepare_and_send_request('POST', url, data, json, **kwargs)
 
     def put(self, url: str, **kwargs) -> Response:
         return self._prepare_and_send_request('PUT', url, **kwargs)
@@ -50,13 +52,14 @@ class GraphSession(Session):
 
             self.mount('https://', middleware_adapter)
 
-    def _prepare_and_send_request(self, method: str = '', url: str = '', **kwargs) -> Response:
+    def _prepare_and_send_request(self, method: str = '', url: str = '', data=None, json=None, **kwargs) -> Response:
         # Retrieve middleware options
         list_of_scopes = kwargs.pop('scopes', None)
 
         # Prepare request
         request_url = self._get_url(url)
-        request = Request(method, request_url, kwargs)
+        request = Request(method, request_url, data=data, json=json, **kwargs)
+        pprint(request.__dict__)
         prepared_request = self.prepare_request(request)
 
         if list_of_scopes is not None:

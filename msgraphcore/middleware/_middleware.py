@@ -22,6 +22,7 @@ class MiddlewarePipeline(HTTPAdapter):
 
     def send(self, request, **kwargs):
         args = self._attach_middleware_control(request, **kwargs)
+        args.pop('headers')
 
         if self._middleware_present():
             return self._middleware.send(request, **args)

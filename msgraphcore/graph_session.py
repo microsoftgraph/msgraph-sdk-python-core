@@ -61,12 +61,7 @@ class GraphSession(Session):
         prepared_request = self.prepare_request(request)
 
         if list_of_scopes is not None:
-            # prepare scopes middleware option
-            graph_scopes = BASE_URL + '?scopes='
-            for scope in list_of_scopes:
-                graph_scopes += scope + '%20'
-
             # Append middleware options to the request object, will be used by MiddlewareController
-            prepared_request.scopes = graph_scopes
+            prepared_request.scopes = list_of_scopes
 
         return self.send(prepared_request, **kwargs)

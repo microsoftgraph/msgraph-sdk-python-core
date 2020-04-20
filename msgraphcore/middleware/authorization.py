@@ -1,5 +1,5 @@
 from ._base_auth import AuthProviderBase, TokenCredential
-from ..constants import AUTH_MIDDLEWARE_OPTIONS, BASE_URL
+from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from ._middleware import BaseMiddleware
 
 
@@ -29,25 +29,9 @@ class AuthorizationHandler(BaseMiddleware):
 
 
 class TokenCredentialAuthProvider(AuthProviderBase):
-    def __init__(self, credential: TokenCredential, scopes: [str] = BASE_URL + '.default'):
+    def __init__(self, credential: TokenCredential, scopes: [str] = ['user.read']):
         self.credential = credential
         self.scopes = scopes
 
-    @property
-    def scopes(self):
-        return self._scopes
-
-    @scopes.setter
-    def scopes(self, list_of_scopes):
-        if type(list_of_scopes) == list:
-            graph_scopes = BASE_URL + '?scopes='
-
-            for scope in list_of_scopes:
-                graph_scopes += scope + '%20'
-
-            self._scopes = graph_scopes
-        elif type(list_of_scopes) == str:
-            self._scopes = list_of_scopes
-
     def get_access_token(self):
-        return self.credential.get_token(self.scopes)[0]
+        return self.credential.get_token(*self.scopes)[0]

@@ -1,6 +1,7 @@
 from ._base_auth import AuthProviderBase, TokenCredential
 from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from ._middleware import BaseMiddleware
+from .options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
@@ -24,8 +25,8 @@ class AuthorizationHandler(BaseMiddleware):
 
         return response
 
-    def _get_middleware_options(self, request):
-        return request.middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
+    def _get_middleware_options(self):
+        return middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
 
 
 class TokenCredentialAuthProvider(AuthProviderBase):

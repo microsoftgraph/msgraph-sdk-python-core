@@ -29,7 +29,7 @@ class AuthorizationHandler(BaseMiddleware):
 
 
 class TokenCredentialAuthProvider(AuthProviderBase):
-    def __init__(self, credential: TokenCredential, scopes: [str] = ['user.read']):
+    def __init__(self, credential: TokenCredential, scopes: [str] = ['.default']):
         self.credential = credential
         self.scopes = scopes
 

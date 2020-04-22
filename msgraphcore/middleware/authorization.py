@@ -1,13 +1,12 @@
-from ._base_auth import AuthProviderBase
+from ._base_auth import AuthProviderBase, TokenCredential
 from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from ._middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, auth_provider: AuthProviderBase, auth_provider_options=None):
+    def __init__(self, auth_provider: AuthProviderBase):
         super().__init__()
         self.auth_provider = auth_provider
-        self.auth_provider_options = auth_provider_options
         self.retry_count = 0
 
     def send(self, request, **kwargs):
@@ -27,3 +26,12 @@ class AuthorizationHandler(BaseMiddleware):
 
     def _get_middleware_options(self, request):
         return request.middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
+
+
+class TokenCredentialAuthProvider(AuthProviderBase):
+    def __init__(self, credential: TokenCredential, scopes: [str] = ['.default']):
+        self.credential = credential
+        self.scopes = scopes
+
+    def get_access_token(self):
+        return self.credential.get_token(*self.scopes)[0]

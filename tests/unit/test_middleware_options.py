@@ -6,5 +6,5 @@ from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewar
 class TestMiddlewareOptions(TestCase):
     def test_multiple_scopes(self):
         graph_scopes = 'https://graph.microsoft.com/v1.0?scopes=mail.read%20user.read%20'
-        auth_options = AuthMiddlewareOptions(scopes=['mail.read', 'user.read'])
+        auth_options = AuthMiddlewareOptions(graph_scopes)
         self.assertEqual(auth_options.scopes, graph_scopes)

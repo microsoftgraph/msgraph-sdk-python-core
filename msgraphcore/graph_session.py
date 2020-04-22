@@ -1,21 +1,26 @@
 """
-Creates a session object
+Graph Session
 """
 from requests import Session, Request, Response
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
+from msgraphcore.middleware._base_auth import AuthProviderBase
+from msgraphcore.middleware.authorization import AuthorizationHandler
 
 
 class GraphSession(Session):
     """
     Extends session object with graph functionality
     """
-    def __init__(self, **kwargs):
+    def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
         self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL
-        middleware = kwargs.get('middleware')
+
+        auth_handler = AuthorizationHandler(auth_provider)
+
+        middleware.insert(0, auth_handler)
         self._register(middleware)
 
     def get(self, url: str, **kwargs) -> Response:
@@ -55,12 +60,7 @@ class GraphSession(Session):
         prepared_request = self.prepare_request(request)
 
         if list_of_scopes is not None:
-            # prepare scopes middleware option
-            graph_scopes = BASE_URL + '?scopes='
-            for scope in list_of_scopes:
-                graph_scopes += scope + '%20'
-
             # Append middleware options to the request object, will be used by MiddlewareController
-            prepared_request.scopes = graph_scopes
+            prepared_request.scopes = list_of_scopes
 
         return self.send(prepared_request, **kwargs)

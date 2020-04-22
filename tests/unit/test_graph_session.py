@@ -6,11 +6,13 @@ import responses
 
 from msgraphcore.graph_session import GraphSession
 from msgraphcore.constants import BASE_URL, SDK_VERSION
+from msgraphcore.middleware._base_auth import AuthProviderBase
 
 
 class GraphSessionTest(TestCase):
     def setUp(self) -> None:
-        self.requests = GraphSession()
+        self.auth_provider = _CustomAuthProvider(['user.read'])
+        self.requests = GraphSession(self.auth_provider)
 
     def tearDown(self) -> None:
         self.requests = None
@@ -25,11 +27,7 @@ class GraphSessionTest(TestCase):
         self.assertEqual(self.requests.headers.get('sdkVersion'), 'graph-python-'+SDK_VERSION)
 
     def test_initialized_with_middlewares(self):
-        middlewares = [
-            HTTPAdapter()   # Middlewares inherit from the HTTPAdapter class
-        ]
-
-        graph_session = GraphSession(middlewares=middlewares)
+        graph_session = GraphSession(self.auth_provider)
         mocked_middleware = graph_session.get_adapter('https://')
 
         self.assertIsInstance(mocked_middleware, HTTPAdapter)
@@ -54,3 +52,10 @@ class GraphSessionTest(TestCase):
 
         self.assertEqual(other_url, request_url)
 
+
+class _CustomAuthProvider(AuthProviderBase):
+    def __init__(self, scopes):
+        pass
+
+    def get_access_token(self):
+        return '{token:https://graph.microsoft.com/}'

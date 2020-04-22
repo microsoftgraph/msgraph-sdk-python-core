@@ -2,10 +2,7 @@ import warnings
 from unittest import TestCase
 
 from msgraphcore.graph_session import GraphSession
-
-from msgraphcore.middleware.authorization_provider import AuthProviderBase
-from msgraphcore.middleware.authorization_handler import AuthorizationHandler
-from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.authorization import AuthProviderBase
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -14,22 +11,17 @@ class MiddlewarePipelineTest(TestCase):
 
     def test_middleware_pipeline(self):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
-
-        auth_provider = _CustomAuthProvider()
-        options = AuthMiddlewareOptions(['user.read'])
-        auth_handler = AuthorizationHandler(auth_provider, auth_provider_options=options)
-
-        middleware = [
-            auth_handler
-        ]
-
-        graph_session = GraphSession(middleware=middleware)
+        scopes = ['user.read']
+        auth_provider = _CustomAuthProvider(scopes)
+        graph_session = GraphSession(auth_provider)
         result = graph_session.get(url)
 
         self.assertEqual(result.status_code, 200)
 
 
 class _CustomAuthProvider(AuthProviderBase):
+    def __init__(self, scopes):
+        pass
 
     def get_access_token(self):
         return '{token:https://graph.microsoft.com/}'

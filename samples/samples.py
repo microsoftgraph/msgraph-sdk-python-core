@@ -6,7 +6,7 @@ from msgraphcore.middleware.authorization import TokenCredentialAuthProvider
 
 from msgraphcore import GraphSession
 
-browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
+browser_credential = InteractiveBrowserCredential(client_id='ENTER_YOUR_CLIENT_ID')
 auth_provider = TokenCredentialAuthProvider(browser_credential)
 graph_session = GraphSession(auth_provider)
 
@@ -22,7 +22,7 @@ def post_sample():
             'toRecipients': [
                 {
                     'emailAddress': {
-                        'address': 'jaobala@microsoft.com'
+                        'address': 'ENTER_RECEPIENT_EMAIL_ADDRESS'
                     }
                 }
             ]}

@@ -11,7 +11,7 @@ class AuthorizationHandler(BaseMiddleware):
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        options = self._get_middleware_options(request)
+        options = self._get_middleware_options()
         if options:
             self.auth_provider.scopes = options.scopes
 

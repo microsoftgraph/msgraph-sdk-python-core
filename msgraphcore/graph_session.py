@@ -25,6 +25,7 @@ class GraphSession(Session):
 
         auth_handler = AuthorizationHandler(auth_provider)
 
+        # The authorization handler should be the first middleware in the pipeline.
         middleware.insert(0, auth_handler)
         self._register(middleware)
 
@@ -87,7 +88,7 @@ class GraphSession(Session):
 
     def _graph_url(self, url: str) -> str:
         """Appends BASE_URL to user provided path
-        
+
         :param url: user provided path
         :return: graph_url
         """

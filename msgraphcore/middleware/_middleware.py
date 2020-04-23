@@ -5,6 +5,11 @@ from urllib3 import PoolManager
 
 
 class MiddlewarePipeline(HTTPAdapter):
+    """MiddlewarePipeline, entry point of middleware
+
+    The pipeline is implemented as a linked-list, read more about
+    it here https://buffered.dev/middleware-python-requests/
+    """
     def __init__(self):
         super().__init__()
         self._middleware = None
@@ -27,6 +32,12 @@ class MiddlewarePipeline(HTTPAdapter):
 
 
 class BaseMiddleware(HTTPAdapter):
+    """Base class for middleware
+
+    Handles moving a Request to the next middleware in the pipeline.
+    If the current middleware is the last one in the pipeline, it
+    makes a network request
+    """
     def __init__(self):
         super().__init__()
         self.next = None

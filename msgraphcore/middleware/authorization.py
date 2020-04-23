@@ -11,7 +11,9 @@ class AuthorizationHandler(BaseMiddleware):
         self.retry_count = 0
 
     def send(self, request, **kwargs):
+        # Checks if there're any options for this middleware
         options = self._get_middleware_options()
+        # If there is, get the scopes from the options
         if options:
             self.auth_provider.scopes = options.scopes
 
@@ -19,6 +21,7 @@ class AuthorizationHandler(BaseMiddleware):
         request.headers.update({'Authorization': 'Bearer {}'.format(token)})
         response = super().send(request, **kwargs)
 
+        # Token might have expired just before transmission, retry the request
         if response.status_code == 401 and self.retry_count < 2:
             self.retry_count += 1
             return self.send(request, **kwargs)

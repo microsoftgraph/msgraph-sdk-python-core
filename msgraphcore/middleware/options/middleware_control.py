@@ -16,8 +16,10 @@ class MiddlewareControl:
         self._reset_middleware_options()
 
         def wrapper(*args, **kwargs):
+            # Get middleware options from **kwargs
             scopes = kwargs.pop('scopes', None)
             if scopes:
+                # Set middleware options, for use by middleware in the middleware pipeline
                 self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
             return func(*args, **kwargs)
         return wrapper

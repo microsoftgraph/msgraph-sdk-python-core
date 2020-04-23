@@ -25,6 +25,7 @@ class MiddlewareControl:
         return wrapper
 
     def _reset_middleware_options(self):
+        # Reset middleware, so that they are not persisted across requests
         self.middleware_options = {}
 
 

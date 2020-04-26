@@ -11,7 +11,7 @@ class AuthorizationHandler(BaseMiddleware):
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        # Checks if there're any options for this middleware
+        # Checks if there are any options for this middleware
         options = self._get_middleware_options()
         # If there is, get the scopes from the options
         if options:

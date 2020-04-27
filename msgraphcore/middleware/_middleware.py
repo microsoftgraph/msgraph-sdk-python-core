@@ -3,12 +3,13 @@ import ssl
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
 
-from .options.auth_middleware_options import AuthMiddlewareOptions
-from .options.middleware_control import MiddlewareControl
-from ..constants import AUTH_MIDDLEWARE_OPTIONS
-
 
 class MiddlewarePipeline(HTTPAdapter):
+    """MiddlewarePipeline, entry point of middleware
+
+    The pipeline is implemented as a linked-list, read more about
+    it here https://buffered.dev/middleware-python-requests/
+    """
     def __init__(self):
         super().__init__()
         self._middleware = None
@@ -21,31 +22,22 @@ class MiddlewarePipeline(HTTPAdapter):
             self._middleware = middleware
 
     def send(self, request, **kwargs):
-        args = self._attach_middleware_control(request, **kwargs)
-
         if self._middleware_present():
-            return self._middleware.send(request, **args)
+            return self._middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send
-        return super().send(request, **args)
-
-    def _attach_middleware_control(self, request, **kwargs):
-        request.middleware_control = MiddlewareControl()
-
-        try:
-            scopes = request.scopes
-            auth_middleware_options = AuthMiddlewareOptions(scopes)
-            request.middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, auth_middleware_options)
-        except KeyError:
-            # do nothing for now
-            pass
-        finally:
-            return kwargs
+        return super().send(request, **kwargs)
 
     def _middleware_present(self):
         return self._middleware
 
 
 class BaseMiddleware(HTTPAdapter):
+    """Base class for middleware
+
+    Handles moving a Request to the next middleware in the pipeline.
+    If the current middleware is the last one in the pipeline, it
+    makes a network request
+    """
     def __init__(self):
         super().__init__()
         self.next = None

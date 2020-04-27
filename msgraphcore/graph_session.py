@@ -1,17 +1,22 @@
 """
 Graph Session
 """
-from requests import Session, Request, Response
+
+from requests import Session
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
 from msgraphcore.middleware._base_auth import AuthProviderBase
 from msgraphcore.middleware.authorization import AuthorizationHandler
+from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class GraphSession(Session):
-    """
-    Extends session object with graph functionality
+    """Extends Session with Graph functionality
+
+    Extends Session by adding support for middleware options and middleware pipeline
+
+
     """
     def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
@@ -20,47 +25,84 @@ class GraphSession(Session):
 
         auth_handler = AuthorizationHandler(auth_provider)
 
+        # The authorization handler should be the first middleware in the pipeline.
         middleware.insert(0, auth_handler)
         self._register(middleware)
 
-    def get(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('GET', url, **kwargs)
+    @middleware_control.get_middleware_options
+    def get(self, url: str, **kwargs):
+        r"""Sends a GET request. Returns :class:`Response` object.
 
-    def post(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('POST', url, **kwargs)
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+        return super().get(self._graph_url(url))
 
-    def put(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('PUT', url, **kwargs)
+    @middleware_control.get_middleware_options
+    def post(self, url, data=None, json=None, **kwargs):
+        r"""Sends a POST request. Returns :class:`Response` object.
 
-    def patch(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('PATCH', url, **kwargs)
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param json: (optional) json to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+        return super().post(self._graph_url(url), data, json, **kwargs)
 
-    def delete(self, url: str, **kwargs) -> Response:
-        return self._prepare_and_send_request('DELETE', url, **kwargs)
+    @middleware_control.get_middleware_options
+    def put(self, url, data=None, **kwargs):
+        r"""Sends a PUT request. Returns :class:`Response` object.
 
-    def _get_url(self, url: str) -> Response:
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+        return super().put(self._graph_url(url), data, **kwargs)
+
+    @middleware_control.get_middleware_options
+    def patch(self, url, data=None, **kwargs):
+        r"""Sends a PATCH request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+        return super().patch(self._graph_url(url), data, **kwargs)
+
+    @middleware_control.get_middleware_options
+    def delete(self, url, **kwargs):
+        r"""Sends a DELETE request. Returns :class:`Response` object.
+
+        :param url: URL for the new :class:`Request` object.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :rtype: requests.Response
+        """
+        return super().delete(url, **kwargs)
+
+    def _graph_url(self, url: str) -> str:
+        """Appends BASE_URL to user provided path
+
+        :param url: user provided path
+        :return: graph_url
+        """
         return self._base_url+url if (url[0] == '/') else url
 
     def _register(self, middleware: [BaseMiddleware]) -> None:
+        """Adds middleware to middleware_pipeline
+
+        :param middleware: list of middleware
+        """
         if middleware:
-            middleware_adapter = MiddlewarePipeline()
+            middleware_pipeline = MiddlewarePipeline()
 
             for ware in middleware:
-                middleware_adapter.add_middleware(ware)
+                middleware_pipeline.add_middleware(ware)
 
-            self.mount('https://', middleware_adapter)
-
-    def _prepare_and_send_request(self, method: str = '', url: str = '', **kwargs) -> Response:
-        # Retrieve middleware options
-        list_of_scopes = kwargs.pop('scopes', None)
-
-        # Prepare request
-        request_url = self._get_url(url)
-        request = Request(method, request_url, kwargs)
-        prepared_request = self.prepare_request(request)
-
-        if list_of_scopes is not None:
-            # Append middleware options to the request object, will be used by MiddlewareController
-            prepared_request.scopes = list_of_scopes
-
-        return self.send(prepared_request, **kwargs)
+            self.mount('https://', middleware_pipeline)

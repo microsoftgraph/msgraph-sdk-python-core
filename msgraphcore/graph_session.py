@@ -15,7 +15,7 @@ class GraphSession(Session):
 
     Extends Session by adding support for middleware options and middleware pipeline
     """
-    def __init__(self, credential: TokenCredential, scopes: [str] = ['.default'],  middleware: list = []):
+    def __init__(self, credential: TokenCredential, scopes: [str] = ['.default'], middleware: list = []):
         super().__init__()
         self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
         self._base_url = BASE_URL

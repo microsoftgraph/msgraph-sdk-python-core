@@ -34,11 +34,10 @@ device_credential = DeviceCodeCredential(
 Create an authorization provider object and a list of scopes
 ```python
 scopes = ['mail.send', 'user.read']
-auth_provider = TokenCredentialAuthProvider(scopes, device_credential)
 ```
 
 ```python
-graph_session = GraphSession(auth_provider)
+graph_session = GraphSession(device_credential, scopes)
 result = graph_session.get('/me')
 print(result.json())
 ```

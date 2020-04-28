@@ -3,8 +3,9 @@ from pprint import pprint
 from azure.identity import InteractiveBrowserCredential
 from msgraphcore import GraphSession
 
+scopes = ['user.read']
 browser_credential = InteractiveBrowserCredential(client_id='ENTER_YOUR_CLIENT_ID')
-graph_session = GraphSession(browser_credential)
+graph_session = GraphSession(browser_credential, scopes)
 
 
 def post_sample():

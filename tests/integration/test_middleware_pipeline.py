@@ -19,7 +19,7 @@ class MiddlewarePipelineTest(TestCase):
 
 
 class _CustomTokenCredential:
-    def get_token(self, scopes = []):
+    def get_token(self, scopes):
         return ['{token:https://graph.microsoft.com/}']
 
 

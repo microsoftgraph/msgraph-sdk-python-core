@@ -20,7 +20,11 @@ class GraphSession(Session):
     """
     def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
-        self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
+        if 'sdkVersion' not in self.headers:
+            self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
+        else:
+            self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION + ', '
+                                               + self.headers.get('sdkVersion')})
         self._base_url = BASE_URL
 
         auth_handler = AuthorizationHandler(auth_provider)

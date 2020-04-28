@@ -6,7 +6,7 @@ import responses
 
 from msgraphcore.graph_session import GraphSession
 from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.middleware._base_auth import AuthProviderBase
+from msgraphcore.middleware.abc_token_credential import AuthProviderBase
 
 
 class GraphSessionTest(TestCase):

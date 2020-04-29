@@ -20,7 +20,7 @@ class GraphSession(Session):
     """
     def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
         super().__init__()
-        self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})
+        self._append_sdk_version()
         self._base_url = BASE_URL
 
         auth_handler = AuthorizationHandler(auth_provider)
@@ -106,3 +106,12 @@ class GraphSession(Session):
                 middleware_pipeline.add_middleware(ware)
 
             self.mount('https://', middleware_pipeline)
+
+    def _append_sdk_version(self) -> None:
+        """Updates sdkVersion in headers with comma-separated new values
+        """
+        if 'sdkVersion' in self.headers:
+            self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION + ', '
+                                               + self.headers.get('sdkVersion')})
+        else:
+            self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})

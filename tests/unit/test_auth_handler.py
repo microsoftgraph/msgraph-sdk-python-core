@@ -7,7 +7,7 @@ from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewar
 
 
 class TestAuthorizationHandler(unittest.TestCase):
-    def test_uses_scopes_from_auth_options(self):
+    def test_auth_options_override_default_scopes(self):
         auth_option = ['email.read']
         default_scopes = ['.default']
 
@@ -17,7 +17,7 @@ class TestAuthorizationHandler(unittest.TestCase):
         auth_handler_scopes = auth_handler.get_scopes()
         self.assertEqual(auth_option, auth_handler_scopes)
 
-    def test_auth_option_does_not_overwrite_default_scopes(self):
+    def test_auth_handler_get_scopes_does_not_overwrite_default_scopes(self):
         auth_option = ['email.read']
         default_scopes = ['.default']
 

@@ -31,13 +31,14 @@ device_credential = DeviceCodeCredential(
 
 ```
 
-Create an authorization provider object and a list of scopes
+Pass the credential object and scopes to the GraphSession constructor.
 ```python
 scopes = ['mail.send', 'user.read']
+graph_session = GraphSession(device_credential, scopes)
+
 ```
 
 ```python
-graph_session = GraphSession(device_credential, scopes)
 result = graph_session.get('/me')
 print(result.json())
 ```

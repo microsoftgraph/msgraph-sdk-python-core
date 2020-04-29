@@ -1,18 +1,17 @@
+from .abc_token_credential import TokenCredential
 from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from .middleware import BaseMiddleware
 from .options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, credential, scopes):
+    def __init__(self, credential: TokenCredential, scopes: [str]):
         super().__init__()
         self.credential = credential
         self.scopes = scopes
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        self._update_scopes_from_middleware_options()
-
         request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
         response = super().send(request, **kwargs)
 
@@ -22,12 +21,14 @@ class AuthorizationHandler(BaseMiddleware):
             return self.send(request, **kwargs)
         return response
 
-    def _update_scopes_from_middleware_options(self):
+    def _get_access_token(self):
+        return self.credential.get_token(*self.get_scopes())[0]
+
+    def get_scopes(self):
         # Checks if there are any options for this middleware
         auth_options_present = middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
         # If there is, get the scopes from the options
         if auth_options_present:
-            self.scopes = auth_options_present.scopes
-
-    def _get_access_token(self):
-        return self.credential.get_token(*self.scopes)[0]
+            return auth_options_present.scopes
+        else:
+            return self.scopes

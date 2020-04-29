@@ -23,6 +23,7 @@ class TestAuthorizationHandler(unittest.TestCase):
 
         middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(auth_option))
         auth_handler = AuthorizationHandler(None, default_scopes)
+        auth_handler.get_scopes()
 
         self.assertEqual(auth_handler.scopes, default_scopes)
 

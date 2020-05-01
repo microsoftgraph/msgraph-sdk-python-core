@@ -14,7 +14,7 @@ Import modules
 
 ```python
 from azure.identity import UsernamePasswordCredential, DeviceCodeCredential
-from msgraphcore import GraphSession, AuthorizationHandler, AuthMiddlewareOptions, TokenCredentialAuthProvider
+from msgraphcore import GraphSession
 ```
 
 Configure Credential Object
@@ -35,7 +35,6 @@ Pass the credential object and scopes to the GraphSession constructor.
 ```python
 scopes = ['mail.send', 'user.read']
 graph_session = GraphSession(device_credential, scopes)
-
 ```
 
 ```python

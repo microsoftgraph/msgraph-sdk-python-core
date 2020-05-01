@@ -1,41 +1,34 @@
-from ._base_auth import AuthProviderBase, TokenCredential
+from .abc_token_credential import TokenCredential
 from ..constants import AUTH_MIDDLEWARE_OPTIONS
-from ._middleware import BaseMiddleware
+from .middleware import BaseMiddleware
 from .options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, auth_provider: AuthProviderBase):
+    def __init__(self, credential: TokenCredential, scopes: [str]):
         super().__init__()
-        self.auth_provider = auth_provider
+        self.credential = credential
+        self.scopes = scopes
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        # Checks if there are any options for this middleware
-        options = self._get_middleware_options()
-        # If there is, get the scopes from the options
-        if options:
-            self.auth_provider.scopes = options.scopes
-
-        token = self.auth_provider.get_access_token()
-        request.headers.update({'Authorization': 'Bearer {}'.format(token)})
+        request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
         response = super().send(request, **kwargs)
 
-        # Token might have expired just before transmission, retry the request
+        # Token might have expired just before transmission, retry the request one more time
         if response.status_code == 401 and self.retry_count < 2:
             self.retry_count += 1
             return self.send(request, **kwargs)
-
         return response
 
-    def _get_middleware_options(self):
-        return middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
+    def _get_access_token(self):
+        return self.credential.get_token(*self.get_scopes())[0]
 
-
-class TokenCredentialAuthProvider(AuthProviderBase):
-    def __init__(self, credential: TokenCredential, scopes: [str] = ['.default']):
-        self.credential = credential
-        self.scopes = scopes
-
-    def get_access_token(self):
-        return self.credential.get_token(*self.scopes)[0]
+    def get_scopes(self):
+        # Checks if there are any options for this middleware
+        auth_options_present = middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
+        # If there is, get the scopes from the options
+        if auth_options_present:
+            return auth_options_present.scopes
+        else:
+            return self.scopes

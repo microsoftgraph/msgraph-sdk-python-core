@@ -1,12 +1,11 @@
 """
 Graph Session
 """
-
 from requests import Session
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
-from msgraphcore.middleware._base_auth import AuthProviderBase
+from msgraphcore.middleware.middleware import MiddlewarePipeline, BaseMiddleware
+from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.authorization import AuthorizationHandler
 from msgraphcore.middleware.options.middleware_control import middleware_control
 
@@ -15,15 +14,17 @@ class GraphSession(Session):
     """Extends Session with Graph functionality
 
     Extends Session by adding support for middleware options and middleware pipeline
-
-
     """
-    def __init__(self, auth_provider: AuthProviderBase, middleware: list = []):
+    def __init__(self,
+                 credential: TokenCredential,
+                 scopes: [str] = ['.default'],
+                 middleware: list = []
+                 ):
         super().__init__()
         self._append_sdk_version()
         self._base_url = BASE_URL
 
-        auth_handler = AuthorizationHandler(auth_provider)
+        auth_handler = AuthorizationHandler(credential, scopes)
 
         # The authorization handler should be the first middleware in the pipeline.
         middleware.insert(0, auth_handler)

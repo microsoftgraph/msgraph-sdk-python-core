@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from unittest import TestCase
 
-from msgraphcore.middleware._middleware import MiddlewarePipeline, BaseMiddleware
+from msgraphcore.middleware.middleware import MiddlewarePipeline, BaseMiddleware
 
 
 class MiddlewarePipelineTest(TestCase):

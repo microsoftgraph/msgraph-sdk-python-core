@@ -19,7 +19,7 @@ class GraphSession(Session):
                  credential: TokenCredential,
                  scopes: [str] = ['.default'],
                  middleware: list = [],
-                 api_version: str = '1.0'
+                 api_version: str = 'v1.0'
                  ):
         super().__init__()
         self._append_sdk_version()

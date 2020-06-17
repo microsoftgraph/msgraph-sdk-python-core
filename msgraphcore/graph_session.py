@@ -85,7 +85,7 @@ class GraphSession(Session):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return super().delete(url, **kwargs)
+        return super().delete(self._graph_url(url), **kwargs)
 
     def _graph_url(self, url: str) -> str:
         """Appends BASE_URL to user provided path

@@ -20,7 +20,7 @@ class GraphSessionTest(TestCase):
         self.assertIsInstance(self.requests, Session)
 
     def test_has_graph_url_as_base_url(self):
-        self.assertEqual(self.requests._base_url, BASE_URL)
+        self.assertNotEqual(self.requests._base_url, BASE_URL)
 
     def test_has_sdk_version_header(self):
         self.assertTrue('sdkVersion' in self.requests.headers)
@@ -37,7 +37,7 @@ class GraphSessionTest(TestCase):
 
     @responses.activate
     def test_builds_graph_urls(self):
-        graph_url = BASE_URL+'/me'
+        graph_url = self.requests._base_url + '/me'
         responses.add(responses.GET, graph_url, status=200)
 
         self.requests.get('/me')

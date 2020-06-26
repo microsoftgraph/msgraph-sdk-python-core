@@ -18,11 +18,12 @@ class GraphSession(Session):
     def __init__(self,
                  credential: TokenCredential,
                  scopes: [str] = ['.default'],
-                 middleware: list = []
+                 middleware: list = [],
+                 api_version: str = 'v1.0'
                  ):
         super().__init__()
         self._append_sdk_version()
-        self._base_url = BASE_URL
+        self._base_url = BASE_URL + '/' + api_version
 
         auth_handler = AuthorizationHandler(credential, scopes)
 

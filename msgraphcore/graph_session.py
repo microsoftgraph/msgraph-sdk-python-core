@@ -39,7 +39,7 @@ class GraphSession(Session):
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return super().get(self._graph_url(url))
+        return super().get(self._graph_url(url), **kwargs)
 
     @middleware_control.get_middleware_options
     def post(self, url, data=None, json=None, **kwargs):

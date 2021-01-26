@@ -12,7 +12,7 @@ class AuthorizationHandler(BaseMiddleware):
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
+        request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token()), 'ConsistencyLevel': 'eventual'})
         response = super().send(request, **kwargs)
 
         # Token might have expired just before transmission, retry the request one more time

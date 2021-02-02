@@ -1,4 +1,4 @@
-[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/CI/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
+[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
 
 ## Microsoft Graph Python Client Library
 

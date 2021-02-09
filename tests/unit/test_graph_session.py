@@ -1,11 +1,11 @@
 from unittest import TestCase
 
+import responses
 from requests import Session
 from requests.adapters import HTTPAdapter
-import responses
 
-from msgraphcore.graph_session import GraphSession
 from msgraphcore.constants import BASE_URL, SDK_VERSION
+from msgraphcore.graph_session import GraphSession
 
 
 class GraphSessionTest(TestCase):

@@ -1,6 +1,8 @@
 import json
 from pprint import pprint
+
 from azure.identity import InteractiveBrowserCredential
+
 from msgraphcore import GraphSession
 
 scopes = ['user.read']

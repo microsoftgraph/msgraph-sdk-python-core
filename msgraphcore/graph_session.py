@@ -6,7 +6,8 @@ from requests import Session
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import (BaseMiddleware, MiddlewarePipeline)
+from msgraphcore.middleware.middleware import (BaseMiddleware,
+                                               MiddlewarePipeline)
 from msgraphcore.middleware.options.middleware_control import \
     middleware_control
 
@@ -19,7 +20,7 @@ class GraphSession(Session):
     def __init__(
         self,
         credential: TokenCredential,
-        scopes: [str] = ['.default'],
+        scopes: list[str] = ['.default'],
         middleware: list = [],
         api_version: str = 'v1.0'
     ):
@@ -98,7 +99,7 @@ class GraphSession(Session):
         """
         return self._base_url + url if (url[0] == '/') else url
 
-    def _register(self, middleware: [BaseMiddleware]) -> None:
+    def _register(self, middleware: list[BaseMiddleware]) -> None:
         """Adds middleware to middleware_pipeline
 
         :param middleware: list of middleware
@@ -118,7 +119,7 @@ class GraphSession(Session):
             self.headers.update(
                 {
                     'sdkVersion':
-                    'graph-python-' + SDK_VERSION + ', ' + self.headers.get('sdkVersion')
+                    'graph-python-' + SDK_VERSION + ', ' + str(self.headers.get('sdkVersion'))
                 }
             )
         else:

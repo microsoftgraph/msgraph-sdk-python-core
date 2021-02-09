@@ -1,6 +1,6 @@
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
 
-from ..options.auth_middleware_options import AuthMiddlewareOptions
+from .auth_middleware_options import AuthMiddlewareOptions
 
 
 class MiddlewareControl:

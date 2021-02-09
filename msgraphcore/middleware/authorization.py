@@ -1,11 +1,12 @@
-from ..constants import AUTH_MIDDLEWARE_OPTIONS
+from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
+
 from .abc_token_credential import TokenCredential
 from .middleware import BaseMiddleware
 from .options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, credential: TokenCredential, scopes: [str]):
+    def __init__(self, credential: TokenCredential, scopes: list[str]):
         super().__init__()
         self.credential = credential
         self.scopes = scopes

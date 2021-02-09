@@ -1,8 +1,7 @@
 from collections import OrderedDict
 from unittest import TestCase
 
-from msgraphcore.middleware.middleware import (BaseMiddleware,
-                                               MiddlewarePipeline)
+from msgraphcore.middleware.middleware import (BaseMiddleware, MiddlewarePipeline)
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -33,8 +32,12 @@ class MiddlewarePipelineTest(TestCase):
 
     def test_response_object_is_modified_in_reverse_order(self):
         middleware_pipeline = MiddlewarePipeline()
-        middleware_pipeline.add_middleware(MockResponseMiddleware1()) # returns world as the response
-        middleware_pipeline.add_middleware(MockResponseMiddleware2()) # returns hello as the response
+        middleware_pipeline.add_middleware(
+            MockResponseMiddleware1()
+        )  # returns world as the response
+        middleware_pipeline.add_middleware(
+            MockResponseMiddleware2()
+        )  # returns hello as the response
 
         # Responses are passed through the list of middlewares in reverse order. This will return hello world
         resp = middleware_pipeline.send(OrderedDict())
@@ -76,6 +79,3 @@ class MockResponseMiddleware2(BaseMiddleware):
 
     def send(self, request, **kwargs):
         return 'Hello '
-
-
-

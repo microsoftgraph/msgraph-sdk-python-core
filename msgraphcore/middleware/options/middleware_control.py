@@ -23,6 +23,7 @@ class MiddlewareControl:
                 # Set middleware options, for use by middleware in the middleware pipeline
                 self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
             return func(*args, **kwargs)
+
         return wrapper
 
     def _reset_middleware_options(self):

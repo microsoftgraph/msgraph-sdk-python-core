@@ -6,7 +6,9 @@ from msgraphcore.graph_session import GraphSession
 
 class MiddlewarePipelineTest(TestCase):
     def setUp(self):
-        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
+        warnings.filterwarnings(
+            "ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>"
+        )
 
     def test_middleware_pipeline(self):
         url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
@@ -21,6 +23,3 @@ class MiddlewarePipelineTest(TestCase):
 class _CustomTokenCredential:
     def get_token(self, scopes):
         return ['{token:https://graph.microsoft.com/}']
-
-
-

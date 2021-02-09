@@ -28,5 +28,3 @@ class TestAuthorizationHandler(unittest.TestCase):
         auth_handler.get_scopes()
 
         self.assertEqual(auth_handler.scopes, default_scopes)
-
-

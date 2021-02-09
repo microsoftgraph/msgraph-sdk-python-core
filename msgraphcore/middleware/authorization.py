@@ -6,7 +6,7 @@ from .options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, credential: TokenCredential, scopes: list[str]):
+    def __init__(self, credential: TokenCredential, scopes: [str]):
         super().__init__()
         self.credential = credential
         self.scopes = scopes

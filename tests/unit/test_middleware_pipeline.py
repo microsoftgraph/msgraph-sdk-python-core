@@ -1,8 +1,7 @@
 from collections import OrderedDict
 from unittest import TestCase
 
-from msgraphcore.middleware.middleware import (BaseMiddleware,
-                                               MiddlewarePipeline)
+from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 class MiddlewarePipelineTest(TestCase):
@@ -40,7 +39,8 @@ class MiddlewarePipelineTest(TestCase):
             MockResponseMiddleware2()
         )  # returns hello as the response
 
-        # Responses are passed through the list of middlewares in reverse order. This will return hello world
+        # Responses are passed through the list of middlewares in reverse order.
+        # This will return hello world
         resp = middleware_pipeline.send(OrderedDict())
 
         self.assertEqual(resp, 'Hello World')

@@ -6,10 +6,8 @@ from requests import Session
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import (BaseMiddleware,
-                                               MiddlewarePipeline)
-from msgraphcore.middleware.options.middleware_control import \
-    middleware_control
+from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class GraphSession(Session):

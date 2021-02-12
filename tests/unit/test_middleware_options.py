@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from msgraphcore.middleware.options.auth_middleware_options import \
-    AuthMiddlewareOptions
+from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 
 
 class TestMiddlewareOptions(TestCase):

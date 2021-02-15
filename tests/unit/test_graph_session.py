@@ -1,11 +1,11 @@
 from unittest import TestCase
 
+import responses
 from requests import Session
 from requests.adapters import HTTPAdapter
-import responses
 
-from msgraphcore.graph_session import GraphSession
 from msgraphcore.constants import BASE_URL, SDK_VERSION
+from msgraphcore.graph_session import GraphSession
 
 
 class GraphSessionTest(TestCase):
@@ -26,8 +26,9 @@ class GraphSessionTest(TestCase):
         self.assertTrue('sdkVersion' in self.requests.headers)
 
     def test_updated_sdk_version(self):
-        self.assertTrue(self.requests.headers.get('sdkVersion')
-                        .startswith('graph-python-'+SDK_VERSION))
+        self.assertTrue(
+            self.requests.headers.get('sdkVersion').startswith('graph-python-' + SDK_VERSION)
+        )
 
     def test_initialized_with_middlewares(self):
         graph_session = GraphSession(self.credential)

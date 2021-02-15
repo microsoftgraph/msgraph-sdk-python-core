@@ -1,3 +1,5 @@
+[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
+
 ## Microsoft Graph Python Client Library
 
 The Microsoft Graph Python client library is a lightweight wrapper around

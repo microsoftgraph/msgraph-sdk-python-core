@@ -1,6 +1,8 @@
 import json
 from pprint import pprint
+
 from azure.identity import InteractiveBrowserCredential
+
 from msgraphcore import GraphSession
 
 scopes = ['user.read']
@@ -16,13 +18,12 @@ def post_sample():
                 'contentType': 'Text',
                 'content': 'The new cafeteria is open.'
             },
-            'toRecipients': [
-                {
-                    'emailAddress': {
-                        'address': 'ENTER_RECEPIENT_EMAIL_ADDRESS'
-                    }
+            'toRecipients': [{
+                'emailAddress': {
+                    'address': 'ENTER_RECEPIENT_EMAIL_ADDRESS'
                 }
-            ]}
+            }]
+        }
     }
 
     result = graph_session \
@@ -42,4 +43,3 @@ def get_sample():
 if __name__ == '__main__':
     post_sample()
     get_sample()
-

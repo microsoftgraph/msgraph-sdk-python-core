@@ -2,8 +2,8 @@ import unittest
 
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
 from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.options.middleware_control import middleware_control
 from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class TestAuthorizationHandler(unittest.TestCase):
@@ -26,5 +26,3 @@ class TestAuthorizationHandler(unittest.TestCase):
         auth_handler.get_scopes()
 
         self.assertEqual(auth_handler.scopes, default_scopes)
-
-

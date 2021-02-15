@@ -1,0 +1,25 @@
+default_language_version:
+  python: python3
+repos:
+  - repo: local
+    hooks:
+      - id: yapf
+        name: yapf
+        stages: [commit]
+        language: system
+        entry: pipenv run yapf -ir .
+        types: [python]
+
+      - id: isort
+        name: isort
+        stages: [commit]
+        language: system
+        entry: pipenv run isort .
+        types: [python]
+
+      - id: pylint
+        name: pylint
+        stages: [commit]
+        language: system
+        entry: pipenv run pylint msgraphcore --disable=W --rcfile=.pylintrc
+        types: [python]

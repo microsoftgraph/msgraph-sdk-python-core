@@ -1,5 +1,6 @@
+from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
+
 from .abc_token_credential import TokenCredential
-from ..constants import AUTH_MIDDLEWARE_OPTIONS
 from .middleware import BaseMiddleware
 from .options.middleware_control import middleware_control
 

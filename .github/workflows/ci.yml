@@ -38,6 +38,6 @@ jobs:
           pipenv run pylint msgraphcore --disable=W --rcfile=.pylintrc
       - name: Test with unittest
         run: |
-          pipenv run coverage run -m unittest discover tests/unit
-          pipenv run coverage run -m unittest discover tests/integration
+          pipenv run coverage run -m pytest tests/unit
+          pipenv run coverage run -m pytest tests/integration
           pipenv run coverage html

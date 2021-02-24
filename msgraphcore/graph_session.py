@@ -8,6 +8,7 @@ from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.authorization import AuthorizationHandler
 from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 from msgraphcore.middleware.options.middleware_control import middleware_control
+from msgraphcore.middleware.retry_middleware import RetryMiddleware
 
 
 class GraphSession(Session):
@@ -19,6 +20,7 @@ class GraphSession(Session):
         self,
         credential: TokenCredential,
         scopes: [str] = ['.default'],
+        retry_config: dict = {},
         middleware: list = [],
         api_version: str = 'v1.0'
     ):
@@ -27,9 +29,10 @@ class GraphSession(Session):
         self._base_url = BASE_URL + '/' + api_version
 
         auth_handler = AuthorizationHandler(credential, scopes)
+        retry_handler = RetryMiddleware(retry_config)
 
-        # The authorization handler should be the first middleware in the pipeline.
-        middleware.insert(0, auth_handler)
+        middleware.insert(0, retry_handler)
+        middleware.insert(1, auth_handler)
         self._register(middleware)
 
     @middleware_control.get_middleware_options

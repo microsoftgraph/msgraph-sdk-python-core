@@ -1,6 +1,6 @@
-from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
-
-from .auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS, RETRY_MIDDLEWARE_OPTIONS
+from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.options.retry_middleware_options import RetryMiddlewareOptions
 
 
 class MiddlewareControl:
@@ -22,6 +22,9 @@ class MiddlewareControl:
             if scopes:
                 # Set middleware options, for use by middleware in the middleware pipeline
                 self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
+            retry_configs = kwargs.get('retry_config')
+            if retry_configs:
+                self.set(RETRY_MIDDLEWARE_OPTIONS, RetryMiddlewareOptions(retry_configs))
             return func(*args, **kwargs)
 
         return wrapper

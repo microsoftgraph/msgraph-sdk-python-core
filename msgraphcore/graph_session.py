@@ -31,6 +31,7 @@ class GraphSession(Session):
         auth_handler = AuthorizationHandler(credential, scopes)
         retry_handler = RetryMiddleware(retry_config)
 
+        # The authorization handler should be the first middleware in the pipeline.
         middleware.insert(0, retry_handler)
         middleware.insert(1, auth_handler)
         self._register(middleware)

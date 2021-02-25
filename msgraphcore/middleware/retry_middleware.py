@@ -65,11 +65,11 @@ class RetryMiddleware(BaseMiddleware):
                     retry_active = self.increment_counter(retry_settings)
                     if retry_active:
                         self.sleep(retry_settings, response=response)
-
                         continue
                 break
             except Exception as error:
                 raise error
+        return response
 
     def should_retry(self, retry_settings, response):
         """

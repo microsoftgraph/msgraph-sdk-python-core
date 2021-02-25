@@ -46,3 +46,39 @@ class RetryMiddleware(BaseMiddleware):
             'methods': self._allowed_methods,
             'timeout': self.timeout,
         }
+
+    def send(self, request, **kwargs):
+        """
+        Sends the http request object to the next middleware or retries the request if necessary.
+        """
+        retry_settings = self.configure_retry_settings()
+        retry_active = True
+        response = None
+
+        while retry_active:
+            try:
+                response = super().send(request, **kwargs)
+                # Check if the request needs to be retried based on the response
+                if self.can_retry(retry_settings, response):
+                    pass
+            except Exception as error:
+                return error
+
+    def can_retry(self, retry_settings, response):
+        """
+        Determines whether the request can be retried
+        Checks if the request method is in allowed methods
+        Checks if the response status code is in retryable status codes.
+        """
+        if not self._is_method_retryable(retry_settings, response.request):
+            return False
+        return retry_settings['total'] and response.status_code in self._retry_on_status_codes
+
+    def _is_method_retryable(self, retry_settings, request):
+        """
+        Checks if a given request should be retried upon, depending on
+        whether the HTTP method is in the set of allowed methods
+        """
+        if request.method.upper() not in retry_settings['methods']:
+            return False
+        return True

@@ -2,6 +2,7 @@ import sys
 import time
 
 from msgraphcore.middleware.middleware import BaseMiddleware
+from msgraphcore.middleware.utils import get_retry_after
 
 
 class RetryMiddleware(BaseMiddleware):
@@ -14,7 +15,7 @@ class RetryMiddleware(BaseMiddleware):
     DEFAULT_MAX_RETRIES = 5
     MAX_MAX_RETRIES = 10
     MAXIMUM_BACKOFF = 120
-    _DEFAULT_RETRY_CODES = [429, 502, 503, 504]
+    _DEFAULT_RETRY_CODES = [429, 503, 504]
 
     def __init__(self, retry_configs=None):
         self.total_retries: int = retry_configs.pop('retry_total', 5)
@@ -62,7 +63,7 @@ class RetryMiddleware(BaseMiddleware):
                 if self.can_retry(retry_settings, response):
                     retry_active = self.increment_counter(retry_settings)
                     if retry_active:
-                        pass
+                        self.sleep(retry_settings, response=response)
             except Exception as error:
                 return error
 
@@ -95,8 +96,41 @@ class RetryMiddleware(BaseMiddleware):
             return False
         return True
 
-    def retries_exhausted(self, settings):
-        retry_counts = settings['total']
+    def retries_exhausted(self, retry_settings):
+        retry_counts = retry_settings['total']
         if retry_counts <= 0:
             return True
         return False
+
+    def sleep(self, retry_settings, response=None):
+        """
+        Sleep between retry attempts.
+        Respects a retry-after header in the response if provided
+        If no retry-after response header, it defaults to exponential backoff
+        """
+        if response:
+            slept = self._sleep_based_on_retry_after(response)
+            if slept:
+                return
+        self._sleep_exp_backoff(retry_settings)
+
+    def _sleep_based_on_retry_after(self, response):
+        """
+        Sleep between retries based on the retry-after response header value.
+        """
+        retry_after = get_retry_after(response)
+        if retry_after:
+            time.sleep(retry_after)
+            return True
+        return False
+
+    def _sleep_exp_backoff(self, retry_settings):
+        """
+        Sleep using exponential backoff value.
+        Immediately returns if backoff is 0.
+        """
+        exp_backoff_value = retry_settings['backoff'] * (2**self._retry_count)
+        backoff = min(retry_settings['max_backoff'], exp_backoff_value)
+        if backoff <= 0:
+            return
+        time.sleep(backoff)

@@ -60,7 +60,9 @@ class RetryMiddleware(BaseMiddleware):
                 response = super().send(request, **kwargs)
                 # Check if the request needs to be retried based on the response
                 if self.can_retry(retry_settings, response):
-                    pass
+                    retry_active = self.increment_counter(retry_settings)
+                    if retry_active:
+                        pass
             except Exception as error:
                 return error
 
@@ -82,3 +84,19 @@ class RetryMiddleware(BaseMiddleware):
         if request.method.upper() not in retry_settings['methods']:
             return False
         return True
+
+    def increment_counter(self, retry_settings):
+        """
+        Increment the retry counters on every valid retry
+        """
+        retry_settings['total'] -= 1
+        self._retry_count += 1
+        if self.retries_exhausted(retry_settings):
+            return False
+        return True
+
+    def retries_exhausted(self, settings):
+        retry_counts = settings['total']
+        if retry_counts <= 0:
+            return True
+        return False

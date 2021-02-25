@@ -58,18 +58,22 @@ class RetryMiddleware(BaseMiddleware):
 
         while retry_active:
             try:
+                request.headers.update({'retry-attempt': '{}'.format(self._retry_count)})
                 response = super().send(request, **kwargs)
                 # Check if the request needs to be retried based on the response
-                if self.can_retry(retry_settings, response):
+                if self.should_retry(retry_settings, response):
                     retry_active = self.increment_counter(retry_settings)
                     if retry_active:
                         self.sleep(retry_settings, response=response)
-            except Exception as error:
-                return error
 
-    def can_retry(self, retry_settings, response):
+                        continue
+                break
+            except Exception as error:
+                raise error
+
+    def should_retry(self, retry_settings, response):
         """
-        Determines whether the request can be retried
+        Determines whether the request should be retried
         Checks if the request method is in allowed methods
         Checks if the response status code is in retryable status codes.
         """
@@ -90,10 +94,10 @@ class RetryMiddleware(BaseMiddleware):
         """
         Increment the retry counters on every valid retry
         """
-        retry_settings['total'] -= 1
-        self._retry_count += 1
         if self.retries_exhausted(retry_settings):
             return False
+        retry_settings['total'] -= 1
+        self._retry_count += 1
         return True
 
     def retries_exhausted(self, retry_settings):

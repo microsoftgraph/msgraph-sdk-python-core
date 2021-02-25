@@ -28,3 +28,21 @@ class RetryMiddleware(BaseMiddleware):
         self._allowed_methods = frozenset(['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
         self._respect_retry_after_header = True
         self._retry_count = 0
+
+    @classmethod
+    def disable_retries(cls):
+        """
+        Disable retry functionality by setting total number of retries to allow to zero
+        Retry total takes precedence over all other counts.
+        """
+        return cls(retry_configs={"retry_total": 0})
+
+    def configure_retry_settings(self):
+        """Configure retry settings into the form of a dict."""
+        return {
+            'total': self.total_retries,
+            'backoff': self.backoff_factor,
+            'max_backoff': self.backoff_max,
+            'methods': self._allowed_methods,
+            'timeout': self.timeout,
+        }

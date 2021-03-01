@@ -1,5 +1,10 @@
-from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS, RETRY_MIDDLEWARE_OPTIONS
+from msgraphcore.constants import (
+    AUTH_MIDDLEWARE_OPTIONS,
+    REDIRECT_MIDDLEWARE_OPTIONS,
+    RETRY_MIDDLEWARE_OPTIONS,
+)
 from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.options.redirect_middleware_options import RedirectMiddlewareOptions
 from msgraphcore.middleware.options.retry_middleware_options import RetryMiddlewareOptions
 
 
@@ -25,6 +30,9 @@ class MiddlewareControl:
             retry_configs = kwargs.get('retry_config')
             if retry_configs:
                 self.set(RETRY_MIDDLEWARE_OPTIONS, RetryMiddlewareOptions(retry_configs))
+            redirect_configs = kwargs.get("redirect_config")
+            if redirect_configs:
+                self.set(REDIRECT_MIDDLEWARE_OPTIONS, RedirectMiddlewareOptions(redirect_configs))
             return func(*args, **kwargs)
 
         return wrapper

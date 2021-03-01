@@ -1,6 +1,19 @@
 import pytest
+import responses
 
+from msgraphcore.graph_session import GraphSession
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
+
+
+class CustomTokenCredential:
+    def get_token(self, scopes):
+        return ['{token:https://graph.microsoft.com/}']
+
+
+@pytest.fixture
+def session():
+    sess = GraphSession(CustomTokenCredential(), ['user.read'])
+    return sess
 
 
 def test_no_config():
@@ -37,3 +50,39 @@ def test_custom_config():
     assert retry_handler.backoff_max == 200
     assert retry_handler.backoff_factor == 0.2
     assert retry_handler._retry_on_status_codes == {429, 502, 503, 504}
+
+
+def test_diable_retries():
+    """
+    Test that when disable retries is called, total retries are set to zero
+    """
+    retry_handler = RetryMiddleware.disable_retries()
+    assert retry_handler.total_retries == 0
+    retry_settings = retry_handler.configure_retry_settings()
+    assert not retry_handler.increment_counter(retry_settings)
+
+
+@responses.activate
+def test_should_retry_invalid_status_code(session):
+    """
+    Test that should_retry check fails if response status is not in whitelist
+    """
+    responses.add(responses.GET, 'https://graph.microsoft.com/v1.0/users', status=403)
+    resp = session.get('https://graph.microsoft.com/v1.0/users')
+
+    retry_handler = RetryMiddleware(retry_configs={})
+    retry_settings = retry_handler.configure_retry_settings()
+    assert not retry_handler.should_retry(retry_settings, resp)
+
+
+@responses.activate
+def test_should_retry_valid_status_code(session):
+    """
+    Test that should_retry check passes if response status is in whitelist
+    """
+    responses.add(responses.GET, 'https://graph.microsoft.com/v1.0/users', status=503)
+    resp = session.get('https://graph.microsoft.com/v1.0/users')
+
+    retry_handler = RetryMiddleware(retry_configs={})
+    retry_settings = retry_handler.configure_retry_settings()
+    assert retry_handler.should_retry(retry_settings, resp)

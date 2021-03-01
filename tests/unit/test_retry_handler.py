@@ -60,6 +60,7 @@ def test_diable_retries():
     assert retry_handler.total_retries == 0
     retry_settings = retry_handler.configure_retry_settings()
     assert not retry_handler.increment_counter(retry_settings)
+    assert retry_handler.retries_exhausted(retry_settings)
 
 
 @responses.activate
@@ -86,3 +87,29 @@ def test_should_retry_valid_status_code(session):
     retry_handler = RetryMiddleware(retry_configs={})
     retry_settings = retry_handler.configure_retry_settings()
     assert retry_handler.should_retry(retry_settings, resp)
+
+
+@responses.activate
+def test_method_retryable_valid_method(session):
+    """
+    Test that should_retry check passes if response status is in whitelist
+    """
+    responses.add(responses.GET, 'https://graph.microsoft.com/v1.0/users', status=503)
+    resp = session.get('https://graph.microsoft.com/v1.0/users')
+
+    retry_handler = RetryMiddleware(retry_configs={})
+    retry_settings = retry_handler.configure_retry_settings()
+    assert retry_handler.should_retry(retry_settings, resp)
+
+
+@responses.activate
+def test_method_retryable_invalid_method(session):
+    """
+    Test that should_retry check passes if response status is in whitelist
+    """
+    responses.add(responses.POST, 'https://graph.microsoft.com/v1.0/users', body='User', status=503)
+    resp = session.post('https://graph.microsoft.com/v1.0/users', data={"left": 1, "right": 3})
+
+    retry_handler = RetryMiddleware(retry_configs={})
+    retry_settings = retry_handler.configure_retry_settings()
+    assert not retry_handler._is_method_retryable(retry_settings, resp.request)

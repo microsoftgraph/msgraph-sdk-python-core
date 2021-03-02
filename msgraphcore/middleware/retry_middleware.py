@@ -18,6 +18,7 @@ class RetryMiddleware(BaseMiddleware):
     _DEFAULT_RETRY_CODES = [429, 503, 504]
 
     def __init__(self, retry_configs=None):
+        super().__init__()
         self.total_retries: int = retry_configs.pop('retry_total', 5)
         self.backoff_factor: float = retry_configs.pop('retry_backoff_factor', 0.1)
         self.backoff_max: int = retry_configs.pop('retry_backoff_max', self.MAXIMUM_BACKOFF)

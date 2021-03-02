@@ -1,8 +1,9 @@
+import datetime
 import sys
 import time
+from email.utils import parsedate_to_datetime
 
 from msgraphcore.middleware.middleware import BaseMiddleware
-from msgraphcore.middleware.utils import get_retry_after
 
 
 class RetryMiddleware(BaseMiddleware):
@@ -123,7 +124,7 @@ class RetryMiddleware(BaseMiddleware):
         """
         Sleep between retries based on the retry-after response header value.
         """
-        retry_after = get_retry_after(response)
+        retry_after = self._get_retry_after(response)
         if retry_after:
             time.sleep(retry_after)
             return True
@@ -139,3 +140,25 @@ class RetryMiddleware(BaseMiddleware):
         if backoff <= 0:
             return
         time.sleep(backoff)
+
+    def _get_retry_after(self, response):
+        """
+        Check if retry-after is specified in the response header and get the value
+        """
+        request = response.request
+        retry_after = request.headers.get("retry-after")
+        if retry_after:
+            return self._parse_retry_after(retry_after)
+        return None
+
+    def _parse_retry_after(self, retry_after):
+        """
+        Helper to parse Retry-After and get value in seconds.
+        """
+        try:
+            delay = int(retry_after)
+        except ValueError:
+            # Not an integer? Try HTTP date
+            retry_date = parsedate_to_datetime(retry_after)
+            delay = (retry_date - datetime.datetime.now(retry_date.tzinfo)).total_seconds()
+        return max(0, delay)

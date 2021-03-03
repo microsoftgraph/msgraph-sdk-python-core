@@ -40,11 +40,12 @@ def test_custom_config():
         "retry_total": 10,
         "retry_backoff_factor": 0.2,
         "retry_backoff_max": 200,
-        "timeout": 100,
+        "retry_time_limit": 100,
         "retry_on_status_codes": [502, 503],
     }
 
     retry_handler = RetryMiddleware(retry_configs=custom_configs)
+
     assert retry_handler.total_retries == 10
     assert retry_handler.timeout == 100
     assert retry_handler.backoff_max == 200
@@ -52,7 +53,7 @@ def test_custom_config():
     assert retry_handler._retry_on_status_codes == {429, 502, 503, 504}
 
 
-def test_diable_retries():
+def test_disable_retries():
     """
     Test that when disable retries is called, total retries are set to zero
     """

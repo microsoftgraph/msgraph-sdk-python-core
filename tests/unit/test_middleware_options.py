@@ -7,7 +7,7 @@ retry_settings = {
     'retry_total': 5,
     'retry_backoff_factor': 0.8,
     'retry_backoff_max': 100,
-    'timeout': 100,
+    'retry_time_limit': 100,
     'retry_on_status_codes': [502, 503],
 }
 
@@ -26,5 +26,5 @@ def test_retry_middleware_options():
     assert retry_settings["retry_total"] == retry_options.retry_total
     assert retry_settings["retry_backoff_factor"] == retry_options.retry_backoff_factor
     assert retry_settings["retry_backoff_max"] == retry_options.retry_backoff_max
-    assert retry_settings["timeout"] == retry_options.timeout
+    assert retry_settings["retry_time_limit"] == retry_options.retry_time_limit
     assert retry_settings["retry_on_status_codes"] == retry_options.retry_on_status_codes

@@ -156,3 +156,73 @@ def test_should_retry_invalid():
     settings = retry_handler.configure_retry_settings()
 
     assert not retry_handler.should_retry(settings, response)
+
+
+def test_retries_exhausted():
+    """
+    Test that the retries exhausted method works correctly when retries is greater than zero
+    """
+    retry_handler = RetryMiddleware(retry_configs={})
+    settings = retry_handler.configure_retry_settings()
+
+    assert not retry_handler.retries_exhausted(settings)
+
+
+def test_retries_exhausted_zero_total():
+    """
+    Test that the retries exhausted method works correctly when total retries are set to zero
+    """
+    retry_handler = RetryMiddleware(retry_configs={'retry_total': 0})
+    settings = retry_handler.configure_retry_settings()
+
+    assert retry_handler.retries_exhausted(settings)
+
+
+def test_increment_counter():
+    """
+    Test that retry counter is incremented on a valid retry
+    """
+    retry_handler = RetryMiddleware(retry_configs={})
+    settings = retry_handler.configure_retry_settings()
+
+    assert retry_handler.increment_counter(settings)
+    assert settings['total'] == retry_handler.DEFAULT_TOTAL_RETRIES - 1
+    assert retry_handler._retry_count == 1
+
+
+def test_increment_counter_invalid_retry():
+    """
+    Test that retry counter is not incremented when a retry is not valid
+    """
+    retry_handler = RetryMiddleware(retry_configs={'retry_total': 0})
+    settings = retry_handler.configure_retry_settings()
+
+    assert not retry_handler.increment_counter(settings)
+    assert settings['total'] == 0
+    assert retry_handler._retry_count == 0
+
+
+@responses.activate
+def test_get_retry_after():
+    """
+    Test the _get_retry_after method with an integer value for retry header.
+    """
+    responses.add(responses.GET, BASE_URL, headers={'Retry-After': "120"}, status=503)
+    response = requests.get(BASE_URL)
+
+    retry_handler = RetryMiddleware(retry_configs={})
+
+    assert retry_handler._get_retry_after(response) == 120
+
+
+@responses.activate
+def test_get_retry_after_no_header():
+    """
+    Test the _get_retry_after method with no Retry-After header.
+    """
+    responses.add(responses.GET, BASE_URL, status=503)
+    response = requests.get(BASE_URL)
+
+    retry_handler = RetryMiddleware(retry_configs={})
+
+    assert retry_handler._get_retry_after(response) is None

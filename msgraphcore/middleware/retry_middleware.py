@@ -166,8 +166,7 @@ class RetryMiddleware(BaseMiddleware):
         """
         Check if retry-after is specified in the response header and get the value
         """
-        request = response.request
-        retry_after = request.headers.get("Retry-After")
+        retry_after = response.headers.get("Retry-After")
         if retry_after:
             return self._parse_retry_after(retry_after)
         return None

@@ -4,6 +4,7 @@ import time
 from email.utils import parsedate_to_datetime
 
 from msgraphcore.middleware.middleware import BaseMiddleware
+from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class RetryMiddleware(BaseMiddleware):
@@ -41,13 +42,39 @@ class RetryMiddleware(BaseMiddleware):
         return cls(retry_configs={"retry_total": 0})
 
     def configure_retry_settings(self):
-        """Configure retry settings into the form of a dict."""
+        """
+        Check if request specific configs have been passed and override any session defaults
+        Then configure retry settings into the form of a dict.
+        """
+        retry_config_options = middleware_control.get('RETRY_MIDDLEWARE_OPTIONS')
+        if retry_config_options:
+            return {
+                'total':
+                retry_config_options.total_retries
+                if retry_config_options.total_retries is not None else self.total_retries,
+                'backoff':
+                retry_config_options.retry_backoff_factor
+                if retry_config_options.retry_backoff_factor is not None else self.backoff_factor,
+                'max_backoff':
+                retry_config_options.retry_backoff_max
+                if retry_config_options.retry_backoff_max is not None else self.backoff_max,
+                'timeout':
+                retry_config_options.timeout
+                if retry_config_options.timeout is not None else self.timeout,
+                'retry_codes':
+                set(retry_config_options.retry_on_status_codes)
+                | set(self._DEFAULT_RETRY_CODES) if retry_config_options.retry_on_status_codes
+                is not None else self._retry_on_status_codes,
+                'methods':
+                self._allowed_methods,
+            }
         return {
             'total': self.total_retries,
             'backoff': self.backoff_factor,
             'max_backoff': self.backoff_max,
-            'methods': self._allowed_methods,
             'timeout': self.timeout,
+            'retry_codes': self._retry_on_status_codes,
+            'methods': self._allowed_methods,
         }
 
     def send(self, request, **kwargs):
@@ -60,7 +87,7 @@ class RetryMiddleware(BaseMiddleware):
 
         while retry_active:
             try:
-                request.headers.update({'retry-attempt': '{}'.format(self._retry_count)})
+                request.headers.update({'Retry-Attempt': '{}'.format(self._retry_count)})
                 response = super().send(request, **kwargs)
                 # Check if the request needs to be retried based on the response
                 if self.should_retry(retry_settings, response):
@@ -81,7 +108,7 @@ class RetryMiddleware(BaseMiddleware):
         """
         if not self._is_method_retryable(retry_settings, response.request):
             return False
-        return retry_settings['total'] and response.status_code in self._retry_on_status_codes
+        return retry_settings['total'] and response.status_code in retry_settings['retry_codes']
 
     def _is_method_retryable(self, retry_settings, request):
         """
@@ -146,7 +173,7 @@ class RetryMiddleware(BaseMiddleware):
         Check if retry-after is specified in the response header and get the value
         """
         request = response.request
-        retry_after = request.headers.get("retry-after")
+        retry_after = request.headers.get("Retry-After")
         if retry_after:
             return self._parse_retry_after(retry_after)
         return None

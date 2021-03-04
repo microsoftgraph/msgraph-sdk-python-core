@@ -1,3 +1,6 @@
+from email.utils import formatdate
+from time import time
+
 import pytest
 import requests
 import responses
@@ -5,17 +8,6 @@ import responses
 from msgraphcore.constants import BASE_URL
 from msgraphcore.graph_session import GraphSession
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
-
-
-class CustomTokenCredential:
-    def get_token(self, scopes):
-        return ['{token:https://graph.microsoft.com/}']
-
-
-@pytest.fixture
-def session():
-    session_object = GraphSession(CustomTokenCredential(), ['user.read'])
-    return session_object
 
 
 def test_no_config():
@@ -187,7 +179,6 @@ def test_increment_counter():
 
     assert retry_handler.increment_counter(settings)
     assert settings['total'] == retry_handler.DEFAULT_TOTAL_RETRIES - 1
-    assert retry_handler._retry_count == 1
 
 
 def test_increment_counter_invalid_retry():
@@ -199,7 +190,6 @@ def test_increment_counter_invalid_retry():
 
     assert not retry_handler.increment_counter(settings)
     assert settings['total'] == 0
-    assert retry_handler._retry_count == 0
 
 
 @responses.activate
@@ -226,3 +216,18 @@ def test_get_retry_after_no_header():
     retry_handler = RetryMiddleware(retry_configs={})
 
     assert retry_handler._get_retry_after(response) is None
+
+
+@responses.activate
+def test_get_retry_after_http_date():
+    """
+    Test the _get_retry_after method with a http date as Retry-After value.
+    """
+    timevalue = time() + 120
+    http_date = formatdate(timeval=timevalue, localtime=False, usegmt=True)
+    responses.add(responses.GET, BASE_URL, headers={'Retry-After': f'{http_date}'}, status=503)
+    response = requests.get(BASE_URL)
+
+    retry_handler = RetryMiddleware(retry_configs={})
+
+    assert retry_handler._get_retry_after(response) < 120

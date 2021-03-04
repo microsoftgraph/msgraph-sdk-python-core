@@ -1,4 +1,5 @@
 import datetime
+import random
 import sys
 import time
 from email.utils import parsedate_to_datetime
@@ -15,7 +16,7 @@ class RetryMiddleware(BaseMiddleware):
 
     DEFAULT_TOTAL_RETRIES = 3
     MAX_TOTAL_RETRIES = 10
-    DEFAULT_BACKOFF_FACTOR = 0.1
+    DEFAULT_BACKOFF_FACTOR = 0.5
     DEFAULT_RETRY_TIME_LIMIT = 180
     MAXIMUM_BACKOFF = 120
     _DEFAULT_RETRY_CODES = {429, 503, 504}
@@ -34,7 +35,6 @@ class RetryMiddleware(BaseMiddleware):
         self._retry_on_status_codes = set(status_codes) | self._DEFAULT_RETRY_CODES
         self._allowed_methods = frozenset(['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
         self._respect_retry_after_header = True
-        self._retry_count = 0
 
     @classmethod
     def disable_retries(cls):
@@ -88,20 +88,23 @@ class RetryMiddleware(BaseMiddleware):
         retry_active = True
         absolute_time_limit = retry_settings['timeout']
         response = None
+        retry_count = 0
 
         while retry_active:
             try:
                 start_time = time.time()
-                request.headers.update({'Retry-Attempt': '{}'.format(self._retry_count)})
+                request.headers.update({'Retry-Attempt': '{}'.format(retry_count)})
                 response = super().send(request, **kwargs)
                 # Check if the request needs to be retried based on the response
                 if self.should_retry(retry_settings, response):
                     retry_active = self.increment_counter(retry_settings)
-                    sleep_time = self.get_sleep_time(retry_settings, response)
+                    # Get the delay time between retries
+                    sleep_time = self.get_sleep_time(retry_settings, retry_count, response)
                     if retry_active and sleep_time < absolute_time_limit:
                         time.sleep(sleep_time)
                         end_time = time.time()
                         absolute_time_limit -= (end_time - start_time)
+                        retry_count += 1
                         continue
                 break
             except Exception as error:
@@ -134,16 +137,15 @@ class RetryMiddleware(BaseMiddleware):
         if self.retries_exhausted(retry_settings):
             return False
         retry_settings['total'] -= 1
-        self._retry_count += 1
         return True
 
     def retries_exhausted(self, retry_settings):
-        retry_counts = retry_settings['total']
-        if retry_counts <= 0:
+        retries_remaining = retry_settings['total']
+        if retries_remaining <= 0:
             return True
         return False
 
-    def get_sleep_time(self, retry_settings, response=None):
+    def get_sleep_time(self, retry_settings, retry_count, response=None):
         """
         Get the time in seconds to sleep between retry attempts.
         Respects a retry-after header in the response if provided
@@ -152,14 +154,16 @@ class RetryMiddleware(BaseMiddleware):
         retry_after = self._get_retry_after(response)
         if retry_after:
             return retry_after
-        return self._get_sleep_time_exp_backoff(retry_settings)
+        return self._get_sleep_time_exp_backoff(retry_settings, retry_count)
 
-    def _get_sleep_time_exp_backoff(self, retry_settings):
+    def _get_sleep_time_exp_backoff(self, retry_settings, retry_count):
         """
         Get time to sleep based on exponential backoff value.
         """
-        exp_backoff_value = retry_settings['backoff'] * (2**(self._retry_count - 1))
-        backoff = min(retry_settings['max_backoff'], exp_backoff_value)
+        exp_backoff_value = retry_settings['backoff'] * +(2**(retry_count - 1))
+        backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000)
+
+        backoff = min(retry_settings['max_backoff'], backoff_value)
         return backoff
 
     def _get_retry_after(self, response):

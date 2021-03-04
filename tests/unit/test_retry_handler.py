@@ -49,7 +49,7 @@ def test_custom_config():
 
 def test_disable_retries():
     """
-    Test that when disable retries is called, total retries are set to zero
+    Test that when disable_retries class method is called, total retries are set to zero
     """
     retry_handler = RetryMiddleware.disable_retries()
     assert retry_handler.total_retries == 0
@@ -60,7 +60,7 @@ def test_disable_retries():
 
 def test_configure_settings_no_session_configs():
     """
-    Test that settings are picked from the defaults if no configs are passed to the GraphSession
+    Test that settings are picked from the defaults if no configs are passed to the GraphSession.
     """
     retry_handler = RetryMiddleware(retry_configs={})
     settings = retry_handler.configure_retry_settings()
@@ -75,7 +75,7 @@ def test_configure_settings_no_session_configs():
 
 def test_configure_settings_with_session_configs():
     """
-    Test that settings are picked from configs passed to the GraphSession if provided
+    Test that settings are picked from configs passed to the GraphSession if provided.
     """
     retry_handler = RetryMiddleware(
         retry_configs={
@@ -97,7 +97,7 @@ def test_configure_settings_with_session_configs():
 @responses.activate
 def test_method_retryable_with_valid_method():
     """
-    Test the is_method_retryable helper method with a valid HTTP response code
+    Test if method is retryable with a retryable request method.
     """
     responses.add(responses.GET, BASE_URL, status=502)
     response = requests.get(BASE_URL)
@@ -111,7 +111,7 @@ def test_method_retryable_with_valid_method():
 @responses.activate
 def test_method_retryable_with_invalid_method():
     """
-    Test the is_method_retryable helper method with an invalid HTTP response code
+    Test if method is retryable with a non retryable request method
     """
     responses.add(responses.POST, BASE_URL, body="Test", status=503)
     response = requests.post(BASE_URL, data={"left": 1, "right": 3})
@@ -152,7 +152,7 @@ def test_should_retry_invalid():
 
 def test_retries_exhausted():
     """
-    Test that the retries exhausted method works correctly when retries is greater than zero
+    Test that the retries exhausted method works correctly when total_retries is greater than zero
     """
     retry_handler = RetryMiddleware(retry_configs={})
     settings = retry_handler.configure_retry_settings()

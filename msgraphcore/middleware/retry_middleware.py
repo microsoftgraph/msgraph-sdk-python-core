@@ -39,8 +39,8 @@ class RetryMiddleware(BaseMiddleware):
     @classmethod
     def disable_retries(cls):
         """
-        Disable retry functionality by setting total number of retries to allow to zero
-        Retry total takes precedence over all other counts.
+        Disable retries by setting retry_total to zero.
+        retry_total takes precedence over all other counts.
         """
         return cls(retry_configs={"retry_total": 0})
 

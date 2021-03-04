@@ -3,7 +3,7 @@ from unittest import TestCase
 from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 from msgraphcore.middleware.options.retry_middleware_options import RetryMiddlewareOptions
 
-retry_settings = {
+retry_config = {
     'retry_total': 5,
     'retry_backoff_factor': 0.8,
     'retry_backoff_max': 100,
@@ -21,10 +21,10 @@ class TestAuthMiddlewareOptions(TestCase):
 
 def test_retry_middleware_options():
 
-    retry_options = RetryMiddlewareOptions(retry_settings)
+    retry_options = RetryMiddlewareOptions(retry_config)
 
-    assert retry_settings["retry_total"] == retry_options.retry_total
-    assert retry_settings["retry_backoff_factor"] == retry_options.retry_backoff_factor
-    assert retry_settings["retry_backoff_max"] == retry_options.retry_backoff_max
-    assert retry_settings["retry_time_limit"] == retry_options.retry_time_limit
-    assert retry_settings["retry_on_status_codes"] == retry_options.retry_on_status_codes
+    assert retry_config["retry_total"] == retry_options.retry_total
+    assert retry_config["retry_backoff_factor"] == retry_options.retry_backoff_factor
+    assert retry_config["retry_backoff_max"] == retry_options.retry_backoff_max
+    assert retry_config["retry_time_limit"] == retry_options.retry_time_limit
+    assert retry_config["retry_on_status_codes"] == retry_options.retry_on_status_codes

@@ -15,8 +15,8 @@ class MiddlewareControl:
 
     def get_middleware_options(self, func):
         def wrapper(*args, **kwargs):
-            # Get middleware options from **kwargs
             self._reset_middleware_options()
+            # Get middleware options from **kwargs
             scopes = kwargs.pop('scopes', None)
             if scopes:
                 # Set middleware options, for use by middleware in the middleware pipeline

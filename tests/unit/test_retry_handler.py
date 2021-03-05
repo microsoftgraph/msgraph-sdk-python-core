@@ -20,7 +20,7 @@ def test_no_config():
     assert retry_handler.backoff_max == retry_handler.MAXIMUM_BACKOFF
     assert retry_handler.backoff_factor == retry_handler.DEFAULT_BACKOFF_FACTOR
     assert retry_handler._allowed_methods == frozenset(
-        ['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE']
+        ['HEAD', 'GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
     )
     assert retry_handler._respect_retry_after_header
     assert retry_handler._retry_on_status_codes == retry_handler._DEFAULT_RETRY_CODES
@@ -73,20 +73,6 @@ def test_method_retryable_with_valid_method():
 
 
 @responses.activate
-def test_method_retryable_with_invalid_method():
-    """
-    Test if method is retryable with a non retryable request method
-    """
-    responses.add(responses.POST, BASE_URL, body="Test", status=503)
-    response = requests.post(BASE_URL, data={"left": 1, "right": 3})
-
-    retry_handler = RetryMiddleware(retry_configs={})
-    settings = retry_handler.get_retry_options()
-
-    assert not retry_handler._is_method_retryable(settings, response.request)
-
-
-@responses.activate
 def test_should_retry_valid():
     """
     Test the should_retry method with a valid HTTP method and response code
@@ -112,6 +98,34 @@ def test_should_retry_invalid():
     settings = retry_handler.get_retry_options()
 
     assert not retry_handler.should_retry(settings, response)
+
+
+@responses.activate
+def test_is_request_payload_buffered_valid():
+    """
+    Test for _is_request_payload_buffered helper method.
+    Should return true request payload is buffered/rewindable.
+    """
+    responses.add(responses.GET, BASE_URL, status=429)
+    response = requests.get(BASE_URL)
+
+    retry_handler = RetryMiddleware(retry_configs={})
+
+    assert retry_handler._is_request_payload_buffered(response)
+
+
+@responses.activate
+def test_is_request_payload_buffered_invalid():
+    """
+    Test for _is_request_payload_buffered helper method.
+    Should return false if request payload is forward streamed.
+    """
+    responses.add(responses.POST, BASE_URL, status=429)
+    response = requests.post(BASE_URL, headers={'Content-Type': "application/octet-stream"})
+
+    retry_handler = RetryMiddleware(retry_configs={})
+
+    assert not retry_handler._is_request_payload_buffered(response)
 
 
 def test_retries_exhausted():

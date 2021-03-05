@@ -23,7 +23,9 @@ class RetryMiddleware(BaseMiddleware):
 
     def __init__(self, retry_configs={}):
         super().__init__()
-        self.total_retries: int = retry_configs.pop('retry_total', self.DEFAULT_TOTAL_RETRIES)
+        self.total_retries: int = min(
+            retry_configs.pop('retry_total', self.DEFAULT_TOTAL_RETRIES), self.MAX_TOTAL_RETRIES
+        )
         self.backoff_factor: float = retry_configs.pop(
             'retry_backoff_factor', self.DEFAULT_BACKOFF_FACTOR
         )
@@ -33,7 +35,9 @@ class RetryMiddleware(BaseMiddleware):
         status_codes: [int] = retry_configs.pop('retry_on_status_codes', [])
 
         self._retry_on_status_codes = set(status_codes) | self._DEFAULT_RETRY_CODES
-        self._allowed_methods = frozenset(['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'])
+        self._allowed_methods = frozenset(
+            ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+        )
         self._respect_retry_after_header = True
 
     @classmethod
@@ -53,7 +57,7 @@ class RetryMiddleware(BaseMiddleware):
         if retry_config_options:
             return {
                 'total':
-                retry_config_options.retry_total
+                min(retry_config_options.retry_total, self.MAX_TOTAL_RETRIES)
                 if retry_config_options.retry_total is not None else self.total_retries,
                 'backoff':
                 retry_config_options.retry_backoff_factor
@@ -119,6 +123,8 @@ class RetryMiddleware(BaseMiddleware):
         """
         if not self._is_method_retryable(retry_options, response.request):
             return False
+        if not self._is_request_payload_buffered(response):
+            return False
         return retry_options['total'] and response.status_code in retry_options['retry_codes']
 
     def _is_method_retryable(self, retry_options, request):
@@ -127,6 +133,18 @@ class RetryMiddleware(BaseMiddleware):
         whether the HTTP method is in the set of allowed methods
         """
         if request.method.upper() not in retry_options['methods']:
+            return False
+        return True
+
+    def _is_request_payload_buffered(self, response):
+        """
+        Checks if the request payload is buffered/rewindable.
+        Payloads with forward only streams will return false and have the responses
+        returned without any retry attempt.
+        """
+        if response.request.method.upper() in frozenset(['HEAD', 'GET', 'DELETE', 'OPTIONS']):
+            return True
+        if response.request.headers['Content-Type'] == "application/octet-stream":
             return False
         return True
 

@@ -40,6 +40,22 @@ def get_sample():
     pprint(result.json())
 
 
+def put_sample_with_custom_retry_config():
+    body = {"department": "Sales & Marketing"}
+    retry_config = {
+        "retry_total": 5,
+        "retry_backoff_factor": 0.1,
+        "retry_backoff_max": 200,
+        "retry_time_limit": 100,
+        "retry_on_status_codes": [502, 503],
+    }
+    result = graph_session.put(
+        '/me', scopes=['user.readwrite'], body=body, retry_config=retry_config
+    )
+    pprint(result.json())
+
+
 if __name__ == '__main__':
     post_sample()
     get_sample()
+    put_sample_with_custom_retry_config()

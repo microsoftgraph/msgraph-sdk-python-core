@@ -22,14 +22,6 @@ class GraphSessionTest(TestCase):
     def test_has_graph_url_as_base_url(self):
         self.assertNotEqual(self.requests._base_url, BASE_URL)
 
-    def test_has_sdk_version_header(self):
-        self.assertTrue('sdkVersion' in self.requests.headers)
-
-    def test_updated_sdk_version(self):
-        self.assertTrue(
-            self.requests.headers.get('sdkVersion').startswith('graph-python-' + SDK_VERSION)
-        )
-
     def test_initialized_with_middlewares(self):
         graph_session = GraphSession(self.credential)
         mocked_middleware = graph_session.get_adapter('https://')

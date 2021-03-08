@@ -9,6 +9,7 @@ from msgraphcore.middleware.authorization import AuthorizationHandler
 from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 from msgraphcore.middleware.options.middleware_control import middleware_control
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
+from msgraphcore.middleware.telemetry import TelemetryMiddleware
 
 
 class GraphSession(Session):
@@ -25,15 +26,16 @@ class GraphSession(Session):
         api_version: str = 'v1.0'
     ):
         super().__init__()
-        self._append_sdk_version()
         self._base_url = BASE_URL + '/' + api_version
 
         auth_handler = AuthorizationHandler(credential, scopes)
         retry_handler = RetryMiddleware(retry_config)
+        telemetry_handler = TelemetryMiddleware()
 
         # The authorization handler should be the first middleware in the pipeline.
         middleware.insert(0, auth_handler)
         middleware.insert(1, retry_handler)
+        middleware.insert(2, telemetry_handler)
         self._register(middleware)
 
     @middleware_control.get_middleware_options
@@ -113,16 +115,3 @@ class GraphSession(Session):
                 middleware_pipeline.add_middleware(ware)
 
             self.mount('https://', middleware_pipeline)
-
-    def _append_sdk_version(self) -> None:
-        """Updates sdkVersion in headers with comma-separated new values
-        """
-        if 'sdkVersion' in self.headers:
-            self.headers.update(
-                {
-                    'sdkVersion':
-                    'graph-python-' + SDK_VERSION + ', ' + self.headers.get('sdkVersion')
-                }
-            )
-        else:
-            self.headers.update({'sdkVersion': 'graph-python-' + SDK_VERSION})

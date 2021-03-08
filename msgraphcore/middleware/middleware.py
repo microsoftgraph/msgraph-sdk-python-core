@@ -1,34 +1,38 @@
 import ssl
 
+from requests import Response
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
 
 
 class MiddlewarePipeline(HTTPAdapter):
     """MiddlewarePipeline, entry point of middleware
-
     The pipeline is implemented as a linked-list, read more about
     it here https://buffered.dev/middleware-python-requests/
     """
     def __init__(self):
         super().__init__()
-        self._middleware = None
+        self._current_middleware = None
+        self.middlewares = []
         self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1_2)
 
     def add_middleware(self, middleware):
         if self._middleware_present():
-            self._middleware.next = middleware
+            self._current_middleware.next = middleware
+            self._current_middleware = middleware
+            self.middlewares.append(middleware)
         else:
-            self._middleware = middleware
+            self._current_middleware = middleware
+            self.middlewares.append(middleware)
 
     def send(self, request, **kwargs):
         if self._middleware_present():
-            return self._middleware.send(request, **kwargs)
+            return self.middlewares[0].send(request, **kwargs)
         # No middleware in pipeline, call superclass' send
         return super().send(request, **kwargs)
 
     def _middleware_present(self):
-        return self._middleware
+        return self._current_middleware
 
 
 class BaseMiddleware(HTTPAdapter):

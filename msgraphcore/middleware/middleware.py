@@ -13,21 +13,20 @@ class MiddlewarePipeline(HTTPAdapter):
     def __init__(self):
         super().__init__()
         self._current_middleware = None
-        self.middlewares = []
+        self._first_middleware = None
         self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1_2)
 
     def add_middleware(self, middleware):
         if self._middleware_present():
             self._current_middleware.next = middleware
             self._current_middleware = middleware
-            self.middlewares.append(middleware)
         else:
-            self._current_middleware = middleware
-            self.middlewares.append(middleware)
+            self._first_middleware = middleware
+            self._current_middleware = self._first_middleware
 
     def send(self, request, **kwargs):
         if self._middleware_present():
-            return self.middlewares[0].send(request, **kwargs)
+            return self._first_middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send
         return super().send(request, **kwargs)
 

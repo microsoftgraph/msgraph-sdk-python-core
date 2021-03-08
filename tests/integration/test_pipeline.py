@@ -3,6 +3,8 @@ from unittest import TestCase
 
 from msgraphcore.graph_session import GraphSession
 
+URL = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
+
 
 class MiddlewarePipelineTest(TestCase):
     def setUp(self):
@@ -11,11 +13,11 @@ class MiddlewarePipelineTest(TestCase):
         )
 
     def test_middleware_pipeline(self):
-        url = 'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
+
         scopes = ['user.read']
         credential = _CustomTokenCredential()
         graph_session = GraphSession(credential, scopes)
-        result = graph_session.get(url)
+        result = graph_session.get(URL)
 
         self.assertEqual(result.status_code, 200)
 

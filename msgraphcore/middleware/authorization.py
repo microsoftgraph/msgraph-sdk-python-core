@@ -1,8 +1,8 @@
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
-
-from .abc_token_credential import TokenCredential
-from .middleware import BaseMiddleware
-from .options.middleware_control import middleware_control
+from msgraphcore.middleware.abc_token_credential import TokenCredential
+from msgraphcore.middleware.middleware import BaseMiddleware
+from msgraphcore.middleware.options.middleware_control import middleware_control
+from msgraphcore.middleware.options.telemetry_middleware_options import telemetry_options
 
 
 class AuthorizationHandler(BaseMiddleware):
@@ -14,6 +14,7 @@ class AuthorizationHandler(BaseMiddleware):
 
     def send(self, request, **kwargs):
         request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
+        telemetry_options.set_feature_usage(telemetry_options.auth_handler_enabled)
         response = super().send(request, **kwargs)
 
         # Token might have expired just before transmission, retry the request one more time
@@ -31,5 +32,4 @@ class AuthorizationHandler(BaseMiddleware):
         # If there is, get the scopes from the options
         if auth_options_present:
             return auth_options_present.scopes
-        else:
-            return self.scopes
+        return self.scopes

@@ -6,6 +6,7 @@ from email.utils import parsedate_to_datetime
 
 from msgraphcore.middleware.middleware import BaseMiddleware
 from msgraphcore.middleware.options.middleware_control import middleware_control
+from msgraphcore.middleware.options.telemetry_middleware_options import telemetry_options
 
 
 class RetryMiddleware(BaseMiddleware):
@@ -94,11 +95,13 @@ class RetryMiddleware(BaseMiddleware):
         response = None
         retry_count = 0
 
+        req = request
         while retry_active:
             try:
                 start_time = time.time()
-                request.headers.update({'Retry-Attempt': '{}'.format(retry_count)})
-                response = super().send(request, **kwargs)
+                req.headers.update({'Retry-Attempt': '{}'.format(retry_count)})
+                telemetry_options.set_feature_usage(telemetry_options.retry_handler_enabled)
+                response = super().send(req, **kwargs)
                 # Check if the request needs to be retried based on the response
                 if self.should_retry(retry_options, response):
                     retry_active = self.increment_counter(retry_options)

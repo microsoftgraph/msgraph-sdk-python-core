@@ -3,6 +3,7 @@ import uuid
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware.middleware import BaseMiddleware
+from msgraphcore.middleware.options.telemetry_middleware_options import telemetry_options
 
 
 class TelemetryMiddleware(BaseMiddleware):
@@ -25,16 +26,28 @@ class TelemetryMiddleware(BaseMiddleware):
     def _append_sdk_version_header(self, request) -> None:
         """Add SdkVersion request header to each request to identify the language and
         version of the client SDK library(s).
+        Also adds the featureUsage value.
         """
+        print(telemetry_options.get_feature_usage())
         if 'sdkVersion' in request.headers:
+            sdk_version = request.headers.get('sdkVersion')
+            if not sdk_version == f'graph-python-core/{SDK_VERSION} '\
+                f'(featureUsage={telemetry_options.get_feature_usage()})':
+                request.headers.update(
+                    {
+                        'sdkVersion':
+                        f'graph-python-core/{SDK_VERSION},{ sdk_version} '\
+                        f'(featureUsage={telemetry_options.get_feature_usage()})'
+                    }
+                )
+        else:
             request.headers.update(
                 {
                     'sdkVersion':
-                    'graph-python-core/' + SDK_VERSION + ', ' + request.headers.get('sdkVersion')
+                    f'graph-python-core/{SDK_VERSION} '\
+                    f'(featureUsage={telemetry_options.get_feature_usage()})'
                 }
             )
-        else:
-            request.headers.update({'sdkVersion': 'graph-python-core/' + SDK_VERSION})
 
     def _add_host_os_header(self, request) -> None:
         """

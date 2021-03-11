@@ -1,15 +1,26 @@
 """
 Graph Session
 """
+import logging
+import sys
+
 from requests import Session
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.authorization import AuthorizationHandler
+from msgraphcore.middleware.logger import HttpFormatter, log_roundtrip
 from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 from msgraphcore.middleware.options.middleware_control import middleware_control
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
 from msgraphcore.middleware.telemetry import TelemetryMiddleware
+
+formatter = HttpFormatter('{asctime} {levelname} {name} {message}', style='{')
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(formatter)
+root = logging.getLogger('httplogger')
+root.addHandler(handler)
+root.setLevel(logging.DEBUG)
 
 
 class GraphSession(Session):
@@ -37,6 +48,7 @@ class GraphSession(Session):
         middleware.insert(1, retry_handler)
         middleware.insert(2, telemetry_handler)
         self._register(middleware)
+        self.hooks['response'].append(log_roundtrip)
 
     @middleware_control.get_middleware_options
     def get(self, url: str, **kwargs):

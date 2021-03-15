@@ -3,7 +3,7 @@ import sys
 import textwrap
 
 # pylint: disable=no-member
-root = logging.getLogger('httplogger')
+root = logging.getLogger('graph_logger')
 
 
 def log_roundtrip(response, *args, **kwargs):
@@ -28,7 +28,7 @@ class HttpFormatter(logging.Formatter):
         Formats the HTTP logs to the provided structure.
         """
         result = super().formatMessage(record)
-        if record.name == 'httplogger':
+        if record.name == 'graph_logger':
             result += textwrap.dedent(
                 '''
                 ---------------- request ----------------

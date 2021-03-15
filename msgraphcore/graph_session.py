@@ -2,6 +2,7 @@
 Graph Session
 """
 import logging
+import os
 import sys
 
 from requests import Session
@@ -14,13 +15,6 @@ from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 from msgraphcore.middleware.options.middleware_control import middleware_control
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
 from msgraphcore.middleware.telemetry import TelemetryMiddleware
-
-formatter = HttpFormatter('{asctime} {levelname} {name} {message}', style='{')
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(formatter)
-root = logging.getLogger('httplogger')
-root.addHandler(handler)
-root.setLevel(logging.DEBUG)
 
 
 class GraphSession(Session):
@@ -48,7 +42,21 @@ class GraphSession(Session):
         middleware.insert(1, retry_handler)
         middleware.insert(2, telemetry_handler)
         self._register(middleware)
-        self.hooks['response'].append(log_roundtrip)
+
+        if os.getenv("ENABLE_LOGGING", False):
+            formatter = HttpFormatter('{asctime} {levelname} {name} {message}', style='{')
+            root = logging.getLogger('graph_logger')
+            if os.getenv("LOG_TO_FILE", True):
+                file_handler = logging.FileHandler('graphsession.log')
+                file_handler.setFormatter(formatter)
+                root.addHandler(file_handler)
+            if os.getenv("LOG_TO_CONSOLE", True):
+                stream_handler = logging.StreamHandler(sys.stdout)
+                stream_handler.setFormatter(formatter)
+                root.addHandler(stream_handler)
+
+            root.setLevel(logging.DEBUG)
+            self.hooks['response'].append(log_roundtrip)
 
     @middleware_control.get_middleware_options
     def get(self, url: str, **kwargs):

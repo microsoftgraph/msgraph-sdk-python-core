@@ -14,7 +14,6 @@ class TelemetryMiddleware(BaseMiddleware):
         self._append_sdk_version_header(request)
         self._add_host_os_header(request)
         self._add_runtime_environment_header(request)
-
         response = super().send(request, **kwargs)
         return response
 
@@ -28,7 +27,6 @@ class TelemetryMiddleware(BaseMiddleware):
         version of the client SDK library(s).
         Also adds the featureUsage value.
         """
-        print(telemetry_options.get_feature_usage())
         if 'sdkVersion' in request.headers:
             sdk_version = request.headers.get('sdkVersion')
             if not sdk_version == f'graph-python-core/{SDK_VERSION} '\

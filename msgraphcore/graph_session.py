@@ -1,6 +1,8 @@
 """
 Graph Session
 """
+from enum import Enum
+
 from requests import Session
 
 from msgraphcore.constants import BASE_URL, SDK_VERSION
@@ -9,6 +11,11 @@ from msgraphcore.middleware.authorization import AuthorizationHandler
 from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 from msgraphcore.middleware.options.middleware_control import middleware_control
 from msgraphcore.middleware.retry_middleware import RetryMiddleware
+
+
+class APIVersion(str, Enum):
+    beta = 'beta'
+    v1 = 'v1.0'
 
 
 class GraphSession(Session):
@@ -22,7 +29,7 @@ class GraphSession(Session):
         scopes: [str] = ['.default'],
         retry_config: dict = {},
         middleware: list = [],
-        api_version: str = 'v1.0'
+        api_version: APIVersion = APIVersion.v1,
     ):
         super().__init__()
         self._append_sdk_version()

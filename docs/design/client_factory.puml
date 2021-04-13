@@ -23,7 +23,8 @@ class Session {}
 class GraphClient {
   -session: Session
 
-  +__init__(session: Session, credential: TokenCredential)
+  +__init__(session: Session, credential: TokenCredential,
+   version: ApiVersion, cloud: NationalClouds)
   +get()
   +post()
   +put()

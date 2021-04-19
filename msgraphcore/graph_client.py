@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from requests import Session
 
@@ -10,15 +10,12 @@ from msgraphcore.middleware.options.middleware_control import middleware_control
 
 class GraphClient:
     """Constructs a custom HTTPClient to be used for requests against Microsoft Graph"""
-    def __init__(
-        self, credential: Optional[TokenCredential], session: Optional[Session],
-        middleware: Optional[[BaseMiddleware]], **kwargs
-    ):
+    def __init__(self, **kwargs):
         """
         Class constructor that accepts a session object and kwargs to
         be passed to the HTTPClientFactory
         """
-        self.graph_session = get_graph_session(credential, session, middleware, **kwargs)
+        self.graph_session = get_graph_session(**kwargs)
 
     @middleware_control.get_middleware_options
     def get(self, url: str, **kwargs):
@@ -83,12 +80,13 @@ class GraphClient:
 _INSTANCE = None
 
 
-def get_graph_session(
-    credential: Optional[TokenCredential], session: Optional[Session],
-    middleware: Optional[[BaseMiddleware]], **kwargs
-):
+def get_graph_session(**kwargs):
     """Method to always return a single instance of a HTTP Client"""
+
     global _INSTANCE
+
+    credential = kwargs.get('credential')
+    middleware = kwargs.get('middleware')
 
     if credential and middleware:
         raise Exception("Invalid parameters! Both TokenCredential and middleware cannot be passed")
@@ -96,9 +94,7 @@ def get_graph_session(
         raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
     if _INSTANCE is None:
         if credential:
-            _INSTANCE = HTTPClientFactory(session,
-                                          **kwargs).create_with_default_middleware(credential)
+            _INSTANCE = HTTPClientFactory(**kwargs).create_with_default_middleware(credential)
         elif middleware:
-            _INSTANCE = HTTPClientFactory(session,
-                                          **kwargs).create_with_custom_middleware(middleware)
+            _INSTANCE = HTTPClientFactory(**kwargs).create_with_custom_middleware(middleware)
     return _INSTANCE

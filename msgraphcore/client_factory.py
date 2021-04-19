@@ -15,20 +15,17 @@ class HTTPClientFactory:
     Constructs HTTP Client(session) instances configured with either custom or default
     pipeline of middleware.
     """
-    def __init__(self, session: Optional[Session], **kwargs):
+    def __init__(self, **kwargs):
         """Class constructor that accepts a user provided session object and kwargs
         to configure the request handling behaviour of the client"""
-        self.api_version = kwargs.get("api_version", APIVersion.v1)
+        self.api_version = kwargs.get('api_version', APIVersion.v1)
         self.endpoint = kwargs.get('cloud', NationalClouds.Global)
         self.timeout = kwargs.get('timeout', (CONNECTION_TIMEOUT, REQUEST_TIMEOUT))
-        self.base_url = self._get_base_url()
-        if session:
-            self.session = session
-        else:
-            self.session = Session()
-            self._set_default_timeout()
+        self.session = kwargs.get('session', Session())
 
-    # should this be a class method
+        self._get_base_url()
+        self._set_default_timeout()
+
     def create_with_default_middleware(self, credential: TokenCredential, **kwargs) -> Session:
         """Applies the default middleware chain to the HTTP Client"""
         middleware = [
@@ -46,7 +43,8 @@ class HTTPClientFactory:
 
     def _get_base_url(self):
         """Helper method to get the base url"""
-        return self.endpoint + '/' + self.api_version
+        base_url = self.endpoint + '/' + self.api_version
+        self.session.base_url = base_url
 
     def _set_default_timeout(self):
         """Helper method to set a default timeout for the session

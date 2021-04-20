@@ -12,7 +12,7 @@ class TestAuthorizationHandler(unittest.TestCase):
         default_scopes = ['.default']
 
         middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(auth_option))
-        auth_handler = AuthorizationHandler(None, default_scopes)
+        auth_handler = AuthorizationHandler(None, scopes=default_scopes)
 
         auth_handler_scopes = auth_handler.get_scopes()
         self.assertEqual(auth_option, auth_handler_scopes)
@@ -22,7 +22,7 @@ class TestAuthorizationHandler(unittest.TestCase):
         default_scopes = ['.default']
 
         middleware_control.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(auth_option))
-        auth_handler = AuthorizationHandler(None, default_scopes)
+        auth_handler = AuthorizationHandler(None, scopes=default_scopes)
         auth_handler.get_scopes()
 
         self.assertEqual(auth_handler.scopes, default_scopes)

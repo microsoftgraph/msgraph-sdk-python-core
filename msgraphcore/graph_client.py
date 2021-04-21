@@ -91,11 +91,11 @@ class GraphClient:
         middleware = kwargs.get('middleware')
 
         if credential and middleware:
-            return Exception(
+            raise ValueError(
                 "Invalid parameters! Both TokenCredential and middleware cannot be passed"
             )
         if not credential and not middleware:
-            return ValueError("Invalid parameters!. Missing TokenCredential or middleware")
+            raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
 
         if credential:
             return HTTPClientFactory(**kwargs).create_with_default_middleware(credential)

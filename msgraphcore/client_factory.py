@@ -23,7 +23,7 @@ class HTTPClientFactory:
         self.timeout = kwargs.get('timeout', (CONNECTION_TIMEOUT, REQUEST_TIMEOUT))
         self.session = kwargs.get('session', Session())
 
-        self._get_base_url()
+        self._set_base_url()
         self._set_default_timeout()
 
     def create_with_default_middleware(self, credential: TokenCredential, **kwargs) -> Session:
@@ -41,8 +41,8 @@ class HTTPClientFactory:
         self._register(middleware)
         return self.session
 
-    def _get_base_url(self):
-        """Helper method to get the base url"""
+    def _set_base_url(self):
+        """Helper method to set the base url"""
         base_url = self.endpoint + '/' + self.api_version
         self.session.base_url = base_url
 

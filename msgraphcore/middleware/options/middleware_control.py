@@ -1,6 +1,5 @@
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
-
-from .auth_middleware_options import AuthMiddlewareOptions
+from msgraphcore.middleware.options.auth_middleware_options import AuthMiddlewareOptions
 
 
 class MiddlewareControl:
@@ -18,10 +17,12 @@ class MiddlewareControl:
 
         def wrapper(*args, **kwargs):
             # Get middleware options from **kwargs
-            scopes = kwargs.pop('scopes', None)
-            if scopes:
-                # Set middleware options, for use by middleware in the middleware pipeline
-                self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
+            middleware_options = kwargs.pop('middleware_options', None)
+            if middleware_options:
+                scopes = middleware_options.get('scopes', None)
+                if scopes:
+                    # Set middleware options, for use by middleware in the middleware pipeline
+                    self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
             return func(*args, **kwargs)
 
         return wrapper

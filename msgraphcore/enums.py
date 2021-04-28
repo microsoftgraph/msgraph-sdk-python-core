@@ -9,6 +9,17 @@ class APIVersion(str, Enum):
     v1 = 'v1.0'
 
 
+class FeatureUsageFlag(int, Enum):
+    """Enumerated list of values used to flag usage of specific middleware"""
+
+    NONE = 0
+    REDIRECT_HANDLER_ENABLED = 1
+    RETRY_HANDLER_ENABLED = 2
+    AUTH_HANDLER_ENABLED = 4
+    DEFAULT_HTTPROVIDER_ENABLED = 8
+    LOGGING_HANDLER_ENABLED = 10
+
+
 class NationalClouds(str, Enum):
     """Enumerated list of supported sovereign clouds"""
 

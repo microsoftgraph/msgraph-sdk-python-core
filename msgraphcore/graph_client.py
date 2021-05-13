@@ -11,8 +11,8 @@ from msgraphcore.middleware.options.middleware_control import middleware_control
 class GraphClient:
     """Constructs a custom HTTPClient to be used for requests against Microsoft Graph
 
-    :keyword credential: Accesstoken used to access the Graph API. Created through one of the
-        credential classes from `azure.identity`
+    :keyword credential: TokenCredential used to acquire an access token for the Microsoft
+        Graph API. Created through one of the credential classes from `azure.identity`
     :keyword list middleware: Custom middleware(HTTPAdapter) list that will be used to create
         a middleware pipeline. The middleware should be arranged in the order in which they will
         modify the request.

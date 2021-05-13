@@ -43,8 +43,8 @@ class HTTPClientFactory:
     def create_with_default_middleware(self, credential: TokenCredential, **kwargs) -> Session:
         """Applies the default middleware chain to the HTTP Client
 
-        :param credential: Accesstoken used to access the Graph API. Created through one of the
-            credential classes from `azure.identity`
+        :param credential: TokenCredential used to acquire an access token for the Microsoft
+            Graph API. Created through one of the credential classes from `azure.identity`
         """
         middleware = [
             AuthorizationHandler(credential, **kwargs),

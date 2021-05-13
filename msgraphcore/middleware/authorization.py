@@ -1,15 +1,14 @@
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
-
-from .abc_token_credential import TokenCredential
-from .middleware import BaseMiddleware
-from .options.middleware_control import middleware_control
+from msgraphcore.middleware.abc_token_credential import TokenCredential
+from msgraphcore.middleware.middleware import BaseMiddleware
+from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, credential: TokenCredential, scopes: [str]):
+    def __init__(self, credential: TokenCredential, **kwargs):
         super().__init__()
         self.credential = credential
-        self.scopes = scopes
+        self.scopes = kwargs.get("scopes", ['.default'])
         self.retry_count = 0
 
     def send(self, request, **kwargs):
@@ -31,5 +30,4 @@ class AuthorizationHandler(BaseMiddleware):
         # If there is, get the scopes from the options
         if auth_options_present:
             return auth_options_present.scopes
-        else:
-            return self.scopes
+        return self.scopes

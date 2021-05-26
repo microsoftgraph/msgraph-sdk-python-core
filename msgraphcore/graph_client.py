@@ -87,8 +87,8 @@ class GraphClient:
     def get_graph_session(**kwargs):
         """Method to always return a single instance of a HTTP Client"""
 
-        credential = kwargs.get('credential')
-        middleware = kwargs.get('middleware')
+        credential = kwargs.pop('credential', None)
+        middleware = kwargs.pop('middleware', None)
 
         if credential and middleware:
             raise ValueError(
@@ -98,5 +98,5 @@ class GraphClient:
             raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
 
         if credential:
-            return HTTPClientFactory(**kwargs).create_with_default_middleware(credential)
+            return HTTPClientFactory(**kwargs).create_with_default_middleware(credential, **kwargs)
         return HTTPClientFactory(**kwargs).create_with_custom_middleware(middleware)

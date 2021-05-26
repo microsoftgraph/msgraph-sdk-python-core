@@ -1,4 +1,5 @@
 from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
+from msgraphcore.enums import FeatureUsageFlag
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.middleware import BaseMiddleware
 from msgraphcore.middleware.options.middleware_control import middleware_control
@@ -13,6 +14,7 @@ class AuthorizationHandler(BaseMiddleware):
 
     def send(self, request, **kwargs):
         request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
+        request.context.set_feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
         response = super().send(request, **kwargs)
 
         # Token might have expired just before transmission, retry the request one more time

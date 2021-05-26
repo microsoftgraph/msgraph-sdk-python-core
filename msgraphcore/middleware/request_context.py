@@ -16,5 +16,4 @@ class RequestContext:
 
     @feature_usage.setter
     def set_feature_usage(self, flag: FeatureUsageFlag):
-        print(type(self._feature_usage))
         self._feature_usage = self._feature_usage | flag

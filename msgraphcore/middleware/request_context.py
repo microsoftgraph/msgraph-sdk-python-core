@@ -5,9 +5,9 @@ from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class RequestContext:
-    def __init__(self, request):
+    def __init__(self, headers):
         self.middleware_control = middleware_control
-        self.client_request_id = request.headers.get('client-request-id', str(uuid.uuid4()))
+        self.client_request_id = headers.get('client-request-id', str(uuid.uuid4()))
         self._feature_usage = FeatureUsageFlag.NONE
 
     @property
@@ -16,4 +16,5 @@ class RequestContext:
 
     @feature_usage.setter
     def set_feature_usage(self, flag: FeatureUsageFlag):
-        self._feature_usage = self.feature_usage | flag
+        print(type(self._feature_usage))
+        self._feature_usage = self._feature_usage | flag

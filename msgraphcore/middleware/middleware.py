@@ -26,7 +26,7 @@ class MiddlewarePipeline(HTTPAdapter):
 
     def send(self, request, **kwargs):
 
-        request.context = RequestContext(request)
+        request.context = RequestContext(request.headers)
 
         if self._middleware_present():
             return self._middleware.send(request, **kwargs)

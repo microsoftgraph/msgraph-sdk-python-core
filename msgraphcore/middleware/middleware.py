@@ -25,9 +25,6 @@ class MiddlewarePipeline(HTTPAdapter):
             self._middleware = middleware
 
     def send(self, request, **kwargs):
-
-        request.context = RequestContext(request.headers)
-
         if self._middleware_present():
             return self._middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send

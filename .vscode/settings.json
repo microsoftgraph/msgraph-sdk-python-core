@@ -4,4 +4,5 @@
     "editor.formatOnSave": true,
     "python.formatting.provider": "yapf",
     "python.linting.pylintEnabled": true,
+    "python.pythonPath": "/Users/jobala/.local/share/virtualenvs/msgraph-sdk-python-core-GPsXRX8j/bin/python",
 }

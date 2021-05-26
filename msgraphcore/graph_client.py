@@ -19,10 +19,10 @@ def attach_context(func):
         headers = kwargs.pop('headers', {})
 
         for option in supported_options:
-            op = kwargs.pop(option, None)
+            mw_option = kwargs.pop(option, None)
 
-            if op:
-                mw_control.update({option: op})
+            if mw_option:
+                mw_control.update({option: mw_option})
 
         req_context = RequestContext(mw_control, headers)
 

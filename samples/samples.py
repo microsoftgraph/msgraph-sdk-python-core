@@ -6,7 +6,7 @@ from azure.identity import InteractiveBrowserCredential
 from msgraphcore.graph_client import GraphClient
 
 scopes = ['user.read']
-browser_credential = InteractiveBrowserCredential(client_id='888bce95-fde5-40f8-a7d4-2debf0f96f4c')
+browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
 graph_session = GraphClient(credential=browser_credential)
 
 

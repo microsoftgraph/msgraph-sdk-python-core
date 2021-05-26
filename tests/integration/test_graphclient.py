@@ -49,7 +49,7 @@ def test_graph_client_with_custom_settings():
     assert response.status_code == 200
 
 
-def test_client_factory_with_custom_middleware():
+def test_graph_client_with_custom_middleware():
     """
     Test client factory works with user provided middleware
     """
@@ -62,3 +62,34 @@ def test_client_factory_with_custom_middleware():
         'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
     )
     assert response.status_code == 200
+
+
+def test_graph_client_adds_context_to_request():
+    """
+    Test the graph client adds a context object to a request
+    """
+    credential = _CustomTokenCredential()
+    scopes = ['User.Read.All']
+    client = GraphClient(credential=credential)
+    response = client.get(
+        'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me',
+        scopes=scopes
+    )
+    assert response.status_code == 200
+    assert hasattr(response.request, 'context')
+
+
+def test_graph_client_picks_options_from_kwargs():
+    """
+    Test the graph client picks middleware options from kwargs and sets them in the context
+    """
+    credential = _CustomTokenCredential()
+    scopes = ['User.Read.All']
+    client = GraphClient(credential=credential)
+    response = client.get(
+        'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me',
+        scopes=scopes
+    )
+    assert response.status_code == 200
+    assert 'scopes' in response.request.context.middleware_control.keys()
+    assert response.request.context.middleware_control['scopes'] == scopes

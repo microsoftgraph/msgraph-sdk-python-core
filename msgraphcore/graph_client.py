@@ -2,9 +2,7 @@ from msgraphcore.middleware.options.middleware_control import MiddlewareControl
 from msgraphcore.middleware.request_context import RequestContext
 from typing import List, Optional
 
-from requests import Session
-from requests import PreparedRequest
-from requests import Request
+from requests import Request, Session
 
 from msgraphcore.client_factory import HTTPClientFactory
 from msgraphcore.middleware.abc_token_credential import TokenCredential
@@ -15,16 +13,15 @@ supported_options = ['scopes', 'custom_option']
 
 def attach_context(func):
     def wrapper(*args, **kwargs):
-        mw_control = dict()
-        headers = kwargs.pop('headers', {})
+        middleware_control = dict()
 
         for option in supported_options:
-            mw_option = kwargs.pop(option, None)
+            value = kwargs.pop(option, None)
+            if value:
+                middleware_control.update({option: value})
 
-            if mw_option:
-                mw_control.update({option: mw_option})
-
-        req_context = RequestContext(mw_control, headers)
+        headers = kwargs.get('headers', {})
+        req_context = RequestContext(middleware_control, headers)
 
         request = func(*args, **kwargs)
         request.context = req_context
@@ -79,7 +76,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return self.graph_session.put(self._graph_url(url), data, **kwargs)
+        prepped_req = self.prepare_request('PUT', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepped_req)
 
     def patch(self, url, data=None, **kwargs):
         r"""Sends a PATCH request. Returns :class:`Response` object.
@@ -89,7 +87,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return self.graph_session.patch(self._graph_url(url), data, **kwargs)
+        prepped_req = self.prepare_request('PATCH', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepped_req)
 
     def delete(self, url, **kwargs):
         r"""Sends a DELETE request. Returns :class:`Response` object.
@@ -97,7 +96,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return self.graph_session.delete(self._graph_url(url), **kwargs)
+        prepped_req = self.prepare_request('DELETE', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepped_req)
 
     def _graph_url(self, url: str) -> str:
         """Appends BASE_URL to user provided path

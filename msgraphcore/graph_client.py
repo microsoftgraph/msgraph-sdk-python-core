@@ -20,10 +20,10 @@ def attach_context(func):
                 middleware_control.update({option: value})
 
         headers = kwargs.get('headers', {})
-        req_context = RequestContext(middleware_control, headers)
+        request_context = RequestContext(middleware_control, headers)
 
         request = func(*args, **kwargs)
-        request.context = req_context
+        request.context = request_context
 
         return request
 
@@ -52,8 +52,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        prepped_req = self.prepare_request('GET', self._graph_url(url), **kwargs)
-        return self.graph_session.send(prepped_req)
+        prepared_request = self.prepare_request('GET', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepared_request)
 
     def post(self, url, **kwargs):
         r"""Sends a POST request. Returns :class:`Response` object.
@@ -64,8 +64,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        prepped_req = self.prepare_request('POST', self._graph_url(url), **kwargs)
-        return self.graph_session.send(prepped_req)
+        prepared_request = self.prepare_request('POST', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepared_request)
 
     def put(self, url, data=None, **kwargs):
         r"""Sends a PUT request. Returns :class:`Response` object.
@@ -75,8 +75,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        prepped_req = self.prepare_request('PUT', self._graph_url(url), **kwargs)
-        return self.graph_session.send(prepped_req)
+        prepared_request = self.prepare_request('PUT', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepared_request)
 
     def patch(self, url, data=None, **kwargs):
         r"""Sends a PATCH request. Returns :class:`Response` object.
@@ -86,8 +86,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        prepped_req = self.prepare_request('PATCH', self._graph_url(url), **kwargs)
-        return self.graph_session.send(prepped_req)
+        prepared_request = self.prepare_request('PATCH', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepared_request)
 
     def delete(self, url, **kwargs):
         r"""Sends a DELETE request. Returns :class:`Response` object.
@@ -95,8 +95,8 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        prepped_req = self.prepare_request('DELETE', self._graph_url(url), **kwargs)
-        return self.graph_session.send(prepped_req)
+        prepared_request = self.prepare_request('DELETE', self._graph_url(url), **kwargs)
+        return self.graph_session.send(prepared_request)
 
     def _graph_url(self, url: str) -> str:
         """Appends BASE_URL to user provided path

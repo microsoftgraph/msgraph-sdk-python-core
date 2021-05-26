@@ -17,12 +17,10 @@ class MiddlewareControl:
 
         def wrapper(*args, **kwargs):
             # Get middleware options from **kwargs
-            middleware_options = kwargs.pop('middleware_options', None)
-            if middleware_options:
-                scopes = middleware_options.get('scopes', None)
-                if scopes:
-                    # Set middleware options, for use by middleware in the middleware pipeline
-                    self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
+            scopes = kwargs.get('scopes', None)
+            if scopes:
+                # Set middleware options, for use by middleware in the middleware pipeline
+                self.set(AUTH_MIDDLEWARE_OPTIONS, AuthMiddlewareOptions(scopes))
             return func(*args, **kwargs)
 
         return wrapper

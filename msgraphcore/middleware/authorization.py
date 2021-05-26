@@ -1,4 +1,3 @@
-from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
 from msgraphcore.enums import FeatureUsageFlag
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.middleware import BaseMiddleware

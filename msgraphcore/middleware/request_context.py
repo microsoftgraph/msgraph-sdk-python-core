@@ -1,7 +1,6 @@
 import uuid
 
 from msgraphcore.enums import FeatureUsageFlag
-from msgraphcore.middleware.options.middleware_control import MiddlewareControl
 
 
 class RequestContext:

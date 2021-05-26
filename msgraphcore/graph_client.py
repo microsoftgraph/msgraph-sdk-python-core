@@ -1,4 +1,3 @@
-from msgraphcore.middleware.options.middleware_control import MiddlewareControl
 from msgraphcore.middleware.request_context import RequestContext
 from typing import List, Optional
 

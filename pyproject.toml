@@ -7,6 +7,7 @@ module = "msgraphcore"
 author = "Microsoft"
 author-email = "graphtooling@microsoft.com"
 home-page="https://github.com/microsoftgraph/msgraph-sdk-python-core"
+dist-name="msgraph-sdk-python-core"
 requires=[
     "requests >= 2.23.0",
 ]

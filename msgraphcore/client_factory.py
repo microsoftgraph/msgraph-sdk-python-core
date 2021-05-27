@@ -11,9 +11,23 @@ from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 class HTTPClientFactory:
-    """
-    Constructs HTTP Client(session) instances configured with either custom or default
+    """Constructs native HTTP Client(session) instances configured with either custom or default
     pipeline of middleware.
+
+    :func: Class constructor accepts a user provided session object and kwargs to configure the
+        request handling behaviour of the client
+    :keyword enum api_version: The Microsoft Graph API version to be used, for example
+        `APIVersion.v1` (default). This value is used in setting the base url for all requests for
+        that session.
+        :class:`~msgraphcore.enums.APIVersion` defines valid API versions.
+    :keyword enum cloud: a supported Microsoft Graph cloud endpoint.
+        Defaults to `NationalClouds.Global`
+        :class:`~msgraphcore.enums.NationalClouds` defines supported sovereign clouds.
+    :keyword tuple timeout: Default connection and read timeout values for all session requests.
+        Specify a tuple in the form of Tuple(connect_timeout, read_timeout) if you would like to set
+        the values separately. If you specify a single value for the timeout, the timeout value will
+        be applied to both the connect and the read timeouts.
+    :keyword obj session: A custom Session instance from the python requests library
     """
     def __init__(self, **kwargs):
         """Class constructor that accepts a user provided session object and kwargs
@@ -27,7 +41,11 @@ class HTTPClientFactory:
         self._set_default_timeout()
 
     def create_with_default_middleware(self, credential: TokenCredential, **kwargs) -> Session:
-        """Applies the default middleware chain to the HTTP Client"""
+        """Applies the default middleware chain to the HTTP Client
+
+        :param credential: TokenCredential used to acquire an access token for the Microsoft
+            Graph API. Created through one of the credential classes from `azure.identity`
+        """
         middleware = [
             AuthorizationHandler(credential, **kwargs),
         ]
@@ -35,7 +53,12 @@ class HTTPClientFactory:
         return self.session
 
     def create_with_custom_middleware(self, middleware: [BaseMiddleware]) -> Session:
-        """Applies a custom middleware chain to the HTTP Client """
+        """Applies a custom middleware chain to the HTTP Client
+
+        :param list middleware: Custom middleware(HTTPAdapter) list that will be used to create
+            a middleware pipeline. The middleware should be arranged in the order in which they will
+            modify the request.
+        """
         if not middleware:
             raise ValueError("Please provide a list of custom middleware")
         self._register(middleware)

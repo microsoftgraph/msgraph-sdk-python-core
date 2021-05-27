@@ -31,7 +31,26 @@ def attach_context(func):
 
 
 class GraphClient:
-    """Constructs a custom HTTPClient to be used for requests against Microsoft Graph"""
+    """Constructs a custom HTTPClient to be used for requests against Microsoft Graph
+
+    :keyword credential: TokenCredential used to acquire an access token for the Microsoft
+        Graph API. Created through one of the credential classes from `azure.identity`
+    :keyword list middleware: Custom middleware(HTTPAdapter) list that will be used to create
+        a middleware pipeline. The middleware should be arranged in the order in which they will
+        modify the request.
+    :keyword enum api_version: The Microsoft Graph API version to be used, for example
+        `APIVersion.v1` (default). This value is used in setting the base url for all requests for
+        that session.
+        :class:`~msgraphcore.enums.APIVersion` defines valid API versions.
+    :keyword enum cloud: a supported Microsoft Graph cloud endpoint.
+        Defaults to `NationalClouds.Global`
+        :class:`~msgraphcore.enums.NationalClouds` defines supported sovereign clouds.
+    :keyword tuple timeout: Default connection and read timeout values for all session requests.
+        Specify a tuple in the form of Tuple(connect_timeout, read_timeout) if you would like to set
+        the values separately. If you specify a single value for the timeout, the timeout value will
+        be applied to both the connect and the read timeouts.
+    :keyword obj session: A custom Session instance from the python requests library
+    """
     __instance = None
 
     def __new__(cls, *args, **kwargs):

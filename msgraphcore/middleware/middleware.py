@@ -1,7 +1,10 @@
 import ssl
+import uuid
 
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
+
+from msgraphcore.middleware.request_context import RequestContext
 
 
 class MiddlewarePipeline(HTTPAdapter):
@@ -22,6 +25,11 @@ class MiddlewarePipeline(HTTPAdapter):
             self._middleware = middleware
 
     def send(self, request, **kwargs):
+
+        if not hasattr(request, 'context'):
+            headers = request.headers
+            request.context = RequestContext(dict(), headers)
+
         if self._middleware_present():
             return self._middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send

@@ -1,7 +1,6 @@
-from msgraphcore.constants import AUTH_MIDDLEWARE_OPTIONS
+from msgraphcore.enums import FeatureUsageFlag
 from msgraphcore.middleware.abc_token_credential import TokenCredential
 from msgraphcore.middleware.middleware import BaseMiddleware
-from msgraphcore.middleware.options.middleware_control import middleware_control
 
 
 class AuthorizationHandler(BaseMiddleware):
@@ -12,7 +11,11 @@ class AuthorizationHandler(BaseMiddleware):
         self.retry_count = 0
 
     def send(self, request, **kwargs):
-        request.headers.update({'Authorization': 'Bearer {}'.format(self._get_access_token())})
+        context = request.context
+        request.headers.update(
+            {'Authorization': 'Bearer {}'.format(self._get_access_token(context))}
+        )
+        context.set_feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
         response = super().send(request, **kwargs)
 
         # Token might have expired just before transmission, retry the request one more time
@@ -21,13 +24,9 @@ class AuthorizationHandler(BaseMiddleware):
             return self.send(request, **kwargs)
         return response
 
-    def _get_access_token(self):
-        return self.credential.get_token(*self.get_scopes())[0]
+    def _get_access_token(self, context):
+        return self.credential.get_token(*self.get_scopes(context))[0]
 
-    def get_scopes(self):
+    def get_scopes(self, context):
         # Checks if there are any options for this middleware
-        auth_options_present = middleware_control.get(AUTH_MIDDLEWARE_OPTIONS)
-        # If there is, get the scopes from the options
-        if auth_options_present:
-            return auth_options_present.scopes
-        return self.scopes
+        return context.middleware_control.get('scopes', self.scopes)

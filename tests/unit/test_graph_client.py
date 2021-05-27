@@ -71,7 +71,7 @@ def test_graph_client_builds_graph_urls():
 
     responses.add(responses.GET, graph_url, status=200)
 
-    client.get('/me')
+    client.get('/me', headers={})
     assert graph_url == responses.calls[0].request.url
 
 
@@ -85,7 +85,7 @@ def test_does_not_build_graph_urls_for_full_urls():
 
     credential = _CustomTokenCredential()
     client = GraphClient(credential=credential)
-    client.get(other_url)
+    client.get(other_url, headers={})
     request_url = responses.calls[0].request.url
     assert other_url == request_url
 

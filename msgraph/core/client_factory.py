@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 # ------------------------------------
 import functools
-from typing import Optional
 
 from requests import Session
 

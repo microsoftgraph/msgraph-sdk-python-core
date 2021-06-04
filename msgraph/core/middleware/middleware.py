@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 # ------------------------------------
 import ssl
-import uuid
 
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager

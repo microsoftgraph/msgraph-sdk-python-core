@@ -2,13 +2,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
-from typing import List, Optional
-
 from requests import Request, Session
 
 from .client_factory import HTTPClientFactory
-from .middleware.abc_token_credential import TokenCredential
-from .middleware.middleware import BaseMiddleware
 from .middleware.request_context import RequestContext
 
 supported_options = ['scopes', 'custom_option']

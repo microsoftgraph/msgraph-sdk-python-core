@@ -10,7 +10,6 @@ from msgraph.core.client_factory import HTTPClientFactory
 from msgraph.core.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
 from msgraph.core.enums import APIVersion, NationalClouds
 from msgraph.core.middleware.authorization import AuthorizationHandler
-from msgraph.core.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 def test_initialize_with_default_config():

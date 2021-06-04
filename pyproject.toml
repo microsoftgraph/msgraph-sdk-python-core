@@ -3,11 +3,11 @@ requires = ["flit_core >=2,<4", "requests >= 2.23.0"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.metadata]
-module = "msgraphcore"
+module = "msgraph"
 author = "Microsoft"
 author-email = "graphtooling@microsoft.com"
 home-page="https://github.com/microsoftgraph/msgraph-sdk-python-core"
-dist-name="msgraph-sdk-python-core"
+dist-name="msgraph-core"
 requires=[
     "requests >= 2.23.0",
 ]

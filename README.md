@@ -1,47 +1,76 @@
 [![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
 
-## Microsoft Graph Python Client Library
+## Microsoft Graph Core Python Client Library
 
-The Microsoft Graph Python client library is a lightweight wrapper around
-the Microsoft Graph API.
+The Microsoft Graph Core Python client library is a lightweight wrapper around the Microsoft Graph API. It provides functionality to create clients with desired configuration and middleware.
 
-## Getting Started
+## Prerequisites
 
-Install packages
+    Python 3.5+ (this library doesn't support older versions of Python)
 
-1. `pip install -i https://test.pypi.org/simple/ msgraphcore`
-2. `pip install azure-identity`
+## Getting started
 
-Import modules
+### 1. Register your application
+
+To call Microsoft Graph, your app must acquire an access token from the Microsoft identity platform. Learn more about this -
+
+-   [Authentication and authorization basics for Microsoft Graph](https://docs.microsoft.com/en-us/graph/auth/auth-concepts)
+-   [Register your app with the Microsoft identity platform](https://docs.microsoft.com/en-us/graph/auth/auth-concepts)
+
+
+### 2. Install the required packages
+
+    `pip install msgraph-core`
+    `pip install azure-identity`
+
+### 3. Import modules
 
 ```python
-from azure.identity import UsernamePasswordCredential, DeviceCodeCredential
-from msgraphcore import GraphSession
+from azure.identity import ClientSecretCredential
+from msgraph.core import GraphClient
 ```
 
-Configure Credential Object
+### 4. Configure a Credential Object
 
 ```python
-# Added UsernamePassword for demo purposes only, please don't use this in production.
-# ugly_credential = UsernamePasswordCredential('set-clientId', 'set-username', 'set-password')
-
-device_credential = DeviceCodeCredential(
-    'set-clientId')
-
+# Using ClientSecretCredential for demonstration purposes.
 # There are many other options for getting an access token. See the following for more information.
 # https://pypi.org/project/azure-identity/
 
+credential = ClientSecretCredential(
+    tenant_id='xxxxxxxxxxx',
+    client_id='xxxxxxxxxxx',
+    client_secret='xxxxxxxxx'
+)
 ```
 
-Pass the credential object and scopes to the GraphSession constructor.
-```python
-scopes = ['mail.send', 'user.read']
-graph_session = GraphSession(device_credential, scopes)
-```
+### 5. Pass the credential object to the GraphClient constructor.
 
 ```python
-result = graph_session.get('/me')
+client = GraphClient(credential=credential)
+```
+
+### 6. Make a requests to the graph using the client
+
+```python
+result = client.get('/me')
 print(result.json())
 ```
+
+For more information on how to use the package, refer to the [samples](https://github.com/microsoftgraph/msgraph-sdk-python-core/tree/dev/samples)
+
+## Issues
+
+View or log issues on the [Issues](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues) tab in the repo.
+
+## Contributing
+
+Please see the [contributing guidelines](CONTRIBUTING.rst)
+
+## Copyright and license
+
+Copyright (c) Microsoft Corporation. All Rights Reserved. Licensed under the MIT [license](LICENSE).
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 

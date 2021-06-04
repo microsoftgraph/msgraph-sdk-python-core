@@ -26,28 +26,24 @@ To call Microsoft Graph, your app must acquire an access token from the Microsof
 ### 3. Import modules
 
 ```python
-from azure.identity import ClientSecretCredential
+from azure.identity import InteractiveBrowserCredential
 from msgraph.core import GraphClient
 ```
 
 ### 4. Configure a Credential Object
 
 ```python
-# Using ClientSecretCredential for demonstration purposes.
+# Using InteractiveBrowserCredential for demonstration purposes.
 # There are many other options for getting an access token. See the following for more information.
 # https://pypi.org/project/azure-identity/
 
-credential = ClientSecretCredential(
-    tenant_id='xxxxxxxxxxx',
-    client_id='xxxxxxxxxxx',
-    client_secret='xxxxxxxxx'
-)
+browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
 ```
 
 ### 5. Pass the credential object to the GraphClient constructor.
 
 ```python
-client = GraphClient(credential=credential)
+client = GraphClient(credential=browser_credential)
 ```
 
 ### 6. Make a requests to the graph using the client

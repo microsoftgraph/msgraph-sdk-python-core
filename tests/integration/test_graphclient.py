@@ -5,8 +5,7 @@
 import pytest
 from requests import Session
 
-from msgraph.core.enums import APIVersion
-from msgraph.core.graph_client import GraphClient
+from msgraph.core import APIVersion, GraphClient
 from msgraph.core.middleware.authorization import AuthorizationHandler
 
 

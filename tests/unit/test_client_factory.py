@@ -6,9 +6,8 @@ import pytest
 from requests import Session
 from requests.adapters import HTTPAdapter
 
-from msgraph.core.client_factory import HTTPClientFactory
-from msgraph.core.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraph.core.enums import APIVersion, NationalClouds
+from msgraph.core import APIVersion, HTTPClientFactory, NationalClouds
+from msgraph.core._constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
 from msgraph.core.middleware.authorization import AuthorizationHandler
 
 

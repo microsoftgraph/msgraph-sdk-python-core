@@ -4,7 +4,7 @@
 # ------------------------------------
 from requests import Request, Session
 
-from .client_factory import HTTPClientFactory
+from ._client_factory import HTTPClientFactory
 from .middleware.request_context import RequestContext
 
 supported_options = ['scopes', 'custom_option']

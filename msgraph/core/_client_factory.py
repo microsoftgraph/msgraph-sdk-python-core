@@ -6,8 +6,8 @@ import functools
 
 from requests import Session
 
-from .constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from .enums import APIVersion, NationalClouds
+from ._constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
+from ._enums import APIVersion, NationalClouds
 from .middleware.abc_token_credential import TokenCredential
 from .middleware.authorization import AuthorizationHandler
 from .middleware.middleware import BaseMiddleware, MiddlewarePipeline

@@ -4,7 +4,7 @@
 # ------------------------------------
 import uuid
 
-from ..enums import FeatureUsageFlag
+from .._enums import FeatureUsageFlag
 
 
 class RequestContext:

@@ -7,7 +7,7 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 
 from msgraph.core import APIVersion, HTTPClientFactory, NationalClouds
-from msgraph.core._constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
+from msgraph.core._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
 from msgraph.core.middleware.authorization import AuthorizationHandler
 
 
@@ -18,7 +18,7 @@ def test_initialize_with_default_config():
 
     assert client.api_version == APIVersion.v1
     assert client.endpoint == NationalClouds.Global
-    assert client.timeout == (CONNECTION_TIMEOUT, REQUEST_TIMEOUT)
+    assert client.timeout == (DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
     assert isinstance(client.session, Session)
 
 

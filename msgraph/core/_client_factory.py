@@ -6,7 +6,7 @@ import functools
 
 from requests import Session
 
-from ._constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
+from ._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
 from ._enums import APIVersion, NationalClouds
 from .middleware.abc_token_credential import TokenCredential
 from .middleware.authorization import AuthorizationHandler
@@ -37,7 +37,7 @@ class HTTPClientFactory:
         to configure the request handling behaviour of the client"""
         self.api_version = kwargs.get('api_version', APIVersion.v1)
         self.endpoint = kwargs.get('cloud', NationalClouds.Global)
-        self.timeout = kwargs.get('timeout', (CONNECTION_TIMEOUT, REQUEST_TIMEOUT))
+        self.timeout = kwargs.get('timeout', (DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT))
         self.session = kwargs.get('session', Session())
 
         self._set_base_url()

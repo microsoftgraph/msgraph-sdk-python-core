@@ -3,9 +3,9 @@
 # Licensed under the MIT License.
 # ------------------------------------
 """
-Application constants
+Application constants. All defaults can be changed when initializing a client
+via the GraphClient or HttpClientFactory
 """
-REQUEST_TIMEOUT = 100
-CONNECTION_TIMEOUT = 30
-BASE_URL = 'https://graph.microsoft.com/'
+DEFAULT_REQUEST_TIMEOUT = 100
+DEFAULT_CONNECTION_TIMEOUT = 30
 SDK_VERSION = '0.1.0'

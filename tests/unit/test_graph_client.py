@@ -8,7 +8,6 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 
 from msgraph.core import APIVersion, GraphClient, NationalClouds
-from msgraph.core._constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
 from msgraph.core.middleware.authorization import AuthorizationHandler
 
 

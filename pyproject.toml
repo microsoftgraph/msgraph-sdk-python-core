@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [tool.flit.metadata]
 module = "msgraph"
 author = "Microsoft"
-author-email = "graphtooling@microsoft.com"
+author-email = "graphtooling+python@microsoft.com"
 home-page="https://github.com/microsoftgraph/msgraph-sdk-python-core"
 dist-name="msgraph-core"
 requires=[

@@ -3,7 +3,7 @@ from pprint import pprint
 
 from azure.identity import InteractiveBrowserCredential
 
-from msgraphcore.graph_client import GraphClient
+from msgraph.core.graph_client import GraphClient
 
 scopes = ['user.read']
 browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')

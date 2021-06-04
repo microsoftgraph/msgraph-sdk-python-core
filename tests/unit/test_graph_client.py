@@ -3,11 +3,11 @@ import responses
 from requests import Session
 from requests.adapters import HTTPAdapter
 
-from msgraphcore.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraphcore.enums import APIVersion, NationalClouds
-from msgraphcore.graph_client import GraphClient
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from msgraph.core.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
+from msgraph.core.enums import APIVersion, NationalClouds
+from msgraph.core.graph_client import GraphClient
+from msgraph.core.middleware.authorization import AuthorizationHandler
+from msgraph.core.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 def test_graph_client_with_default_middleware():

@@ -1,7 +1,7 @@
 import pytest
 
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.request_context import RequestContext
+from msgraph.core.middleware.authorization import AuthorizationHandler
+from msgraph.core.middleware.request_context import RequestContext
 
 
 def test_context_options_override_default_scopes():

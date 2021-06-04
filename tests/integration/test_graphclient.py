@@ -1,9 +1,9 @@
 import pytest
 from requests import Session
 
-from msgraphcore.enums import APIVersion
-from msgraphcore.graph_client import GraphClient
-from msgraphcore.middleware.authorization import AuthorizationHandler
+from msgraph.core.enums import APIVersion
+from msgraph.core.graph_client import GraphClient
+from msgraph.core.middleware.authorization import AuthorizationHandler
 
 
 class _CustomTokenCredential:

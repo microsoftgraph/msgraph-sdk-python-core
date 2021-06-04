@@ -21,19 +21,12 @@ repos:
         name: pylint
         stages: [commit]
         language: system
-        entry: pipenv run pylint msgraphcore --disable=W --rcfile=.pylintrc
+        entry: pipenv run pylint msgraph --disable=W --rcfile=.pylintrc
         types: [python]
 
       - id: pytest-unit
         name: pytest-unit
         stages: [commit]
         language: system
-        entry: pipenv run coverage run -m pytest tests/unit
-        types: [python]
-
-      - id: pytest-integration
-        name: pytest-integration
-        stages: [commit]
-        language: system
-        entry: pipenv run coverage run -m pytest tests/integration
+        entry: pipenv run pytest
         types: [python]

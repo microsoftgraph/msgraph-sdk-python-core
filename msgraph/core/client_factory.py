@@ -3,11 +3,11 @@ from typing import Optional
 
 from requests import Session
 
-from msgraphcore.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraphcore.enums import APIVersion, NationalClouds
-from msgraphcore.middleware.abc_token_credential import TokenCredential
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from .constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
+from .enums import APIVersion, NationalClouds
+from .middleware.abc_token_credential import TokenCredential
+from .middleware.authorization import AuthorizationHandler
+from .middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 class HTTPClientFactory:

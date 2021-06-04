@@ -1,6 +1,6 @@
-from msgraphcore.enums import FeatureUsageFlag
-from msgraphcore.middleware.abc_token_credential import TokenCredential
-from msgraphcore.middleware.middleware import BaseMiddleware
+from ..enums import FeatureUsageFlag
+from .abc_token_credential import TokenCredential
+from .middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):

@@ -1,6 +1,6 @@
 import uuid
 
-from msgraphcore.enums import FeatureUsageFlag
+from ..enums import FeatureUsageFlag
 
 
 class RequestContext:

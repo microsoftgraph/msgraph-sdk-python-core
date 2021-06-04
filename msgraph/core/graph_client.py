@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from requests import Request, Session
 
-from msgraphcore.client_factory import HTTPClientFactory
-from msgraphcore.middleware.abc_token_credential import TokenCredential
-from msgraphcore.middleware.middleware import BaseMiddleware
-from msgraphcore.middleware.request_context import RequestContext
+from .client_factory import HTTPClientFactory
+from .middleware.abc_token_credential import TokenCredential
+from .middleware.middleware import BaseMiddleware
+from .middleware.request_context import RequestContext
 
 supported_options = ['scopes', 'custom_option']
 

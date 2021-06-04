@@ -28,5 +28,5 @@ repos:
         name: pytest
         stages: [commit]
         language: system
-        entry: pipenv run pytest
+        entry: pipenv run pytest tests
         types: [python]

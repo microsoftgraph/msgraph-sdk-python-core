@@ -1,3 +1,7 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 from typing import List, Optional
 
 from requests import Request, Session

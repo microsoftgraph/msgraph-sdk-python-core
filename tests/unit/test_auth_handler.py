@@ -1,3 +1,7 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
 
 from msgraph.core.middleware.authorization import AuthorizationHandler

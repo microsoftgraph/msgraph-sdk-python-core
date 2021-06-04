@@ -1,3 +1,7 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
 from requests import Session
 from requests.adapters import HTTPAdapter

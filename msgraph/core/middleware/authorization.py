@@ -1,3 +1,7 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 from ..enums import FeatureUsageFlag
 from .abc_token_credential import TokenCredential
 from .middleware import BaseMiddleware

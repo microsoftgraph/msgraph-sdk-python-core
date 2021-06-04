@@ -24,8 +24,8 @@ repos:
         entry: pipenv run pylint msgraph --disable=W --rcfile=.pylintrc
         types: [python]
 
-      - id: pytest-unit
-        name: pytest-unit
+      - id: pytest
+        name: pytest
         stages: [commit]
         language: system
         entry: pipenv run pytest

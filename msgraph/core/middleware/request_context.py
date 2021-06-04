@@ -1,6 +1,10 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import uuid
 
-from msgraphcore.enums import FeatureUsageFlag
+from .._enums import FeatureUsageFlag
 
 
 class RequestContext:

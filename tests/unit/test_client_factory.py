@@ -1,12 +1,14 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
 from requests import Session
 from requests.adapters import HTTPAdapter
 
-from msgraphcore.client_factory import HTTPClientFactory
-from msgraphcore.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraphcore.enums import APIVersion, NationalClouds
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from msgraph.core import APIVersion, HTTPClientFactory, NationalClouds
+from msgraph.core._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
+from msgraph.core.middleware.authorization import AuthorizationHandler
 
 
 def test_initialize_with_default_config():
@@ -16,7 +18,7 @@ def test_initialize_with_default_config():
 
     assert client.api_version == APIVersion.v1
     assert client.endpoint == NationalClouds.Global
-    assert client.timeout == (CONNECTION_TIMEOUT, REQUEST_TIMEOUT)
+    assert client.timeout == (DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
     assert isinstance(client.session, Session)
 
 

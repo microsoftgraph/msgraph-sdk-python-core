@@ -1,9 +1,12 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
 from requests import Session
 
-from msgraphcore.client_factory import HTTPClientFactory
-from msgraphcore.enums import APIVersion
-from msgraphcore.middleware.authorization import AuthorizationHandler
+from msgraph.core import APIVersion, HTTPClientFactory
+from msgraph.core.middleware.authorization import AuthorizationHandler
 
 
 class _CustomTokenCredential:

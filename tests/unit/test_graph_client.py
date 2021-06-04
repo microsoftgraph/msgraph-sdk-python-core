@@ -1,13 +1,14 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
 import responses
 from requests import Session
 from requests.adapters import HTTPAdapter
 
-from msgraphcore.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraphcore.enums import APIVersion, NationalClouds
-from msgraphcore.graph_client import GraphClient
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from msgraph.core import APIVersion, GraphClient, NationalClouds
+from msgraph.core.middleware.authorization import AuthorizationHandler
 
 
 def test_graph_client_with_default_middleware():

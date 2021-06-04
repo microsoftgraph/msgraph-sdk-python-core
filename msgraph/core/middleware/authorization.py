@@ -1,6 +1,10 @@
-from msgraphcore.enums import FeatureUsageFlag
-from msgraphcore.middleware.abc_token_credential import TokenCredential
-from msgraphcore.middleware.middleware import BaseMiddleware
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
+from .._enums import FeatureUsageFlag
+from .abc_token_credential import TokenCredential
+from .middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):

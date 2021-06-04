@@ -1,7 +1,11 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 from collections import OrderedDict
 from unittest import TestCase
 
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from msgraph.core.middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 class MiddlewarePipelineTest(TestCase):

@@ -1,13 +1,16 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import functools
-from typing import Optional
 
 from requests import Session
 
-from msgraphcore.constants import CONNECTION_TIMEOUT, REQUEST_TIMEOUT
-from msgraphcore.enums import APIVersion, NationalClouds
-from msgraphcore.middleware.abc_token_credential import TokenCredential
-from msgraphcore.middleware.authorization import AuthorizationHandler
-from msgraphcore.middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from ._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
+from ._enums import APIVersion, NationalClouds
+from .middleware.abc_token_credential import TokenCredential
+from .middleware.authorization import AuthorizationHandler
+from .middleware.middleware import BaseMiddleware, MiddlewarePipeline
 
 
 class HTTPClientFactory:
@@ -34,7 +37,7 @@ class HTTPClientFactory:
         to configure the request handling behaviour of the client"""
         self.api_version = kwargs.get('api_version', APIVersion.v1)
         self.endpoint = kwargs.get('cloud', NationalClouds.Global)
-        self.timeout = kwargs.get('timeout', (CONNECTION_TIMEOUT, REQUEST_TIMEOUT))
+        self.timeout = kwargs.get('timeout', (DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT))
         self.session = kwargs.get('session', Session())
 
         self._set_base_url()

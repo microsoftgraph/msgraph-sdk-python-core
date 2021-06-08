@@ -1,14 +1,14 @@
 import pytest
 
-from msgraphcore.graph_session import GraphSession
+from msgraph.core import GraphClient
 
 
 @pytest.fixture
-def graph_session():
+def graph_client():
     scopes = ['user.read']
     credential = _CustomTokenCredential()
-    session = GraphSession(credential, scopes)
-    return session
+    client = GraphClient(credential=credential, scopes=scopes)
+    return client
 
 
 class _CustomTokenCredential:
@@ -16,11 +16,11 @@ class _CustomTokenCredential:
         return ['{token:https://graph.microsoft.com/}']
 
 
-def test_no_retry_success_response(graph_session):
+def test_no_retry_success_response(graph_client):
     """
     Test that a request with valid http header and a success response is not retried
     """
-    response = graph_session.get(
+    response = graph_client.get(
         'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
     )
 
@@ -28,49 +28,45 @@ def test_no_retry_success_response(graph_session):
     assert response.request.headers["Retry-Attempt"] == "0"
 
 
-def test_valid_retry_429(graph_session):
+def test_valid_retry_429(graph_client):
     """
     Test that a request with valid http header and 503 response is retried
     """
-    response = graph_session.get('https://httpbin.org/status/429')
+    response = graph_client.get('https://httpbin.org/status/429')
 
     assert response.status_code == 429
     assert response.request.headers["Retry-Attempt"] == "3"
 
 
-def test_valid_retry_503(graph_session):
+def test_valid_retry_503(graph_client):
     """
     Test that a request with valid http header and 503 response is retried
     """
-    response = graph_session.get('https://httpbin.org/status/503')
+    response = graph_client.get('https://httpbin.org/status/503')
 
     assert response.status_code == 503
     assert response.request.headers["Retry-Attempt"] == "3"
 
 
-def test_valid_retry_504(graph_session):
+def test_valid_retry_504(graph_client):
     """
     Test that a request with valid http header and 503 response is retried
     """
-    response = graph_session.get('https://httpbin.org/status/504')
+    response = graph_client.get('https://httpbin.org/status/504')
 
     assert response.status_code == 504
     assert response.request.headers["Retry-Attempt"] == "3"
 
 
-def test_request_specific_options_override_default(graph_session):
+def test_request_specific_options_override_default(graph_client):
     """
     Test that retry options passed to the request take precedence over
     the default options.
     """
-    response_1 = graph_session.get('https://httpbin.org/status/429')
-    response_2 = graph_session.get(
-        'https://httpbin.org/status/503', retry_config={'retry_total': 2}
-    )
-    response_3 = graph_session.get('https://httpbin.org/status/504')
-    response_4 = graph_session.get(
-        'https://httpbin.org/status/429', retry_config={'retry_total': 1}
-    )
+    response_1 = graph_client.get('https://httpbin.org/status/429')
+    response_2 = graph_client.get('https://httpbin.org/status/503', retry_total=2)
+    response_3 = graph_client.get('https://httpbin.org/status/504')
+    response_4 = graph_client.get('https://httpbin.org/status/429', retry_total=1)
 
     assert response_1.status_code == 429
     assert response_1.request.headers["Retry-Attempt"] == "3"
@@ -82,15 +78,13 @@ def test_request_specific_options_override_default(graph_session):
     assert response_4.request.headers["Retry-Attempt"] == "1"
 
 
-def test_retries_time_limit(graph_session):
+def test_retries_time_limit(graph_client):
     """
     Test that the cumulative retry time plus the retry-after values does not exceed the
     provided retries time limit
     """
 
-    response = graph_session.get(
-        'https://httpbin.org/status/503', retry_config={'retry_time_limit': 0.1}
-    )
+    response = graph_client.get('https://httpbin.org/status/503', retry_time_limit=0.1)
 
     assert response.status_code == 503
     headers = response.request.headers

@@ -5,16 +5,17 @@ import pytest
 import requests
 import responses
 
-from msgraphcore.constants import BASE_URL
-from msgraphcore.graph_session import GraphSession
-from msgraphcore.middleware.retry_middleware import RetryMiddleware
+from msgraph.core import APIVersion, NationalClouds
+from msgraph.core.middleware.retry import RetryHandler
+
+BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
 
 
 def test_no_config():
     """
     Test that default values are used if no custom confguration is passed
     """
-    retry_handler = RetryMiddleware()
+    retry_handler = RetryHandler()
     assert retry_handler.total_retries == retry_handler.DEFAULT_TOTAL_RETRIES
     assert retry_handler.timeout == retry_handler.DEFAULT_RETRY_TIME_LIMIT
     assert retry_handler.backoff_max == retry_handler.MAXIMUM_BACKOFF
@@ -30,14 +31,12 @@ def test_custom_config():
     """
     Test that default configuration is overrriden if custom configuration is provided
     """
-    retry_handler = RetryMiddleware(
-        retry_configs={
-            "retry_total": 10,
-            "retry_backoff_factor": 0.2,
-            "retry_backoff_max": 200,
-            "retry_time_limit": 100,
-            "retry_on_status_codes": [502, 503],
-        }
+    retry_handler = RetryHandler(
+        retry_total=10,
+        retry_backoff_factor=0.2,
+        retry_backoff_max=200,
+        retry_time_limit=100,
+        retry_on_status_codes=[502, 503]
     )
 
     assert retry_handler.total_retries == 10
@@ -51,9 +50,10 @@ def test_disable_retries():
     """
     Test that when disable_retries class method is called, total retries are set to zero
     """
-    retry_handler = RetryMiddleware.disable_retries()
+    retry_handler = RetryHandler()
+    retry_handler = retry_handler.disable_retries()
     assert retry_handler.total_retries == 0
-    retry_options = retry_handler.get_retry_options()
+    retry_options = retry_handler.get_retry_options({})
     assert not retry_handler.increment_counter(retry_options)
     assert retry_handler.retries_exhausted(retry_options)
 
@@ -66,8 +66,8 @@ def test_method_retryable_with_valid_method():
     responses.add(responses.GET, BASE_URL, status=502)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware(retry_configs={})
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler()
+    settings = retry_handler.get_retry_options({})
 
     assert retry_handler._is_method_retryable(settings, response.request)
 
@@ -80,8 +80,8 @@ def test_should_retry_valid():
     responses.add(responses.GET, BASE_URL, status=503)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware(retry_configs={})
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler()
+    settings = retry_handler.get_retry_options({})
 
     assert retry_handler.should_retry(settings, response)
 
@@ -94,8 +94,8 @@ def test_should_retry_invalid():
     responses.add(responses.GET, BASE_URL, status=502)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware(retry_configs={})
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler()
+    settings = retry_handler.get_retry_options({})
 
     assert not retry_handler.should_retry(settings, response)
 
@@ -109,7 +109,7 @@ def test_is_request_payload_buffered_valid():
     responses.add(responses.GET, BASE_URL, status=429)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware(retry_configs={})
+    retry_handler = RetryHandler()
 
     assert retry_handler._is_request_payload_buffered(response)
 
@@ -123,7 +123,7 @@ def test_is_request_payload_buffered_invalid():
     responses.add(responses.POST, BASE_URL, status=429)
     response = requests.post(BASE_URL, headers={'Content-Type': "application/octet-stream"})
 
-    retry_handler = RetryMiddleware(retry_configs={})
+    retry_handler = RetryHandler()
 
     assert not retry_handler._is_request_payload_buffered(response)
 
@@ -132,8 +132,8 @@ def test_retries_exhausted():
     """
     Test that the retries exhausted method works correctly when total_retries is greater than zero
     """
-    retry_handler = RetryMiddleware()
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler()
+    settings = retry_handler.get_retry_options({})
 
     assert not retry_handler.retries_exhausted(settings)
 
@@ -142,8 +142,8 @@ def test_retries_exhausted_zero_total():
     """
     Test that the retries exhausted method works correctly when total retries are set to zero
     """
-    retry_handler = RetryMiddleware(retry_configs={'retry_total': 0})
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler(retry_total=0)
+    settings = retry_handler.get_retry_options({})
 
     assert retry_handler.retries_exhausted(settings)
 
@@ -152,8 +152,8 @@ def test_increment_counter():
     """
     Test that retry counter is incremented on a valid retry
     """
-    retry_handler = RetryMiddleware()
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler()
+    settings = retry_handler.get_retry_options({})
 
     assert retry_handler.increment_counter(settings)
     assert settings['total'] == retry_handler.DEFAULT_TOTAL_RETRIES - 1
@@ -163,8 +163,8 @@ def test_increment_counter_invalid_retry():
     """
     Test that retry counter is not incremented when a retry is not valid
     """
-    retry_handler = RetryMiddleware(retry_configs={'retry_total': 0})
-    settings = retry_handler.get_retry_options()
+    retry_handler = RetryHandler(retry_total=0)
+    settings = retry_handler.get_retry_options({})
 
     assert not retry_handler.increment_counter(settings)
     assert settings['total'] == 0
@@ -178,7 +178,7 @@ def test_get_retry_after():
     responses.add(responses.GET, BASE_URL, headers={'Retry-After': "120"}, status=503)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware()
+    retry_handler = RetryHandler()
 
     assert retry_handler._get_retry_after(response) == 120
 
@@ -191,7 +191,7 @@ def test_get_retry_after_no_header():
     responses.add(responses.GET, BASE_URL, status=503)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware()
+    retry_handler = RetryHandler()
 
     assert retry_handler._get_retry_after(response) is None
 
@@ -206,6 +206,6 @@ def test_get_retry_after_http_date():
     responses.add(responses.GET, BASE_URL, headers={'Retry-After': f'{http_date}'}, status=503)
     response = requests.get(BASE_URL)
 
-    retry_handler = RetryMiddleware(retry_configs={})
+    retry_handler = RetryHandler()
 
     assert retry_handler._get_retry_after(response) < 120

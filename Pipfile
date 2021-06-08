@@ -5,16 +5,15 @@ name = "pypi"
 
 [packages] # Packages required to run the application
 requests = "==2.23.0"
-pre-commit = "==2.10.1"
 
 [dev-packages] # Packages required to develop the application
 coverage = "==5.0.3"
-pylint = "==2.6.0"
 responses = "==0.10.12"
 flit = "==2.2.0"
-azure-identity = "==1.5.0"
 isort = "==5.7.0"
 yapf = "==0.30.0"
 mypy = "==0.800"
-pytest = "*"
-importlib-metadata = "*"
+pylint = "==2.7.4"
+pytest = "==6.2.4"
+pre-commit = "==2.13.0"
+azure-identity = "*"

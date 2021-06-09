@@ -16,12 +16,6 @@ class RetryHandler(BaseMiddleware):
     :param int max_retries:
         Maximum number of retries to allow. Takes precedence over other counts.
         Set to ``0`` to fail on the first retry.
-    :param iterable allowed_methods:
-        Set of uppercased HTTP method verbs that we should retry on.
-        By default, we only retry on methods which are considered to be
-        idempotent (multiple requests with the same parameters end with the
-        same state). See :attr:`Retry.DEFAULT_ALLOWED_METHODS`.
-        Set to a ``None`` value to retry on any verb.
     :param iterable retry_on_status_codes:
         A set of integer HTTP status codes that we should force a retry on.
         A retry is initiated if the request method is in ``allowed_methods``

@@ -9,8 +9,39 @@ from msgraph.core.middleware.middleware import BaseMiddleware
 
 class RetryHandler(BaseMiddleware):
     """
-    TransportAdapter that allows us to specify the
-    retry policy for all requests
+    TransportAdapter that allows us to specify the retry policy for all requests
+
+    Retry configuration.
+
+    :param int max_retries:
+        Maximum number of retries to allow. Takes precedence over other counts.
+        Set to ``0`` to fail on the first retry.
+    :param iterable allowed_methods:
+        Set of uppercased HTTP method verbs that we should retry on.
+        By default, we only retry on methods which are considered to be
+        idempotent (multiple requests with the same parameters end with the
+        same state). See :attr:`Retry.DEFAULT_ALLOWED_METHODS`.
+        Set to a ``None`` value to retry on any verb.
+    :param iterable retry_on_status_codes:
+        A set of integer HTTP status codes that we should force a retry on.
+        A retry is initiated if the request method is in ``allowed_methods``
+        and the response status code is in ``RETRY STATUS CODES``.
+    :param float retry_backoff_factor:
+        A backoff factor to apply between attempts after the second try
+        (most errors are resolved immediately by a second try without a
+        delay).
+        The request will sleep for::
+            {backoff factor} * (2 ** ({retry number} - 1))
+        seconds. If the backoff_factor is 0.1, then :func:`.sleep` will sleep
+        for [0.0s, 0.2s, 0.4s, ...] between retries. It will never be longer
+        than :attr:`RetryHandler.MAXIMUM_BACKOFF`.
+        By default, backoff is set to 0.5.
+    :param int retry_time_limit:
+        The maximum cumulative time in seconds that total retries should take.
+        The cumulative retry time and retry-after value for each request retry
+        will be evaluated against this value; if the cumulative retry time plus
+        the retry-after value is greater than the retry_time_limit, the failed
+        response will be immediately returned, else the request retry continues.
     """
 
     DEFAULT_MAX_RETRIES = 3

@@ -6,12 +6,9 @@ build-backend = "flit_core.buildapi"
 module = "msgraph"
 author = "Microsoft"
 author-email = "graphtooling+python@microsoft.com"
-home-page="https://github.com/microsoftgraph/msgraph-sdk-python-core"
+home-page = "https://github.com/microsoftgraph/msgraph-sdk-python-core"
 dist-name="msgraph-core"
-requires=[
-    "requests >= 2.23.0",
-]
 requires-python=">=3.5"
-classifiers = ["License :: OSI Approved :: MIT License"]
+classifiers = [ "License :: OSI Approved :: MIT License",]
 description-file = "README.md"
 

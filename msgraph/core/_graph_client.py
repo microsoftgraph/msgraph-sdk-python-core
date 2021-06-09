@@ -12,7 +12,7 @@ supported_options = [
     'scopes',
 
     # Retry Options
-    'retry_total',
+    'max_retries',
     'retry_backoff_factor',
     'retry_backoff_max',
     'retry_time_limit',

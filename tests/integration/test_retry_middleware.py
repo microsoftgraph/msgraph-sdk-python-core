@@ -25,7 +25,7 @@ def test_no_retry_success_response(graph_client):
     )
 
     assert response.status_code == 200
-    assert response.request.headers["Retry-Attempt"] == "0"
+    assert response.request.headers["retry-attempt"] == "0"
 
 
 def test_valid_retry_429(graph_client):
@@ -35,7 +35,7 @@ def test_valid_retry_429(graph_client):
     response = graph_client.get('https://httpbin.org/status/429')
 
     assert response.status_code == 429
-    assert response.request.headers["Retry-Attempt"] == "3"
+    assert response.request.headers["retry-attempt"] == "3"
 
 
 def test_valid_retry_503(graph_client):
@@ -45,7 +45,7 @@ def test_valid_retry_503(graph_client):
     response = graph_client.get('https://httpbin.org/status/503')
 
     assert response.status_code == 503
-    assert response.request.headers["Retry-Attempt"] == "3"
+    assert response.request.headers["retry-attempt"] == "3"
 
 
 def test_valid_retry_504(graph_client):
@@ -55,7 +55,7 @@ def test_valid_retry_504(graph_client):
     response = graph_client.get('https://httpbin.org/status/504')
 
     assert response.status_code == 504
-    assert response.request.headers["Retry-Attempt"] == "3"
+    assert response.request.headers["retry-attempt"] == "3"
 
 
 def test_request_specific_options_override_default(graph_client):
@@ -64,9 +64,9 @@ def test_request_specific_options_override_default(graph_client):
     the default options.
     """
     response_1 = graph_client.get('https://httpbin.org/status/429')
-    response_2 = graph_client.get('https://httpbin.org/status/503', retry_total=2)
+    response_2 = graph_client.get('https://httpbin.org/status/503', max_retries=2)
     response_3 = graph_client.get('https://httpbin.org/status/504')
-    response_4 = graph_client.get('https://httpbin.org/status/429', retry_total=1)
+    response_4 = graph_client.get('https://httpbin.org/status/429', max_retries=1)
 
     assert response_1.status_code == 429
     assert response_1.request.headers["Retry-Attempt"] == "3"
@@ -88,4 +88,4 @@ def test_retries_time_limit(graph_client):
 
     assert response.status_code == 503
     headers = response.request.headers
-    assert headers["Retry-Attempt"] == "0"
+    assert headers["retry-attempt"] == "0"

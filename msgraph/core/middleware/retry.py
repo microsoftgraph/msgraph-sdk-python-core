@@ -13,29 +13,30 @@ class RetryHandler(BaseMiddleware):
     retry policy for all requests
     """
 
-    DEFAULT_TOTAL_RETRIES = 3
-    MAX_TOTAL_RETRIES = 10
+    DEFAULT_MAX_RETRIES = 3
+    MAX_RETRIES = 10
+    DEFAULT_DELAY = 3
+    MAX_DELAY = 180
     DEFAULT_BACKOFF_FACTOR = 0.5
-    DEFAULT_RETRY_TIME_LIMIT = 180
     MAXIMUM_BACKOFF = 120
-    _DEFAULT_RETRY_CODES = {429, 503, 504}
+    _DEFAULT_RETRY_STATUS_CODES = {429, 503, 504}
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.total_retries: int = min(
-            kwargs.pop('retry_total', self.DEFAULT_TOTAL_RETRIES), self.MAX_TOTAL_RETRIES
+        self.max_retries: int = min(
+            kwargs.pop('max_retries', self.DEFAULT_MAX_RETRIES), self.MAX_RETRIES
         )
         self.backoff_factor: float = kwargs.pop('retry_backoff_factor', self.DEFAULT_BACKOFF_FACTOR)
         self.backoff_max: int = kwargs.pop('retry_backoff_max', self.MAXIMUM_BACKOFF)
-        self.timeout: int = kwargs.pop('retry_time_limit', self.DEFAULT_RETRY_TIME_LIMIT)
+        self.timeout: int = kwargs.pop('retry_time_limit', self.MAX_DELAY)
 
         status_codes: [int] = kwargs.pop('retry_on_status_codes', [])
 
-        self._retry_on_status_codes = set(status_codes) | self._DEFAULT_RETRY_CODES
-        self._allowed_methods = frozenset(
+        self._retry_on_status_codes: set = set(status_codes) | self._DEFAULT_RETRY_STATUS_CODES
+        self._allowed_methods: set = frozenset(
             ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
         )
-        self._respect_retry_after_header = True
+        self._respect_retry_after_header: bool = True
 
     @classmethod
     def disable_retries(cls):
@@ -43,7 +44,7 @@ class RetryHandler(BaseMiddleware):
         Disable retries by setting retry_total to zero.
         retry_total takes precedence over all other counts.
         """
-        return cls(retry_total=0)
+        return cls(max_retries=0)
 
     def get_retry_options(self, middleware_control):
         """
@@ -53,10 +54,7 @@ class RetryHandler(BaseMiddleware):
         if middleware_control:
             return {
                 'total':
-                min(
-                    middleware_control.get('retry_total', self.total_retries),
-                    self.MAX_TOTAL_RETRIES
-                ),
+                min(middleware_control.get('max_retries', self.max_retries), self.MAX_RETRIES),
                 'backoff':
                 middleware_control.get('retry_backoff_factor', self.backoff_factor),
                 'max_backoff':
@@ -65,12 +63,12 @@ class RetryHandler(BaseMiddleware):
                 middleware_control.get('retry_time_limit', self.timeout),
                 'retry_codes':
                 set(middleware_control.get('retry_on_status_codes', self._retry_on_status_codes))
-                | set(self._DEFAULT_RETRY_CODES),
+                | set(self._DEFAULT_RETRY_STATUS_CODES),
                 'methods':
                 self._allowed_methods,
             }
         return {
-            'total': self.total_retries,
+            'total': self.max_retries,
             'backoff': self.backoff_factor,
             'max_backoff': self.backoff_max,
             'timeout': self.timeout,
@@ -83,26 +81,32 @@ class RetryHandler(BaseMiddleware):
         Sends the http request object to the next middleware or retries the request if necessary.
         """
         retry_options = self.get_retry_options(request.context.middleware_control)
-        retry_active = True
-        absolute_time_limit = retry_options['timeout']
+        absolute_time_limit = min(retry_options['timeout'], self.MAX_DELAY)
         response = None
         retry_count = 0
+        retry_valid = True
 
-        while retry_active:
+        while retry_valid:
             try:
                 start_time = time.time()
-                request.headers.update({'Retry-Attempt': '{}'.format(retry_count)})
+                request.headers.update({'retry-attempt': '{}'.format(retry_count)})
                 response = super().send(request, **kwargs)
-                # Check if the request needs to be retried based on the response
+                # Check if the request needs to be retried based on the response method
+                # and status code
                 if self.should_retry(retry_options, response):
-                    retry_active = self.increment_counter(retry_options)
+                    # check that max retries has not been hit
+                    retry_valid = self.check_retry_valid(retry_options, retry_count)
+
                     # Get the delay time between retries
-                    sleep_time = self.get_sleep_time(retry_options, retry_count, response)
-                    if retry_active and sleep_time < absolute_time_limit:
-                        time.sleep(sleep_time)
+                    delay = self.get_delay_time(retry_options, retry_count, response)
+
+                    if retry_valid and delay < absolute_time_limit:
+                        time.sleep(delay)
                         end_time = time.time()
                         absolute_time_limit -= (end_time - start_time)
+                        # increment the count for retries
                         retry_count += 1
+
                         continue
                 break
             except Exception as error:
@@ -142,35 +146,29 @@ class RetryHandler(BaseMiddleware):
             return False
         return True
 
-    def increment_counter(self, retry_options):
+    def check_retry_valid(self, retry_options, retry_count):
         """
-        Increment the retry counters on every valid retry
+        Check that the max retries limit has not been hit
         """
-        if self.retries_exhausted(retry_options):
-            return False
-        retry_options['total'] -= 1
-        return True
-
-    def retries_exhausted(self, retry_options):
-        retries_remaining = retry_options['total']
-        if retries_remaining <= 0:
+        if retry_count < retry_options['total']:
             return True
         return False
 
-    def get_sleep_time(self, retry_options, retry_count, response=None):
+    def get_delay_time(self, retry_options, retry_count, response=None):
         """
-        Get the time in seconds to sleep between retry attempts.
+        Get the time in seconds to delay between retry attempts.
         Respects a retry-after header in the response if provided
         If no retry-after response header, it defaults to exponential backoff
         """
         retry_after = self._get_retry_after(response)
         if retry_after:
             return retry_after
-        return self._get_sleep_time_exp_backoff(retry_options, retry_count)
+        return self._get_delay_time_exp_backoff(retry_options, retry_count)
 
-    def _get_sleep_time_exp_backoff(self, retry_options, retry_count):
+    def _get_delay_time_exp_backoff(self, retry_options, retry_count):
         """
-        Get time to sleep based on exponential backoff value.
+        Get time in seconds to delay between retry attempts based on an exponential
+        backoff value.
         """
         exp_backoff_value = retry_options['backoff'] * +(2**(retry_count - 1))
         backoff_value = exp_backoff_value + (random.randint(0, 1000) / 1000)
@@ -182,7 +180,7 @@ class RetryHandler(BaseMiddleware):
         """
         Check if retry-after is specified in the response header and get the value
         """
-        retry_after = response.headers.get("Retry-After")
+        retry_after = response.headers.get("retry-after")
         if retry_after:
             return self._parse_retry_after(retry_after)
         return None

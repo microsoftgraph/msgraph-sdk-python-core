@@ -24,7 +24,7 @@ def sample_http_client_with_custom_retry_defaults():
     request using the client."""
 
     client = HTTPClientFactory().create_with_default_middleware(
-        browser_credential, retry_total=5, retry_backoff_factor=0.1, retry_time_limit=60
+        browser_credential, max_retries=5, retry_backoff_factor=0.1, retry_time_limit=60
     )
     result = client.get('/me/messages', scopes=['mail.read'])
     pprint(result.json())
@@ -35,7 +35,7 @@ def sample_graph_client_with_custom_retry_defaults():
     handler. These defaults will be used for every subsequent request using the client unless
     per request options are passed"""
 
-    client = GraphClient(credential=browser_credential, retry_total=2, retry_backoff_factor=0.5)
+    client = GraphClient(credential=browser_credential, max_retries=2, retry_backoff_factor=0.5)
     result = client.get('/me/messages', scopes=['mail.read'])
     pprint(result.json())
 

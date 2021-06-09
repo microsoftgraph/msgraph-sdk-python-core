@@ -1,8 +1,14 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import ssl
 
 from requests import Response
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
+
+from .request_context import RequestContext
 
 
 class MiddlewarePipeline(HTTPAdapter):
@@ -25,6 +31,11 @@ class MiddlewarePipeline(HTTPAdapter):
             self._current_middleware = self._first_middleware
 
     def send(self, request, **kwargs):
+
+        if not hasattr(request, 'context'):
+            headers = request.headers
+            request.context = RequestContext(dict(), headers)
+
         if self._middleware_present():
             return self._first_middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send

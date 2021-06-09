@@ -1,26 +1,47 @@
 import platform
-import uuid
 
-from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.middleware.middleware import BaseMiddleware
-from msgraphcore.middleware.options.telemetry_middleware_options import telemetry_options
+from urllib3.util import parse_url
+
+from .._constants import SDK_VERSION
+from .._enums import NationalClouds
+from .middleware import BaseMiddleware
+
+ENDPOINTS = {
+    NationalClouds.China, NationalClouds.Germany, NationalClouds.Global, NationalClouds.US_DoD,
+    NationalClouds.US_GOV
+}
 
 
-class TelemetryMiddleware(BaseMiddleware):
+class TelemetryHandler(BaseMiddleware):
+    """Middleware component that attaches metadata to a Graph request in order to help
+    the SDK team improve the developer experience.
+    """
     def send(self, request, **kwargs):
-        """Attaches metadata to a Graph request"""
 
-        self._add_client_request_id_header(request)
-        self._append_sdk_version_header(request)
-        self._add_host_os_header(request)
-        self._add_runtime_environment_header(request)
+        if self.is_graph_url(request.url):
+            self._add_client_request_id_header(request)
+            self._append_sdk_version_header(request)
+            self._add_host_os_header(request)
+            self._add_runtime_environment_header(request)
+
         response = super().send(request, **kwargs)
         return response
 
+    def is_graph_url(self, url):
+        """Check if the request is made to a graph endpoint. We do not add telemetry headers to
+        non-graph endpoints"""
+        base_url = parse_url(url)
+        endpoint = "{}://{}".format(
+            base_url.scheme,
+            base_url.netloc,
+        )
+        return endpoint in ENDPOINTS
+
     def _add_client_request_id_header(self, request) -> None:
         """Add a client-request-id header with GUID value to request"""
-        client_request_id = str(uuid.uuid4())
-        request.headers.update({'client-request-id': '{}'.format(client_request_id)})
+        request.headers.update(
+            {'client-request-id': '{}'.format(request.context.client_request_id)}
+        )
 
     def _append_sdk_version_header(self, request) -> None:
         """Add SdkVersion request header to each request to identify the language and
@@ -30,12 +51,12 @@ class TelemetryMiddleware(BaseMiddleware):
         if 'sdkVersion' in request.headers:
             sdk_version = request.headers.get('sdkVersion')
             if not sdk_version == f'graph-python-core/{SDK_VERSION} '\
-                f'(featureUsage={telemetry_options.get_feature_usage()})':
+                f'(featureUsage={request.context.feature_usage})':
                 request.headers.update(
                     {
                         'sdkVersion':
                         f'graph-python-core/{SDK_VERSION},{ sdk_version} '\
-                        f'(featureUsage={telemetry_options.get_feature_usage()})'
+                        f'(featureUsage={request.context.feature_usage})'
                     }
                 )
         else:
@@ -43,7 +64,7 @@ class TelemetryMiddleware(BaseMiddleware):
                 {
                     'sdkVersion':
                     f'graph-python-core/{SDK_VERSION} '\
-                    f'(featureUsage={telemetry_options.get_feature_usage()})'
+                    f'(featureUsage={request.context.feature_usage})'
                 }
             )
 

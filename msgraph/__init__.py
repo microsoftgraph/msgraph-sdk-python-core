@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # -----------------------------------
 """
-Microsoft Graph Core Library for Python
+Microsoft Graph Core Library for Python (Preview)
 """
 from .core import SDK_VERSION
 

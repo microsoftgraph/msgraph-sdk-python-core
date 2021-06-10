@@ -1,8 +1,10 @@
 [![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
 
-## Microsoft Graph Core Python Client Library
+## Microsoft Graph Core Python Client Library(Preview Version)
 
 The Microsoft Graph Core Python client library is a lightweight wrapper around the Microsoft Graph API. It provides functionality to create clients with desired configuration and middleware.
+
+**Disclaimer**: Please, be aware that preview versions of `msgraph-core` package are for testing purpose only. Do not use them in a production environment.
 
 ## Prerequisites
 
@@ -20,8 +22,10 @@ To call Microsoft Graph, your app must acquire an access token from the Microsof
 
 ### 2. Install the required packages
 
-    `pip install msgraph-core`
-    `pip install azure-identity`
+msgraph-core is available on PyPI.
+
+    `python -m pip install msgraph-core`
+    `python -m pip install azure-identity`
 
 ### 3. Import modules
 

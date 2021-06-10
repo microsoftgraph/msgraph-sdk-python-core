@@ -2,8 +2,6 @@ import pytest
 
 from msgraph.core import GraphClient
 
-RETRY_CONFIG = {"retry_total": 2, "retry_backoff_factor": 0.1}
-
 
 @pytest.fixture
 def graph_client():

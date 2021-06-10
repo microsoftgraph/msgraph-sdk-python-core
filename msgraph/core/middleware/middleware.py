@@ -4,7 +4,6 @@
 # ------------------------------------
 import ssl
 
-from requests import Response
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
 

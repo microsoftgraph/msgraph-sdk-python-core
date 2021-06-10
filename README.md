@@ -22,7 +22,7 @@ To call Microsoft Graph, your app must acquire an access token from the Microsof
 
 ### 2. Install the required packages
 
-Msgraph-core is available on PyPI
+msgraph-core is available on PyPI.
 
     `python -m pip install msgraph-core`
     `python -m pip install azure-identity`

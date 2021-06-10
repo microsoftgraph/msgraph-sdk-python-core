@@ -1,0 +1,46 @@
+@startuml ClientFactory
+enum NationalClouds {
+  +GERMANY
+  +PUBLIC
+  +US_GOV
+  +CHINA
+}
+
+class HttpClientFactory {
+  -TIMEOUT: string
+  -SDK_VERSION: string
+  -BASE_URL: string
+  -pipeline: MiddlewarePipeline
+
+  +__init__(session: Session, cloud: NationalClouds)
+  +with_default_middleware(auth_provider: TokenCredential): Session
+  +with_user_middleware(middleware: [Middleware]): Session
+}
+
+
+class Session {}
+
+class GraphClient {
+  -session: Session
+
+  +__init__(session: Session, credential: TokenCredential,
+   version: ApiVersion, cloud: NationalClouds)
+  +get()
+  +post()
+  +put()
+  +patch()
+  +delete()
+}
+
+package "middleware" {
+  class MiddlewarePipeline {}
+}
+
+HttpClientFactory --> NationalClouds
+HttpClientFactory -right-> middleware
+HttpClientFactory --> Session
+
+GraphClient -right-> HttpClientFactory
+
+note right of Session: HTTPClient imported from requests
+@enduml

@@ -1,2 +1,0 @@
-msgraph-sdk-python
-==================

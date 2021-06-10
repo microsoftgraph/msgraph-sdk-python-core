@@ -3,8 +3,7 @@
 # Licensed under the MIT License.
 # -----------------------------------
 """
-Core component of the Microsoft Graph Python SDK consisting of HTTP/Graph Client and a configurable
-middleware pipeline
+Microsoft Graph Core Library for Python
 """
 from .core import SDK_VERSION
 

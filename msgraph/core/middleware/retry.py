@@ -111,8 +111,6 @@ class RetryHandler(BaseMiddleware):
         retry_count = 0
         retry_valid = True
 
-        print(retry_options['total'])
-
         while retry_valid:
             try:
                 start_time = time.time()

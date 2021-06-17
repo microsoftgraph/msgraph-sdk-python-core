@@ -6,11 +6,6 @@ from .._constants import SDK_VERSION
 from .._enums import NationalClouds
 from .middleware import BaseMiddleware
 
-ENDPOINTS = {
-    NationalClouds.China, NationalClouds.Germany, NationalClouds.Global, NationalClouds.US_DoD,
-    NationalClouds.US_GOV
-}
-
 
 class TelemetryHandler(BaseMiddleware):
     """Middleware component that attaches metadata to a Graph request in order to help
@@ -30,12 +25,14 @@ class TelemetryHandler(BaseMiddleware):
     def is_graph_url(self, url):
         """Check if the request is made to a graph endpoint. We do not add telemetry headers to
         non-graph endpoints"""
+        endpoints = set(item.value for item in NationalClouds)
+
         base_url = parse_url(url)
         endpoint = "{}://{}".format(
             base_url.scheme,
             base_url.netloc,
         )
-        return endpoint in ENDPOINTS
+        return endpoint in endpoints
 
     def _add_client_request_id_header(self, request) -> None:
         """Add a client-request-id header with GUID value to request"""

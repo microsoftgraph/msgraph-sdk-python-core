@@ -58,7 +58,7 @@ For more information on how to use the package, refer to the [samples](https://g
 
 ## Telemetry Metadata
 
-This library captures metadata by default that provides insights into its usage and helps to improve the developer experience. This metadata includes the sdk version, runtime environment and host Os on which the client is running.
+This library captures metadata by default that provides insights into its usage and helps to improve the developer experience. This metadata includes the `SdkVersion`, `RuntimeEnvironment` and `HostOs` on which the client is running.
 
 ## Issues
 

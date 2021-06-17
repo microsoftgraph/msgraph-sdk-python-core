@@ -26,6 +26,7 @@ supported_options = [
 
 
 def attach_context(func):
+    """Attaches a request context object to every graph request"""
     def wrapper(*args, **kwargs):
         middleware_control = dict()
 

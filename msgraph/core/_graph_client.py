@@ -7,6 +7,8 @@ from requests import Request, Session
 from ._client_factory import HTTPClientFactory
 from .middleware.request_context import RequestContext
 
+# These are middleware options that can be configured per request.
+# Supports options for default middleware as well as custom middleware.
 supported_options = [
     # Auth Options
     'scopes',

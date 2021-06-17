@@ -25,7 +25,8 @@ def test_no_retry_success_response(graph_client):
     )
 
     assert response.status_code == 200
-    assert response.request.headers["retry-attempt"] == "0"
+    with pytest.raises(KeyError):
+        response.request.headers["retry-attempt"]
 
 
 def test_valid_retry_429(graph_client):
@@ -88,4 +89,5 @@ def test_retries_time_limit(graph_client):
 
     assert response.status_code == 503
     headers = response.request.headers
-    assert headers["retry-attempt"] == "0"
+    with pytest.raises(KeyError):
+        response.request.headers["retry-attempt"]

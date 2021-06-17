@@ -112,30 +112,28 @@ class RetryHandler(BaseMiddleware):
         retry_valid = True
 
         while retry_valid:
-            try:
-                start_time = time.time()
+            start_time = time.time()
+            if retry_count > 0:
                 request.headers.update({'retry-attempt': '{}'.format(retry_count)})
-                response = super().send(request, **kwargs)
-                # Check if the request needs to be retried based on the response method
-                # and status code
-                if self.should_retry(retry_options, response):
-                    # check that max retries has not been hit
-                    retry_valid = self.check_retry_valid(retry_options, retry_count)
+            response = super().send(request, **kwargs)
+            # Check if the request needs to be retried based on the response method
+            # and status code
+            if self.should_retry(retry_options, response):
+                # check that max retries has not been hit
+                retry_valid = self.check_retry_valid(retry_options, retry_count)
 
-                    # Get the delay time between retries
-                    delay = self.get_delay_time(retry_options, retry_count, response)
+                # Get the delay time between retries
+                delay = self.get_delay_time(retry_options, retry_count, response)
 
-                    if retry_valid and delay < absolute_time_limit:
-                        time.sleep(delay)
-                        end_time = time.time()
-                        absolute_time_limit -= (end_time - start_time)
-                        # increment the count for retries
-                        retry_count += 1
+                if retry_valid and delay < absolute_time_limit:
+                    time.sleep(delay)
+                    end_time = time.time()
+                    absolute_time_limit -= (end_time - start_time)
+                    # increment the count for retries
+                    retry_count += 1
 
-                        continue
-                break
-            except Exception as error:
-                raise error
+                    continue
+            break
         return response
 
     def should_retry(self, retry_options, response):

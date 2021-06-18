@@ -11,6 +11,7 @@ from ._enums import APIVersion, NationalClouds
 from .middleware.abc_token_credential import TokenCredential
 from .middleware.authorization import AuthorizationHandler
 from .middleware.middleware import BaseMiddleware, MiddlewarePipeline
+from .middleware.retry import RetryHandler
 
 
 class HTTPClientFactory:
@@ -51,6 +52,7 @@ class HTTPClientFactory:
         """
         middleware = [
             AuthorizationHandler(credential, **kwargs),
+            RetryHandler(**kwargs),
         ]
         self._register(middleware)
         return self.session

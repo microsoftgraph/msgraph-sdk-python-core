@@ -7,6 +7,8 @@ from requests import Request, Session
 from ._client_factory import HTTPClientFactory
 from .middleware.request_context import RequestContext
 
+# These are middleware options that can be configured per request.
+# Supports options for default middleware as well as custom middleware.
 supported_options = [
     # Auth Options
     'scopes',
@@ -24,6 +26,7 @@ supported_options = [
 
 
 def attach_context(func):
+    """Attaches a request context object to every graph request"""
     def wrapper(*args, **kwargs):
         middleware_control = dict()
 

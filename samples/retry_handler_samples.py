@@ -19,7 +19,7 @@ browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
 
 def sample_http_client_with_custom_retry_defaults():
     """
-    Initializing a sample client with default middleware using the HTTPClientand passing
+    Initializing a sample client with default middleware using the HTTPClient and passing
     default configs to the retryhandler. These defaults will be used for every subsequent
     request using the client."""
 

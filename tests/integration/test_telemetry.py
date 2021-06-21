@@ -1,4 +1,6 @@
 import platform
+import re
+import uuid
 
 import pytest
 
@@ -45,6 +47,24 @@ def test_telemetry_handler_non_graph_url(graph_client):
     response = graph_client.get('https://httpbin.org/status/200')
 
     assert response.status_code == 200
+    with pytest.raises(KeyError):
+        response.request.headers["client-request-id"]
+        response.request.headers["sdkVersion"]
+        response.request.headers["HostOs"]
+        response.request.headers["RuntimeEnvironment"]
+
+
+def test_custom_client_request_id(graph_client):
+    """
+    Test customer provided client request id overrides default value
+    """
+    custom_id = str(uuid.uuid4())
+    response = graph_client.get(
+        'https://httpbin.org/status/200', headers={"client-request-id": custom_id}
+    )
+
+    assert response.status_code == 200
+    assert response.request.headers["client-request-id"] == custom_id
     with pytest.raises(KeyError):
         response.request.headers["client-request-id"]
         response.request.headers["sdkVersion"]

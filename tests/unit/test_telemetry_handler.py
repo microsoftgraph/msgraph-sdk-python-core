@@ -58,6 +58,25 @@ def test_add_client_request_id_header():
 
 
 @responses.activate
+def test_custom_client_request_id_header():
+    """
+    Test that a custom client request id is used, if provided
+    """
+    custom_id = str(uuid.uuid4())
+    responses.add(responses.GET, BASE_URL)
+    response = requests.get(BASE_URL)
+    request = response.request
+    request.context = RequestContext({}, {'client-request-id': custom_id})
+
+    telemetry_handler = TelemetryHandler()
+    telemetry_handler._add_client_request_id_header(request)
+
+    assert 'client-request-id' in request.headers
+    assert _is_valid_uuid(request.headers.get('client-request-id'))
+    assert request.headers.get('client-request-id') == custom_id
+
+
+@responses.activate
 def test_append_sdk_version_header():
     """
     Test that sdkVersion is added to the request headers

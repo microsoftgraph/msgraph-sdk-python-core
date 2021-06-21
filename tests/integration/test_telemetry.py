@@ -64,7 +64,7 @@ def test_custom_client_request_id(graph_client):
     )
 
     assert response.status_code == 200
-    assert response.request.headers["client-request-id"] == custom_id
+    assert response.request.context.client_request_id == custom_id
     with pytest.raises(KeyError):
         response.request.headers["client-request-id"]
         response.request.headers["sdkVersion"]

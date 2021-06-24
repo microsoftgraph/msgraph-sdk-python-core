@@ -12,20 +12,22 @@ from .request_context import RequestContext
 
 class MiddlewarePipeline(HTTPAdapter):
     """MiddlewarePipeline, entry point of middleware
-
     The pipeline is implemented as a linked-list, read more about
     it here https://buffered.dev/middleware-python-requests/
     """
     def __init__(self):
         super().__init__()
-        self._middleware = None
+        self._current_middleware = None
+        self._first_middleware = None
         self.poolmanager = PoolManager(ssl_version=ssl.PROTOCOL_TLSv1_2)
 
     def add_middleware(self, middleware):
         if self._middleware_present():
-            self._middleware.next = middleware
+            self._current_middleware.next = middleware
+            self._current_middleware = middleware
         else:
-            self._middleware = middleware
+            self._first_middleware = middleware
+            self._current_middleware = self._first_middleware
 
     def send(self, request, **kwargs):
 
@@ -34,12 +36,12 @@ class MiddlewarePipeline(HTTPAdapter):
             request.context = RequestContext(dict(), headers)
 
         if self._middleware_present():
-            return self._middleware.send(request, **kwargs)
+            return self._first_middleware.send(request, **kwargs)
         # No middleware in pipeline, call superclass' send
         return super().send(request, **kwargs)
 
     def _middleware_present(self):
-        return self._middleware
+        return self._current_middleware
 
 
 class BaseMiddleware(HTTPAdapter):

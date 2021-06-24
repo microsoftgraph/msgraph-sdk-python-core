@@ -1,10 +1,10 @@
 import datetime
 import random
-import sys
 import time
 from email.utils import parsedate_to_datetime
 
-from msgraph.core.middleware.middleware import BaseMiddleware
+from .._enums import FeatureUsageFlag
+from .middleware import BaseMiddleware
 
 
 class RetryHandler(BaseMiddleware):

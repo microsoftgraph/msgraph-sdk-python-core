@@ -61,6 +61,11 @@ print(result.json())
 
 For more information on how to use the package, refer to the [samples](https://github.com/microsoftgraph/msgraph-sdk-python-core/tree/dev/samples).
 
+
+## Telemetry Metadata
+
+This library captures metadata by default that provides insights into its usage and helps to improve the developer experience. This metadata includes the `SdkVersion`, `RuntimeEnvironment` and `HostOs` on which the client is running.
+
 ## Issues
 
 View or log issues on the [Issues](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues) tab in the repo.

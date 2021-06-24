@@ -14,8 +14,8 @@ class MiddlewarePipelineTest(TestCase):
         middleware_pipeline.add_middleware(MockRequestMiddleware1())
         middleware_pipeline.add_middleware(MockRequestMiddleware2())
 
-        first_middleware = middleware_pipeline._middleware
-        second_middleware = middleware_pipeline._middleware.next
+        first_middleware = middleware_pipeline._first_middleware
+        second_middleware = middleware_pipeline._first_middleware.next
 
         self.assertIsInstance(first_middleware, MockRequestMiddleware1)
         self.assertIsInstance(second_middleware, MockRequestMiddleware2)

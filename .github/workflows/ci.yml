@@ -4,10 +4,8 @@
 name: msgraph-sdk-python-core
 
 on:
-  push:
-    branches: [master]
   pull_request:
-    branches: [dev]
+    branches: [master, dev]
 
 jobs:
   build:
@@ -35,9 +33,7 @@ jobs:
           pipenv run isort .
       - name: Lint with Pylint
         run: |
-          pipenv run pylint msgraphcore --disable=W --rcfile=.pylintrc
-      - name: Test with unittest
+          pipenv run pylint msgraph --disable=W --rcfile=.pylintrc
+      - name: Test with pytest
         run: |
-          pipenv run coverage run -m pytest tests/unit
-          pipenv run coverage run -m pytest tests/integration
-          pipenv run coverage html
+          pipenv run pytest

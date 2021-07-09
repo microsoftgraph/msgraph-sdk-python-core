@@ -6,9 +6,38 @@ import pytest
 import requests
 import responses
 
-from msgraphcore.constants import BASE_URL, SDK_VERSION
-from msgraphcore.graph_session import GraphSession
-from msgraphcore.middleware.telemetry import TelemetryMiddleware
+from msgraph.core import SDK_VERSION, APIVersion, GraphClient, NationalClouds
+from msgraph.core.middleware.request_context import RequestContext
+from msgraph.core.middleware.telemetry import TelemetryHandler
+
+BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
+
+
+@responses.activate
+def test_is_graph_url():
+    """
+    Test method that checks whether a request url is a graph endpoint
+    """
+    responses.add(responses.GET, BASE_URL)
+    response = requests.get(BASE_URL)
+    request = response.request
+
+    telemetry_handler = TelemetryHandler()
+    assert telemetry_handler.is_graph_url(request.url)
+
+
+@responses.activate
+def test_is_not_graph_url():
+    """
+    Test method that checks whether a request url is a graph endpoint with a
+    non-graph url
+    """
+    responses.add(responses.GET, 'https://httpbin.org/status/200')
+    response = requests.get('https://httpbin.org/status/200')
+    request = response.request
+
+    telemetry_handler = TelemetryHandler()
+    assert not telemetry_handler.is_graph_url(request.url)
 
 
 @responses.activate
@@ -19,12 +48,32 @@ def test_add_client_request_id_header():
     responses.add(responses.GET, BASE_URL)
     response = requests.get(BASE_URL)
     request = response.request
+    request.context = RequestContext({}, {})
 
-    telemetry_handler = TelemetryMiddleware()
+    telemetry_handler = TelemetryHandler()
     telemetry_handler._add_client_request_id_header(request)
 
     assert 'client-request-id' in request.headers
     assert _is_valid_uuid(request.headers.get('client-request-id'))
+
+
+@responses.activate
+def test_custom_client_request_id_header():
+    """
+    Test that a custom client request id is used, if provided
+    """
+    custom_id = str(uuid.uuid4())
+    responses.add(responses.GET, BASE_URL)
+    response = requests.get(BASE_URL)
+    request = response.request
+    request.context = RequestContext({}, {'client-request-id': custom_id})
+
+    telemetry_handler = TelemetryHandler()
+    telemetry_handler._add_client_request_id_header(request)
+
+    assert 'client-request-id' in request.headers
+    assert _is_valid_uuid(request.headers.get('client-request-id'))
+    assert request.headers.get('client-request-id') == custom_id
 
 
 @responses.activate
@@ -35,8 +84,9 @@ def test_append_sdk_version_header():
     responses.add(responses.GET, BASE_URL)
     response = requests.get(BASE_URL)
     request = response.request
+    request.context = RequestContext({}, {})
 
-    telemetry_handler = TelemetryMiddleware()
+    telemetry_handler = TelemetryHandler()
     telemetry_handler._append_sdk_version_header(request)
 
     assert 'sdkVersion' in request.headers
@@ -55,8 +105,9 @@ def test_add_host_os_header():
     responses.add(responses.GET, BASE_URL)
     response = requests.get(BASE_URL)
     request = response.request
+    request.context = RequestContext({}, {})
 
-    telemetry_handler = TelemetryMiddleware()
+    telemetry_handler = TelemetryHandler()
     telemetry_handler._add_host_os_header(request)
 
     assert 'HostOs' in request.headers
@@ -74,8 +125,9 @@ def test_add_runtime_environment_header():
     responses.add(responses.GET, BASE_URL)
     response = requests.get(BASE_URL)
     request = response.request
+    request.context = RequestContext({}, {})
 
-    telemetry_handler = TelemetryMiddleware()
+    telemetry_handler = TelemetryHandler()
     telemetry_handler._add_runtime_environment_header(request)
 
     assert 'RuntimeEnvironment' in request.headers

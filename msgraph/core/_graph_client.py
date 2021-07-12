@@ -142,7 +142,17 @@ class GraphClient:
 
     @attach_context
     def prepare_request(self, method, url, **kwargs):
-        req = Request(method, url, **kwargs)
+        req = Request(
+            method,
+            url,
+            headers=kwargs.get('headers'),
+            files=kwargs.get('files'),
+            data=kwargs.get('data'),
+            json=kwargs.get('json'),
+            params=kwargs.get('params'),
+            cookies=kwargs.get('cookies'),
+            hooks=kwargs.get('hooks'),
+        )
         prepared = Session().prepare_request(req)
         return prepared
 

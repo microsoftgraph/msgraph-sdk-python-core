@@ -96,3 +96,19 @@ def test_graph_client_picks_options_from_kwargs():
     assert response.status_code == 200
     assert 'scopes' in response.request.context.middleware_control.keys()
     assert response.request.context.middleware_control['scopes'] == scopes
+
+
+def test_graph_client_allows_passing_optional_kwargs():
+    """
+    Test the graph client allows passing optional kwargs native to the requests library
+    such as stream, proxy and cert.
+    """
+    credential = _CustomTokenCredential()
+    scopes = ['User.Read.All']
+    client = GraphClient(credential=credential)
+    response = client.get(
+        'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me',
+        scopes=scopes,
+        stream=True
+    )
+    assert response.status_code == 200

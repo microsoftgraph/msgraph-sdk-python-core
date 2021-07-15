@@ -1,4 +1,4 @@
-# Announcements
-* First announcement
+# Notes
+* First Note
 
 # Changes

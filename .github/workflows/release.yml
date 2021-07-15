@@ -15,18 +15,17 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Python 3.8
-      - uses: actions/checkout@v2.3.4
+        uses: actions/setup-python@v1
         with:
           python-version: 3.8
       - name: Release Notes
-        run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+        run: |
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n' --no-merges >> ".github/RELEASE-TEMPLATE.md"
       - name: Create Release Draft
         uses: softprops/action-gh-release@v1
+        if: github.repository == 'microsoftgraph/msgraph-sdk-python-core' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
-          files: |
-            dist/msgraph_core-${{env.PROJECT_VERSION}}-py3-none-any.whl
-            dist/msgraph_core-${{env.PROJECT_VERSION}}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

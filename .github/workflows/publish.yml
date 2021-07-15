@@ -1,4 +1,4 @@
-name: Publish MsGraph-Core package to TestPyPI
+name: Publish MsGraph-Core package to PyPI
 
 on:
   release:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: Create release and publish distribution to TestPyPI
+    name: Create release and publish distribution to PyPI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,10 +19,10 @@ jobs:
       - name: Install flit
         run: |
           pip install flit
-      - name: Publish the distibution to TestPyPI
+      - name: Publish the distibution to PyPI
         if: github.repository == 'microsoftgraph/msgraph-sdk-python-core'
         run: flit publish
         env:
-          FLIT_INDEX_URL: https://test.pypi.org/legacy/
+          FLIT_INDEX_URL: https://upload.pypi.org/legacy/
           FLIT_USERNAME: __token__
-          FLIT_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          FLIT_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}

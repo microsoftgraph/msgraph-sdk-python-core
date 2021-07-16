@@ -150,6 +150,7 @@ class GraphClient:
             data=kwargs.get('data'),
             json=kwargs.get('json'),
             params=kwargs.get('params'),
+            auth=kwargs.get('auth'),
             cookies=kwargs.get('cookies'),
             hooks=kwargs.get('hooks'),
         )

@@ -38,8 +38,7 @@ class MiddlewarePipeline(HTTPAdapter):
         else:
             middleware_control = dict()
 
-        headers = request.headers
-        request.context = RequestContext(middleware_control, headers)
+        request.context = RequestContext(middleware_control, request.headers)
 
         if self._middleware_present():
             return self._first_middleware.send(request, **kwargs)

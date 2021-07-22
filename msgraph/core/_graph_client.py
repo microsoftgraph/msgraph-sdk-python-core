@@ -41,8 +41,7 @@ def collect_options(func):
         if 'headers' in kwargs.keys():
             kwargs['headers'].update({'middleware_control': json.dumps(middleware_control)})
         else:
-            kwargs['headers'] = dict()
-            kwargs['headers'].update({'middleware_control': json.dumps(middleware_control)})
+            kwargs['headers'] = {'middleware_control': json.dumps(middleware_control)}
 
         return func(*args, **kwargs)
 

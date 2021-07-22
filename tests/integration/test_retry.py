@@ -1,28 +1,26 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import pytest
+from azure.identity import EnvironmentCredential
 
 from msgraph.core import GraphClient
 
 
 @pytest.fixture
 def graph_client():
-    scopes = ['user.read']
-    credential = _CustomTokenCredential()
+    scopes = ['https://graph.microsoft.com/.default']
+    credential = EnvironmentCredential()
     client = GraphClient(credential=credential, scopes=scopes)
     return client
-
-
-class _CustomTokenCredential:
-    def get_token(self, scopes):
-        return ['{token:https://graph.microsoft.com/}']
 
 
 def test_no_retry_success_response(graph_client):
     """
     Test that a request with valid http header and a success response is not retried
     """
-    response = graph_client.get(
-        'https://proxy.apisandbox.msdn.microsoft.com/svc?url=https://graph.microsoft.com/v1.0/me'
-    )
+    response = graph_client.get('https://graph.microsoft.com/v1.0/users')
 
     assert response.status_code == 200
     with pytest.raises(KeyError):

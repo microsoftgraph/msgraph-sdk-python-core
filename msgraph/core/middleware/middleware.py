@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+import json
 import ssl
 
 from requests.adapters import HTTPAdapter
@@ -31,9 +32,14 @@ class MiddlewarePipeline(HTTPAdapter):
 
     def send(self, request, **kwargs):
 
-        if not hasattr(request, 'context'):
-            headers = request.headers
-            request.context = RequestContext(dict(), headers)
+        middleware_control_json = request.headers.pop('middleware_control', None)
+        if middleware_control_json:
+            middleware_control = json.loads(middleware_control_json)
+        else:
+            middleware_control = dict()
+
+        headers = request.headers
+        request.context = RequestContext(middleware_control, headers)
 
         if self._middleware_present():
             return self._first_middleware.send(request, **kwargs)

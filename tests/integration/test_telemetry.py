@@ -1,8 +1,13 @@
+# ------------------------------------
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+# ------------------------------------
 import platform
 import re
 import uuid
 
 import pytest
+from azure.identity import EnvironmentCredential
 
 from msgraph.core import SDK_VERSION, APIVersion, GraphClient, NationalClouds
 
@@ -11,29 +16,24 @@ BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
 
 @pytest.fixture
 def graph_client():
-    scopes = ['user.read']
-    credential = _CustomTokenCredential()
+    scopes = ['https://graph.microsoft.com/.default']
+    credential = EnvironmentCredential()
     client = GraphClient(credential=credential, scopes=scopes)
     return client
-
-
-class _CustomTokenCredential:
-    def get_token(self, scopes):
-        return ['{token:https://graph.microsoft.com/}']
 
 
 def test_telemetry_handler(graph_client):
     """
     Test telemetry handler updates the graph request with the requisite headers
     """
-    response = graph_client.get('https://graph.microsoft.com/v1.0/me')
+    response = graph_client.get('https://graph.microsoft.com/v1.0/users')
     system = platform.system()
     version = platform.version()
     host_os = f'{system} {version}'
     python_version = platform.python_version()
     runtime_environment = f'Python/{python_version}'
 
-    assert response.status_code == 401
+    assert response.status_code == 200
     assert response.request.headers["client-request-id"]
     assert response.request.headers["sdkVersion"].startswith('graph-python-core/' + SDK_VERSION)
     assert response.request.headers["HostOs"] == host_os

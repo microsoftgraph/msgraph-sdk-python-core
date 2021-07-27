@@ -8,4 +8,4 @@ via the GraphClient or HttpClientFactory
 """
 DEFAULT_REQUEST_TIMEOUT = 100
 DEFAULT_CONNECTION_TIMEOUT = 30
-SDK_VERSION = '0.2.0'
+SDK_VERSION = '0.2.1'

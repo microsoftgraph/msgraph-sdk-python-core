@@ -1,5 +1,5 @@
 [![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
-
+[![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
 ## Microsoft Graph Core Python Client Library (preview).
 
 The Microsoft Graph Core Python client library is a lightweight wrapper around the Microsoft Graph API. It provides functionality to create clients with desired configuration and middleware.

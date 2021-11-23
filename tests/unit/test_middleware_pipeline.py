@@ -27,7 +27,7 @@ class MiddlewarePipelineTest(TestCase):
 
         request = OrderedDict()
         request.headers = {}
-        result = middleware_pipeline.send(request=request)
+        result = middleware_pipeline.send(request)
 
         second, _ = result.popitem()
         first, _ = result.popitem()

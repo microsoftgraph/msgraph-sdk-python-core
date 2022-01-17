@@ -165,7 +165,7 @@ class RetryHandler(BaseMiddleware):
         """
         if response.request.method.upper() in frozenset(['HEAD', 'GET', 'DELETE', 'OPTIONS']):
             return True
-        if response.request.headers['Content-Type'] == "application/octet-stream":
+        if response.request.headers.get('Content-Type') == "application/octet-stream":
             return False
         return True
 

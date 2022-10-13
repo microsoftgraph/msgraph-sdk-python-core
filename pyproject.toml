@@ -1,14 +1,48 @@
 [build-system]
-requires = ["flit_core >=2,<4", "requests >= 2.23.0"]
+requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
-[tool.flit.metadata]
-module = "msgraph"
-author = "Microsoft"
-author-email = "graphtooling+python@microsoft.com"
-home-page = "https://github.com/microsoftgraph/msgraph-sdk-python-core"
-dist-name="msgraph-core"
-requires-python=">=3.5"
-classifiers = [ "License :: OSI Approved :: MIT License",]
-description-file = "README.md"
+[project]
+name = "microsoft-kiota-http"
+authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
+dependencies = [
+    "microsoft-kiota-abstractions >=0.1.0",
+    "microsoft-kiota-http >=0.1.0",
+    "httpx[http2] >=0.23.0",
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+keywords = ["msgraph", "openAPI", "Microsoft", "Graph"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+]
+dynamic = ["version", "description"]
 
+[project.urls]
+homepage = "https://github.com/microsoftgraph/msgraph-sdk-python-core#readme"
+repository = "https://github.com/microsoftgraph/msgraph-sdk-python-core"
+documentation = "https://github.com/microsoftgraph/msgraph-sdk-python-core/docs"
+
+[tool.flit.module]
+name = "msgraph"
+
+[tool.mypy]
+warn_unused_configs = true
+files = "msgraph"
+ignore_missing_imports = true
+
+[tool.yapf]
+based_on_style = "pep8"
+dedent_closing_brackets = true
+each_dict_entry_on_separate_line = true
+column_limit = 100
+
+[tool.isort]
+profile = "hug"

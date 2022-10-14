@@ -16,6 +16,7 @@ class MiddlewarePipeline(HTTPAdapter):
     The pipeline is implemented as a linked-list, read more about
     it here https://buffered.dev/middleware-python-requests/
     """
+
     def __init__(self):
         super().__init__()
         self._current_middleware = None
@@ -56,6 +57,7 @@ class BaseMiddleware(HTTPAdapter):
     If the current middleware is the last one in the pipeline, it
     makes a network request
     """
+
     def __init__(self):
         super().__init__()
         self.next = None

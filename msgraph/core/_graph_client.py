@@ -29,6 +29,7 @@ supported_options = [
 
 def collect_options(func):
     """Collect middleware options into a middleware control dict and pass it as a header"""
+
     def wrapper(*args, **kwargs):
 
         middleware_control = dict()

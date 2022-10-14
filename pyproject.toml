@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "microsoft-kiota-http"
+name = "msgraph-core"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 dependencies = [
     "microsoft-kiota-abstractions >=0.1.0",

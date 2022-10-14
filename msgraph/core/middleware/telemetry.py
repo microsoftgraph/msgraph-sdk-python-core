@@ -11,6 +11,7 @@ class TelemetryHandler(BaseMiddleware):
     """Middleware component that attaches metadata to a Graph request in order to help
     the SDK team improve the developer experience.
     """
+
     def send(self, request, **kwargs):
 
         if self.is_graph_url(request.url):

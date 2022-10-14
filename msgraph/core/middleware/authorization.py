@@ -8,6 +8,7 @@ from .middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):
+
     def __init__(self, credential: TokenCredential, **kwargs):
         super().__init__()
         self.credential = credential

@@ -92,5 +92,6 @@ def test_does_not_build_graph_urls_for_full_urls():
 
 
 class _CustomTokenCredential:
+
     def get_token(self, scopes):
         return ['{token:https://graph.microsoft.com/}']

@@ -9,6 +9,7 @@ from msgraph.core.middleware.middleware import BaseMiddleware, MiddlewarePipelin
 
 
 class MiddlewarePipelineTest(TestCase):
+
     def test_adds_middlewares_in_order(self):
         middleware_pipeline = MiddlewarePipeline()
         middleware_pipeline.add_middleware(MockRequestMiddleware1())
@@ -54,6 +55,7 @@ class MiddlewarePipelineTest(TestCase):
 
 
 class MockRequestMiddleware1(BaseMiddleware):
+
     def __init__(self):
         super().__init__()
 
@@ -63,6 +65,7 @@ class MockRequestMiddleware1(BaseMiddleware):
 
 
 class MockRequestMiddleware2(BaseMiddleware):
+
     def __init__(self):
         super().__init__()
 
@@ -72,6 +75,7 @@ class MockRequestMiddleware2(BaseMiddleware):
 
 
 class MockResponseMiddleware1(BaseMiddleware):
+
     def __init__(self):
         super().__init__()
 
@@ -82,6 +86,7 @@ class MockResponseMiddleware1(BaseMiddleware):
 
 
 class MockResponseMiddleware2(BaseMiddleware):
+
     def __init__(self):
         super().__init__()
 

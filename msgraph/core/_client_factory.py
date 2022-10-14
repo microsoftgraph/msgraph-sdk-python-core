@@ -34,6 +34,7 @@ class HTTPClientFactory:
         be applied to both the connect and the read timeouts.
     :keyword obj session: A custom Session instance from the python requests library
     """
+
     def __init__(self, **kwargs):
         """Class constructor that accepts a user provided session object and kwargs
         to configure the request handling behaviour of the client"""

@@ -13,10 +13,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ["main"]
+    branches: ["kiota/long-term-branch"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["main"]
+    branches: ["kiota/long-term-branch"]
   schedule:
     - cron: "32 11 * * 6"
 

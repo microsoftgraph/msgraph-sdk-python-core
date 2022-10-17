@@ -1,25 +1,30 @@
 import platform
 
+import httpx
+from kiota_http.middleware.middleware import BaseMiddleware
 from urllib3.util import parse_url
 
 from .._constants import SDK_VERSION
 from .._enums import NationalClouds
-from .middleware import BaseMiddleware
 
 
 class TelemetryHandler(BaseMiddleware):
     """Middleware component that attaches metadata to a Graph request in order to help
     the SDK team improve the developer experience.
     """
-    def send(self, request, **kwargs):
 
-        if self.is_graph_url(request.url):
+    async def send(
+        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+    ) -> httpx.Response:
+        """Adds telemetry headers and sends the http request.
+        """
+        if self.is_graph_url(str(request.url)):
             self._add_client_request_id_header(request)
             self._append_sdk_version_header(request)
             self._add_host_os_header(request)
             self._add_runtime_environment_header(request)
 
-        response = super().send(request, **kwargs)
+        response = await super().send(request, transport)
         return response
 
     def is_graph_url(self, url):
@@ -28,17 +33,12 @@ class TelemetryHandler(BaseMiddleware):
         endpoints = set(item.value for item in NationalClouds)
 
         base_url = parse_url(url)
-        endpoint = "{}://{}".format(
-            base_url.scheme,
-            base_url.netloc,
-        )
+        endpoint = f"{base_url.scheme}://{base_url.netloc}"
         return endpoint in endpoints
 
     def _add_client_request_id_header(self, request) -> None:
         """Add a client-request-id header with GUID value to request"""
-        request.headers.update(
-            {'client-request-id': '{}'.format(request.context.client_request_id)}
-        )
+        request.headers.update({'client-request-id': f'{request.context.client_request_id}'})
 
     def _append_sdk_version_header(self, request) -> None:
         """Add SdkVersion request header to each request to identify the language and

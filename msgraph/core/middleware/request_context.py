@@ -13,6 +13,7 @@ class RequestContext:
     of middleware as well as a FeatureUsage  property to keep track of middleware used
     in making the request.
     """
+
     def __init__(self, middleware_control, headers):
         """Constructor for request context instances
 

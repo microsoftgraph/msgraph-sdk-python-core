@@ -2,35 +2,25 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+import httpx
+from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_http.middleware.middleware import BaseMiddleware
+
 from .._enums import FeatureUsageFlag
-from .abc_token_credential import TokenCredential
-from .middleware import BaseMiddleware
 
 
 class AuthorizationHandler(BaseMiddleware):
-    def __init__(self, credential: TokenCredential, **kwargs):
+
+    def __init__(self, auth_provider: AuthenticationProvider):
         super().__init__()
-        self.credential = credential
-        self.scopes = kwargs.get("scopes", ['.default'])
-        self.retry_count = 0
+        self.auth_provider = auth_provider
 
-    def send(self, request, **kwargs):
+    async def send(
+        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+    ) -> httpx.Response:
         context = request.context
-        request.headers.update(
-            {'Authorization': 'Bearer {}'.format(self._get_access_token(context))}
-        )
+        token = await self.auth_provider.get_authorization_token(str(request.url))
+        request.headers.update({'Authorization': f'Bearer {token}'})
         context.set_feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
-        response = super().send(request, **kwargs)
-
-        # Token might have expired just before transmission, retry the request one more time
-        if response.status_code == 401 and self.retry_count < 2:
-            self.retry_count += 1
-            return self.send(request, **kwargs)
+        response = await super().send(request, transport)
         return response
-
-    def _get_access_token(self, context):
-        return self.credential.get_token(*self.get_scopes(context))[0]
-
-    def get_scopes(self, context):
-        # Checks if there are any options for this middleware
-        return context.middleware_control.get('scopes', self.scopes)

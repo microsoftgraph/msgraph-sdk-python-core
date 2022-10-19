@@ -4,17 +4,19 @@
 # ------------------------------------
 import uuid
 
+import httpx
+
 from .._enums import FeatureUsageFlag
 
 
 class RequestContext:
-    """A request context contains data that is persisted throughout the request and
-    includes a ClientRequestId property, MiddlewareControl property to control behavior
-    of middleware as well as a FeatureUsage  property to keep track of middleware used
+    """A request context contains data that is persisted throughout the request and
+    includes a ClientRequestId property, MiddlewareControl property to control behavior
+    of middleware as well as a FeatureUsage  property to keep track of middleware used
     in making the request.
     """
 
-    def __init__(self, middleware_control, headers):
+    def __init__(self, middleware_control: dict, headers: httpx.Headers):
         """Constructor for request context instances
 
         Args:
@@ -27,12 +29,12 @@ class RequestContext:
         """
         self.middleware_control = middleware_control
         self.client_request_id = headers.get('client-request-id', str(uuid.uuid4()))
-        self._feature_usage = FeatureUsageFlag.NONE
+        self._feature_usage: int = FeatureUsageFlag.NONE
 
     @property
     def feature_usage(self):
         return hex(self._feature_usage)
 
     @feature_usage.setter
-    def set_feature_usage(self, flag: FeatureUsageFlag):
+    def feature_usage(self, flag: FeatureUsageFlag) -> None:
         self._feature_usage = self._feature_usage | flag

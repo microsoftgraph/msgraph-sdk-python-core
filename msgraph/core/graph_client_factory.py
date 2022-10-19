@@ -2,14 +2,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from typing import List, Optional
+
 import httpx
 from kiota_abstractions.authentication import AuthenticationProvider
 from kiota_http.kiota_client_factory import KiotaClientFactory
 from kiota_http.middleware import AsyncKiotaTransport
+from kiota_http.middleware.middleware import BaseMiddleware
 
 from ._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
 from ._enums import APIVersion, NationalClouds
-from .middleware import AuthorizationHandler, GraphMiddlewarePipeline, TelemetryHandler
+from .middleware import (
+    GraphAuthorizationHandler,
+    GraphMiddlewarePipeline,
+    GraphRedirectHandler,
+    GraphRetryHandler,
+    GraphTelemetryHandler,
+)
 
 
 class GraphClientFactory(KiotaClientFactory):
@@ -37,7 +46,7 @@ class GraphClientFactory(KiotaClientFactory):
         api_version: APIVersion,
         endpoint: NationalClouds,
         timeout: httpx.Timeout,
-        client: httpx.AsyncClient,
+        client: Optional[httpx.AsyncClient],
     ):
         """Class constructor that accepts a user provided session object and kwargs
         to configure the request handling behaviour of the client"""
@@ -54,41 +63,42 @@ class GraphClientFactory(KiotaClientFactory):
         Returns:
             httpx.AsycClient: An instance of the AsyncClient object
         """
-        graph_async_client = httpx.AsyncClient(
-            base_url=self._get_base_url(), timeout=self.timeout, http2=True
-        )
-        current_transport = graph_async_client._transport
+        if not self.client:
+            self.client = httpx.AsyncClient(
+                base_url=self._get_base_url(), timeout=self.timeout, http2=True
+            )
+        current_transport = self.client._transport
         middleware = self._get_default_middleware(auth_provider, current_transport)
 
-        graph_async_client._transport = AsyncKiotaTransport(
+        self.client._transport = AsyncKiotaTransport(
             transport=current_transport, middleware=middleware
         )
-        return graph_async_client
+        return self.client
 
-    # def create_with_custom_middleware(self,
-    #                                   middleware: [BaseMiddleware]) -> Session:
-    #     """Applies a custom middleware chain to the HTTP Client
+    def create_with_custom_middleware(
+        self, middleware: Optional[List[BaseMiddleware]]
+    ) -> httpx.AsyncClient:
+        """Applies a custom middleware chain to the HTTP Client
 
-    #     :param list middleware: Custom middleware(HTTPAdapter) list that will be used to create
-    #         a middleware pipeline. The middleware should be arranged in the order in which they will
-    #         modify the request.
-    #     """
-    #     if not middleware:
-    #         raise ValueError("Please provide a list of custom middleware")
-    #     self._register(middleware)
-    #     return self.session
+        :param list middleware: Custom middleware(HTTPAdapter) list that will be used to create
+            a middleware pipeline. The middleware should be arranged in the order in which they will
+            modify the request.
+        """
+        if not self.client:
+            self.client = httpx.AsyncClient(
+                base_url=self._get_base_url(), timeout=self.timeout, http2=True
+            )
+        current_transport = self.client._transport
+
+        self.client._transport = AsyncKiotaTransport(
+            transport=current_transport, middleware=middleware
+        )
+        return self.client
 
     def _get_base_url(self):
         """Helper method to set the base url"""
         base_url = self.endpoint + '/' + self.api_version
         return base_url
-
-    # def _get_default_timeout(self):
-    #     """Helper method to set a default timeout for the session
-    #     Reference: https://github.com/psf/requests/issues/2011
-    #     """
-    #     self.session.request = functools.partial(self.session.request,
-    #                                              timeout=self.timeout)
 
     def _get_default_middleware(
         self, auth_provider: AuthenticationProvider, transport: httpx.AsyncBaseTransport
@@ -97,7 +107,12 @@ class GraphClientFactory(KiotaClientFactory):
         Helper method that constructs a middleware_pipeline with the specified middleware
         """
         middleware_pipeline = GraphMiddlewarePipeline(transport)
-        middleware = [AuthorizationHandler(auth_provider), TelemetryHandler()]
+        middleware = [
+            GraphAuthorizationHandler(auth_provider),
+            GraphRedirectHandler(),
+            GraphRetryHandler(),
+            GraphTelemetryHandler()
+        ]
         for ware in middleware:
             middleware_pipeline.add_middleware(ware)
 

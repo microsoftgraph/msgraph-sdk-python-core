@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 # ------------------------------------
 import json
-from typing import List
+from typing import List, Optional
 
 import httpx
 from kiota_abstractions.authentication import AuthenticationProvider
@@ -11,24 +11,6 @@ from kiota_http.middleware.middleware import BaseMiddleware
 
 from ._enums import APIVersion, NationalClouds
 from .graph_client_factory import GraphClientFactory
-from .middleware.request_context import RequestContext
-
-# These are middleware options that can be configured per request.
-# Supports options for default middleware as well as custom middleware.
-supported_options = [
-    # Auth Options
-    'scopes',
-
-    # Retry Options
-    'max_retries',
-    'retry_backoff_factor',
-    'retry_backoff_max',
-    'retry_time_limit',
-    'retry_on_status_codes',
-
-    # Custom middleware options
-    'custom_option',
-]
 
 
 def collect_options(func):
@@ -36,17 +18,15 @@ def collect_options(func):
 
     def wrapper(*args, **kwargs):
 
-        middleware_control = dict()
+        # These are middleware options that can be configured per request.
+        # Supports options for default middleware as well as custom middleware.
 
-        for option in supported_options:
-            value = kwargs.pop(option, None)
-            if value:
-                middleware_control.update({option: value})
-
-        if 'headers' in kwargs.keys():
-            kwargs['headers'].update({'middleware_control': json.dumps(middleware_control)})
-        else:
-            kwargs['headers'] = {'middleware_control': json.dumps(middleware_control)}
+        options = kwargs.pop('request_options', None)
+        if options:
+            if 'headers' in kwargs:
+                kwargs['headers'].update({'request_options': json.dumps(options)})
+            else:
+                kwargs['headers'] = {'request_options': json.dumps(options)}
 
         return func(*args, **kwargs)
 
@@ -85,14 +65,14 @@ class GraphClient:
 
     def __init__(
         self,
-        auth_provider: AuthenticationProvider = None,
+        auth_provider: Optional[AuthenticationProvider] = None,
         api_version: APIVersion = APIVersion.v1,
         endpoint: NationalClouds = NationalClouds.Global,
         timeout: httpx.Timeout = httpx.Timeout(
             DEFAULT_REQUEST_TIMEOUT, connect=DEFAULT_CONNECTION_TIMEOUT
         ),
-        client: httpx.AsyncClient = None,
-        middleware: List[BaseMiddleware] = None
+        client: Optional[httpx.AsyncClient] = None,
+        middleware: Optional[List[BaseMiddleware]] = None
     ):
         """
         Class constructor that accepts a session object and kwargs to
@@ -110,7 +90,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a GET request. Returns :class:`Response` object.
@@ -118,9 +98,10 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return await self.client.get(
-            url, params=params, headers=headers, cookies=cookies, extensions=extensions
-        )
+        async with self.client as client:
+            return await client.get(
+                url, params=params, headers=headers, cookies=cookies, extensions=extensions
+            )
 
     @collect_options
     async def options(
@@ -130,7 +111,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a OPTIONS request. Returns :class:`Response` object.
@@ -138,10 +119,10 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
-        return await self.client.options(
-            url, params=params, headers=headers, cookies=cookies, extensions=extensions
-        )
+        async with self.client as client:
+            return await client.options(
+                url, params=params, headers=headers, cookies=cookies, extensions=extensions
+            )
 
     @collect_options
     async def head(
@@ -151,7 +132,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a HEAD request. Returns :class:`Response` object.
@@ -159,10 +140,10 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
-        return await self.client.head(
-            url, params=params, headers=headers, cookies=cookies, extensions=extensions
-        )
+        async with self.client as client:
+            return await client.head(
+                url, params=params, headers=headers, cookies=cookies, extensions=extensions
+            )
 
     @collect_options
     async def post(
@@ -176,7 +157,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a POST request. Returns :class:`Response` object.
@@ -187,18 +168,18 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return await self.client.post(
-            url,
-            content=content,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            middleware_control=middleware_control,
-            extensions=extensions
-        )
+        async with self.client as client:
+            return await client.post(
+                url,
+                content=content,
+                data=data,
+                files=files,
+                json=json,
+                params=params,
+                headers=headers,
+                cookies=cookies,
+                extensions=extensions
+            )
 
     @collect_options
     async def put(
@@ -212,7 +193,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a PUT request. Returns :class:`Response` object.
@@ -222,19 +203,18 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-
-        return await self.client.put(
-            url,
-            content=content,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            middleware_control=middleware_control,
-            extensions=extensions
-        )
+        async with self.client as client:
+            return await client.put(
+                url,
+                content=content,
+                data=data,
+                files=files,
+                json=json,
+                params=params,
+                headers=headers,
+                cookies=cookies,
+                extensions=extensions
+            )
 
     @collect_options
     async def patch(
@@ -248,7 +228,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a PATCH request. Returns :class:`Response` object.
@@ -258,18 +238,18 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return await self.client.patch(
-            url,
-            content=content,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            middleware_control=middleware_control,
-            extensions=extensions
-        )
+        async with self.client as client:
+            return await client.patch(
+                url,
+                content=content,
+                data=data,
+                files=files,
+                json=json,
+                params=params,
+                headers=headers,
+                cookies=cookies,
+                extensions=extensions
+            )
 
     @collect_options
     async def delete(
@@ -279,7 +259,7 @@ class GraphClient:
         params=None,
         headers=None,
         cookies=None,
-        middleware_control=None,
+        request_options=None,
         extensions=None
     ):
         r"""Sends a DELETE request. Returns :class:`Response` object.
@@ -287,30 +267,19 @@ class GraphClient:
         :param \*\*kwargs: Optional arguments that ``request`` takes.
         :rtype: requests.Response
         """
-        return await self.client.delete(
-            url,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            middleware_control=middleware_control,
-            extensions=extensions
-        )
-
-    # def _graph_url(self, url: str) -> str:
-    #     """Appends BASE_URL to user provided path
-    #     :param url: user provided path
-    #     :return: graph_url
-    #     """
-    #     return self.graph_session.base_url + url if (url[0] == '/') else url
+        async with self.client as client:
+            return await client.delete(
+                url, params=params, headers=headers, cookies=cookies, extensions=extensions
+            )
 
     @staticmethod
     def get_graph_client(
-        auth_provider: AuthenticationProvider,
+        auth_provider: Optional[AuthenticationProvider],
         api_version: APIVersion,
         endpoint: NationalClouds,
         timeout: httpx.Timeout,
-        client: httpx.AsyncClient,
-        middleware: BaseMiddleware,
+        client: Optional[httpx.AsyncClient],
+        middleware: Optional[List[BaseMiddleware]],
     ):
         """Method to always return a single instance of a HTTP Client"""
 
@@ -321,8 +290,8 @@ class GraphClient:
         if not auth_provider and not middleware:
             raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
 
-        if auth_provider:
+        if auth_provider and not middleware:
             return GraphClientFactory(api_version, endpoint, timeout,
                                       client).create_with_default_middleware(auth_provider)
-        # return GraphClientFactory(
-        #     **kwargs).create_with_custom_middleware(middleware)
+        return GraphClientFactory(api_version, endpoint, timeout,
+                                  client).create_with_custom_middleware(middleware)

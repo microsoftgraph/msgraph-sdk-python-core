@@ -2,25 +2,39 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from typing import TypeVar
+
 import httpx
 from kiota_abstractions.authentication import AuthenticationProvider
 from kiota_http.middleware.middleware import BaseMiddleware
 
 from .._enums import FeatureUsageFlag
+from .middleware import GraphRequest
 
 
-class AuthorizationHandler(BaseMiddleware):
+class GraphAuthorizationHandler(BaseMiddleware):
+    """
+    Transparently authorize requests by adding authorization header to the request
+    """
 
     def __init__(self, auth_provider: AuthenticationProvider):
+        """Constructor for authorization handler
+
+        Args:
+            auth_provider (AuthenticationProvider): AuthorizationProvider instance
+            that will be used to fetch the token
+        """
         super().__init__()
+
         self.auth_provider = auth_provider
 
     async def send(
-        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+        self, request: GraphRequest, transport: httpx.AsyncBaseTransport
     ) -> httpx.Response:
-        context = request.context
+
+        request.context.feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
+
         token = await self.auth_provider.get_authorization_token(str(request.url))
         request.headers.update({'Authorization': f'Bearer {token}'})
-        context.set_feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
         response = await super().send(request, transport)
         return response

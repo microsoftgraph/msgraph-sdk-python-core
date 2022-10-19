@@ -6,15 +6,16 @@ from urllib3.util import parse_url
 
 from .._constants import SDK_VERSION
 from .._enums import NationalClouds
+from .middleware import GraphRequest
 
 
-class TelemetryHandler(BaseMiddleware):
+class GraphTelemetryHandler(BaseMiddleware):
     """Middleware component that attaches metadata to a Graph request in order to help
     the SDK team improve the developer experience.
     """
 
     async def send(
-        self, request: httpx.Request, transport: httpx.AsyncBaseTransport
+        self, request: GraphRequest, transport: httpx.AsyncBaseTransport
     ) -> httpx.Response:
         """Adds telemetry headers and sends the http request.
         """

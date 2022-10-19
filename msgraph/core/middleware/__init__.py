@@ -2,6 +2,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
-from .authorization import AuthorizationHandler
+from .authorization import GraphAuthorizationHandler
 from .middleware import GraphMiddlewarePipeline
-from .telemetry import TelemetryHandler
+from .redirect import GraphRedirectHandler
+from .retry import GraphRetryHandler
+from .telemetry import GraphTelemetryHandler

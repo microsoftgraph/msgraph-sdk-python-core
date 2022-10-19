@@ -4,29 +4,41 @@
 # ------------------------------------
 import json
 
+import httpx
 from kiota_http.middleware import MiddlewarePipeline
 
 from .request_context import RequestContext
 
 
+class GraphRequest(httpx.Request):
+    """Http Request object with a custom request context
+    """
+    context: RequestContext
+
+
 class GraphMiddlewarePipeline(MiddlewarePipeline):
-    """Entry point of graph specific middleware
-    The pipeline is implemented as a linked-list
+    """Chain of graph specific middleware that process requests in the same order
+    and responses in reverse order to requests. The pipeline is implemented as a linked-list
     """
 
-    async def send(self, request):
+    async def send(self, request: GraphRequest) -> httpx.Response:
+        """Passes the request to the next middleware if available or makes a network request
 
-        middleware_control_string = request.headers.pop('middleware_control', None)
-        if middleware_control_string:
-            middleware_control = json.loads(middleware_control_string)
-        else:
-            middleware_control = dict()
+        Args:
+            request (httpx.Request): The http request
 
-        request.context = RequestContext(middleware_control, request.headers)
+        Returns:
+            httpx.Response: The http response
+        """
+
+        request_options = {}
+        options = request.headers.pop('request_options', None)
+        if options:
+            request_options = json.loads(options)
+
+        request.context = RequestContext(request_options, request.headers)
 
         if self._middleware_present():
             return await self._first_middleware.send(request, self._transport)
-        # No middleware in pipeline, delete request optoions from header and
-        # send the request
-        del request.headers['request_options']
+        # No middleware in pipeline, send the request.
         return await self._transport.handle_async_request(request)

@@ -9,7 +9,7 @@ from msgraph.core import APIVersion, GraphClient, NationalClouds
 from msgraph.core.middleware.authorization import GraphAuthorizationHandler
 
 
-def test_graph_client_with_default_middleware(mock_token_provider):
+def test_initialize_graph_client_with_default_middleware(mock_token_provider):
     """
     Test creating a graph client with default middleware works as expected
     """
@@ -20,7 +20,7 @@ def test_graph_client_with_default_middleware(mock_token_provider):
     assert str(graph_client.client.base_url) == f'{NationalClouds.Global}/{APIVersion.v1}/'
 
 
-def test_graph_client_with_custom_middleware(mock_token_provider):
+def test_initialize_graph_client_with_custom_middleware(mock_token_provider):
     """
     Test creating a graph client with custom middleware works as expected
     """
@@ -31,6 +31,24 @@ def test_graph_client_with_custom_middleware(mock_token_provider):
 
     assert isinstance(graph_client.client, httpx.AsyncClient)
     assert str(graph_client.client.base_url) == f'{NationalClouds.Global}/{APIVersion.v1}/'
+    
+def test_initialize_graph_client_both_token_provider_and_custom_middleware(mock_token_provider):
+    """
+    Test creating a graph client with both token provider and custom middleware throws an error
+    """
+    middleware = [
+        GraphAuthorizationHandler(token_provider=mock_token_provider),
+    ]
+    with pytest.raises(Exception):
+        graph_client = GraphClient(token_provider=mock_token_provider,middleware=middleware)
+    
+def test_initialize_graph_client_without_token_provider_or_custom_middleware():
+    """
+    Test creating a graph client with default middleware works as expected
+    """
+
+    with pytest.raises(Exception):
+        graph_client = GraphClient()
 
 
 def test_graph_client_with_custom_configuration(mock_token_provider):

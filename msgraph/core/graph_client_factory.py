@@ -5,7 +5,7 @@
 from typing import List, Optional
 
 import httpx
-from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_abstractions.authentication import AccessTokenProvider
 from kiota_http.kiota_client_factory import KiotaClientFactory
 from kiota_http.middleware import AsyncKiotaTransport
 from kiota_http.middleware.middleware import BaseMiddleware
@@ -56,7 +56,7 @@ class GraphClientFactory(KiotaClientFactory):
         self.client = client
 
     def create_with_default_middleware(
-        self, auth_provider: AuthenticationProvider
+        self, token_provider: AccessTokenProvider
     ) -> httpx.AsyncClient:
         """Constructs native HTTP AsyncClient(httpx.AsyncClient) instances configured with
         a custom transport loaded with a default pipeline of middleware.
@@ -68,7 +68,7 @@ class GraphClientFactory(KiotaClientFactory):
                 base_url=self._get_base_url(), timeout=self.timeout, http2=True
             )
         current_transport = self.client._transport
-        middleware = self._get_default_middleware(auth_provider, current_transport)
+        middleware = self._get_default_middleware(token_provider, current_transport)
 
         self.client._transport = AsyncKiotaTransport(
             transport=current_transport, middleware=middleware
@@ -101,14 +101,14 @@ class GraphClientFactory(KiotaClientFactory):
         return base_url
 
     def _get_default_middleware(
-        self, auth_provider: AuthenticationProvider, transport: httpx.AsyncBaseTransport
+        self, token_provider: AccessTokenProvider, transport: httpx.AsyncBaseTransport
     ) -> GraphMiddlewarePipeline:
         """
         Helper method that constructs a middleware_pipeline with the specified middleware
         """
         middleware_pipeline = GraphMiddlewarePipeline(transport)
         middleware = [
-            GraphAuthorizationHandler(auth_provider),
+            GraphAuthorizationHandler(token_provider),
             GraphRedirectHandler(),
             GraphRetryHandler(),
             GraphTelemetryHandler()

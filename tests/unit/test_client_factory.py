@@ -2,55 +2,57 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from msgraph.core.middleware.middleware import GraphMiddlewarePipeline
 import pytest
-from requests import Session
-from requests.adapters import HTTPAdapter
+import httpx
+from kiota_http.middleware import AsyncKiotaTransport
 
-from msgraph.core import APIVersion, HTTPClientFactory, NationalClouds
+from msgraph.core import APIVersion, GraphClientFactory, NationalClouds
 from msgraph.core._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT
-from msgraph.core.middleware.authorization import AuthorizationHandler
+from msgraph.core.middleware import GraphAuthorizationHandler
 
 
-def test_initialize_with_default_config():
-    """Test creation of HTTP Client will use the default configuration
-    if none are passed"""
-    client = HTTPClientFactory()
-
-    assert client.api_version == APIVersion.v1
-    assert client.endpoint == NationalClouds.Global
-    assert client.timeout == (DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
-    assert isinstance(client.session, Session)
 
 
-def test_initialize_with_custom_config():
-    """Test creation of HTTP Client will use custom configuration if they are passed"""
-    client = HTTPClientFactory(api_version=APIVersion.beta, timeout=(5, 5))
+# def test_initialize_with_custom_config():
+#     """Test creation of HTTP Client will use custom configuration if they are passed"""
+#     client = HTTPClientFactory(api_version=APIVersion.beta, timeout=(5, 5))
 
-    assert client.api_version == APIVersion.beta
-    assert client.endpoint == NationalClouds.Global
-    assert client.timeout == (5, 5)
-    assert isinstance(client.session, Session)
-
-
-def test_create_with_default_middleware():
-    """Test creation of HTTP Client using default middleware"""
-    credential = _CustomTokenCredential()
-    client = HTTPClientFactory().create_with_default_middleware(credential=credential)
-    middleware = client.get_adapter('https://')
-
-    assert isinstance(middleware, HTTPAdapter)
+#     assert client.api_version == APIVersion.beta
+#     assert client.endpoint == NationalClouds.Global
+#     assert client.timeout == (5, 5)
+#     assert isinstance(client.session, Session)
 
 
-def test_create_with_custom_middleware():
+def test_create_with_default_middleware(mock_token_provider):
+    """Test creation of GraphClient using default middleware"""
+    client = GraphClientFactory(
+        api_version=APIVersion.beta,
+        timeout=httpx.Timeout(5, connect=5,),
+        endpoint = NationalClouds.Global,
+        client=None
+        ).create_with_default_middleware(token_provider=mock_token_provider)
+
+    assert isinstance(client, httpx.AsyncClient)
+    assert isinstance(client._transport, AsyncKiotaTransport)
+    assert str(client.base_url) == f'{NationalClouds.Global}/{APIVersion.beta}/'
+
+
+def test_create_with_custom_middleware(mock_token_provider):
     """Test creation of HTTP Clients with custom middleware"""
-    credential = _CustomTokenCredential()
     middleware = [
-        AuthorizationHandler(credential),
+        GraphAuthorizationHandler(mock_token_provider),
     ]
-    client = HTTPClientFactory().create_with_custom_middleware(middleware=middleware)
-    custom_middleware = client.get_adapter('https://')
+    client = GraphClientFactory(
+        api_version=APIVersion.v1,
+        timeout=httpx.Timeout(5, connect=5,),
+        endpoint = NationalClouds.Global,
+        client=None
+        ).create_with_custom_middleware(middleware=middleware)
 
-    assert isinstance(custom_middleware, HTTPAdapter)
+    assert isinstance(client, httpx.AsyncClient)
+    assert isinstance(client._transport, AsyncKiotaTransport)
+    assert str(client.base_url) == f'{NationalClouds.Global}/{APIVersion.v1}/'
 
 
 def test_get_base_url():
@@ -58,21 +60,17 @@ def test_get_base_url():
     Test base url is formed by combining the national cloud endpoint with
     Api version
     """
-    client = HTTPClientFactory(api_version=APIVersion.beta, cloud=NationalClouds.Germany)
-    assert client.session.base_url == client.endpoint + '/' + client.api_version
+    client = GraphClientFactory(api_version=APIVersion.beta, endpoint=NationalClouds.Germany, timeout=httpx.Timeout(5, connect=5,), client=None)
+    assert client._get_base_url() == f'{NationalClouds.Germany}/{APIVersion.beta}'
 
 
-def test_register_middleware():
-    credential = _CustomTokenCredential()
-    middleware = [
-        AuthorizationHandler(credential),
-    ]
-    client = HTTPClientFactory()
-    client._register(middleware)
+def test_get_default_middleware(mock_token_provider):
+    client = GraphClientFactory(api_version=APIVersion.beta, endpoint=NationalClouds.Germany, timeout=httpx.Timeout(5, connect=5,), client=None)
+    middleware = client._get_default_middleware(mock_token_provider, httpx.AsyncClient()._transport)
+    
+    assert isinstance(middleware, GraphMiddlewarePipeline)
+    
+    
 
-    assert isinstance(client.session.get_adapter('https://'), HTTPAdapter)
+    
 
-
-class _CustomTokenCredential:
-    def get_token(self, scopes):
-        return ['{token:https://graph.microsoft.com/}']

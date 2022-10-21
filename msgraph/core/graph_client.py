@@ -6,7 +6,7 @@ import json
 from typing import List, Optional
 
 import httpx
-from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_abstractions.authentication import AccessTokenProvider
 from kiota_http.middleware.middleware import BaseMiddleware
 
 from ._enums import APIVersion, NationalClouds
@@ -65,7 +65,7 @@ class GraphClient:
 
     def __init__(
         self,
-        auth_provider: Optional[AuthenticationProvider] = None,
+        auth_provider: Optional[AccessTokenProvider] = None,
         api_version: APIVersion = APIVersion.v1,
         endpoint: NationalClouds = NationalClouds.Global,
         timeout: httpx.Timeout = httpx.Timeout(
@@ -274,7 +274,7 @@ class GraphClient:
 
     @staticmethod
     def get_graph_client(
-        auth_provider: Optional[AuthenticationProvider],
+        auth_provider: Optional[AccessTokenProvider],
         api_version: APIVersion,
         endpoint: NationalClouds,
         timeout: httpx.Timeout,

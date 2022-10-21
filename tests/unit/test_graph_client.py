@@ -2,95 +2,55 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+import httpx
 import pytest
-import responses
-from requests import Session
-from requests.adapters import HTTPAdapter
 
 from msgraph.core import APIVersion, GraphClient, NationalClouds
-from msgraph.core.middleware.authorization import AuthorizationHandler
+from msgraph.core.middleware.authorization import GraphAuthorizationHandler
 
 
-def test_graph_client_with_default_middleware():
+def test_graph_client_with_default_middleware(mock_token_provider):
     """
     Test creating a graph client with default middleware works as expected
     """
-    credential = _CustomTokenCredential()
-    client = GraphClient(credential=credential)
 
-    assert isinstance(client.graph_session, Session)
-    assert isinstance(client.graph_session.get_adapter('https://'), HTTPAdapter)
-    assert client.graph_session.base_url == NationalClouds.Global + '/' + APIVersion.v1
+    graph_client = GraphClient(auth_provider=mock_token_provider)
+
+    assert isinstance(graph_client.client, httpx.AsyncClient)
+    assert str(graph_client.client.base_url) == f'{NationalClouds.Global}/{APIVersion.v1}/'
 
 
-def test_graph_client_with_custom_middleware():
+def test_graph_client_with_custom_middleware(mock_token_provider):
     """
     Test creating a graph client with custom middleware works as expected
     """
-    credential = _CustomTokenCredential()
     middleware = [
-        AuthorizationHandler(credential),
+        GraphAuthorizationHandler(token_provider=mock_token_provider),
     ]
-    client = GraphClient(middleware=middleware)
+    graph_client = GraphClient(middleware=middleware)
 
-    assert isinstance(client.graph_session, Session)
-    assert isinstance(client.graph_session.get_adapter('https://'), HTTPAdapter)
-    assert client.graph_session.base_url == NationalClouds.Global + '/' + APIVersion.v1
+    assert isinstance(graph_client.client, httpx.AsyncClient)
+    assert str(graph_client.client.base_url) == f'{NationalClouds.Global}/{APIVersion.v1}/'
 
 
-def test_graph_client_with_custom_configuration():
+def test_graph_client_with_custom_configuration(mock_token_provider):
     """
     Test creating a graph client with custom middleware works as expected
     """
-    credential = _CustomTokenCredential()
-    client = GraphClient(
-        credential=credential, api_version=APIVersion.beta, cloud=NationalClouds.China
+    graph_client = GraphClient(
+        auth_provider=mock_token_provider,
+        api_version=APIVersion.beta,
+        endpoint=NationalClouds.China
     )
 
-    assert client.graph_session.base_url == NationalClouds.China + '/' + APIVersion.beta
+    assert str(graph_client.client.base_url) == f'{NationalClouds.China}/{APIVersion.beta}/'
 
 
-def test_graph_client_uses_same_session():
+def test_graph_client_uses_same_session(mock_token_provider):
     """
     Test graph client is a singleton class and uses the same session
     """
-    credential = _CustomTokenCredential()
-    client = GraphClient(credential=credential)
+    graph_client1 = GraphClient(auth_provider=mock_token_provider)
 
-    client2 = GraphClient(credential=credential)
-    assert client is client2
-
-
-@responses.activate
-def test_graph_client_builds_graph_urls():
-    """
-    Test that the graph client builds full urls if supplied with partial
-    """
-    credential = _CustomTokenCredential()
-    client = GraphClient(credential=credential)
-    graph_url = client.graph_session.base_url + '/me'
-
-    responses.add(responses.GET, graph_url, status=200)
-
-    client.get('/me', headers={})
-    assert graph_url == responses.calls[0].request.url
-
-
-@responses.activate
-def test_does_not_build_graph_urls_for_full_urls():
-    """
-    Test that the graph client builds full urls if supplied with partial
-    """
-    other_url = 'https://microsoft.com/'
-    responses.add(responses.GET, other_url, status=200)
-
-    credential = _CustomTokenCredential()
-    client = GraphClient(credential=credential)
-    client.get(other_url, headers={})
-    request_url = responses.calls[0].request.url
-    assert other_url == request_url
-
-
-class _CustomTokenCredential:
-    def get_token(self, scopes):
-        return ['{token:https://graph.microsoft.com/}']
+    graph_client2 = GraphClient(auth_provider=mock_token_provider)
+    assert graph_client1 is graph_client2

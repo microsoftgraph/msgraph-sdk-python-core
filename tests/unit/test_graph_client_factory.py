@@ -11,14 +11,17 @@ from msgraph.core._constants import DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUEST_
 from msgraph.core.middleware import GraphAuthorizationHandler
 from msgraph.core.middleware.middleware import GraphMiddlewarePipeline
 
-# def test_initialize_with_custom_config():
-#     """Test creation of HTTP Client will use custom configuration if they are passed"""
-#     client = HTTPClientFactory(api_version=APIVersion.beta, timeout=(5, 5))
 
-#     assert client.api_version == APIVersion.beta
-#     assert client.endpoint == NationalClouds.Global
-#     assert client.timeout == (5, 5)
-#     assert isinstance(client.session, Session)
+def test_initialize_with_custom_config():
+    """Test creation of HTTP Client will use custom configuration if they are passed"""
+    client = GraphClientFactory(
+        api_version=APIVersion.beta, base_url=NationalClouds.Global, timeout=(5, 5), client=None
+    )
+
+    assert client.api_version == APIVersion.beta
+    assert client.base_url == NationalClouds.Global
+    assert client.timeout == (5, 5)
+    assert not isinstance(client.client, httpx.AsyncClient)
 
 
 def test_create_with_default_middleware(mock_token_provider):
@@ -29,7 +32,7 @@ def test_create_with_default_middleware(mock_token_provider):
             5,
             connect=5,
         ),
-        endpoint=NationalClouds.Global,
+        base_url=NationalClouds.Global,
         client=None
     ).create_with_default_middleware(token_provider=mock_token_provider)
 
@@ -49,7 +52,7 @@ def test_create_with_custom_middleware(mock_token_provider):
             5,
             connect=5,
         ),
-        endpoint=NationalClouds.Global,
+        base_url=NationalClouds.Global,
         client=None
     ).create_with_custom_middleware(middleware=middleware)
 
@@ -65,7 +68,7 @@ def test_get_base_url():
     """
     client = GraphClientFactory(
         api_version=APIVersion.beta,
-        endpoint=NationalClouds.Germany,
+        base_url=NationalClouds.Germany,
         timeout=httpx.Timeout(
             5,
             connect=5,
@@ -78,7 +81,7 @@ def test_get_base_url():
 def test_get_default_middleware(mock_token_provider):
     client = GraphClientFactory(
         api_version=APIVersion.beta,
-        endpoint=NationalClouds.Germany,
+        base_url=NationalClouds.Germany,
         timeout=httpx.Timeout(
             5,
             connect=5,

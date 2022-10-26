@@ -1,5 +1,8 @@
+import typing
+from http import client
+
 import httpx
-from kiota_http.middleware import RedirectHandler
+from kiota_http.middleware import BaseMiddleware, RedirectHandler
 
 from .._enums import FeatureUsageFlag
 from .middleware import GraphRequest
@@ -19,12 +22,14 @@ class GraphRedirectHandler(RedirectHandler):
 
         retryable = True
         while retryable:
-            response = await super().send(request, transport)
+            response = await super(RedirectHandler, self).send(request, transport)
             redirect_location = self.get_redirect_location(response)
             if redirect_location and self.should_redirect:
                 retryable = self.increment(response)
-                request = response.next_request
+                request = self._build_redirect_request(request, response)
                 continue
+
+            response.history = self.history
             return response
 
         raise Exception(f"Too many redirects. {response.history}")

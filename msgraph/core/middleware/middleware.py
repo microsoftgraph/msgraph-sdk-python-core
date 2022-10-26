@@ -7,13 +7,13 @@ import json
 import httpx
 from kiota_http.middleware import MiddlewarePipeline
 
-from .request_context import RequestContext
+from .request_context import GraphRequestContext
 
 
 class GraphRequest(httpx.Request):
     """Http Request object with a custom request context
     """
-    context: RequestContext
+    context: GraphRequestContext
 
 
 class GraphMiddlewarePipeline(MiddlewarePipeline):
@@ -36,9 +36,11 @@ class GraphMiddlewarePipeline(MiddlewarePipeline):
         if options:
             request_options = json.loads(options)
 
-        request.context = RequestContext(request_options, request.headers)
+        request.context = GraphRequestContext(request_options, request.headers)
 
         if self._middleware_present():
             return await self._first_middleware.send(request, self._transport)
         # No middleware in pipeline, send the request.
-        return await self._transport.handle_async_request(request)
+        response = await self._transport.handle_async_request(request)
+        response.request = request
+        return response

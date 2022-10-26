@@ -44,14 +44,14 @@ class GraphClientFactory(KiotaClientFactory):
     def __init__(
         self,
         api_version: APIVersion,
-        endpoint: NationalClouds,
+        base_url: NationalClouds,
         timeout: httpx.Timeout,
         client: Optional[httpx.AsyncClient],
     ):
         """Class constructor that accepts a user provided session object and kwargs
         to configure the request handling behaviour of the client"""
         self.api_version = api_version
-        self.endpoint = endpoint
+        self.base_url = base_url
         self.timeout = timeout
         self.client = client
 
@@ -97,7 +97,7 @@ class GraphClientFactory(KiotaClientFactory):
 
     def _get_base_url(self):
         """Helper method to set the base url"""
-        base_url = self.endpoint + '/' + self.api_version
+        base_url = self.base_url + '/' + self.api_version
         return base_url
 
     def _get_default_middleware(

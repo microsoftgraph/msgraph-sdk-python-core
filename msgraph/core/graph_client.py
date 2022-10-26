@@ -65,9 +65,9 @@ class GraphClient:
 
     def __init__(
         self,
-        auth_provider: Optional[AccessTokenProvider] = None,
+        token_provider: Optional[AccessTokenProvider] = None,
         api_version: APIVersion = APIVersion.v1,
-        endpoint: NationalClouds = NationalClouds.Global,
+        base_url: NationalClouds = NationalClouds.Global,
         timeout: httpx.Timeout = httpx.Timeout(
             DEFAULT_REQUEST_TIMEOUT, connect=DEFAULT_CONNECTION_TIMEOUT
         ),
@@ -79,7 +79,7 @@ class GraphClient:
         be passed to the GraphClientFactory
         """
         self.client = self.get_graph_client(
-            auth_provider, api_version, endpoint, timeout, client, middleware
+            token_provider, api_version, base_url, timeout, client, middleware
         )
 
     @collect_options
@@ -274,24 +274,24 @@ class GraphClient:
 
     @staticmethod
     def get_graph_client(
-        auth_provider: Optional[AccessTokenProvider],
+        token_provider: Optional[AccessTokenProvider],
         api_version: APIVersion,
-        endpoint: NationalClouds,
+        base_url: NationalClouds,
         timeout: httpx.Timeout,
         client: Optional[httpx.AsyncClient],
         middleware: Optional[List[BaseMiddleware]],
     ):
         """Method to always return a single instance of a HTTP Client"""
 
-        if auth_provider and middleware:
+        if token_provider and middleware:
             raise ValueError(
                 "Invalid parameters! Both TokenCredential and middleware cannot be passed"
             )
-        if not auth_provider and not middleware:
+        if not token_provider and not middleware:
             raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
 
-        if auth_provider and not middleware:
-            return GraphClientFactory(api_version, endpoint, timeout,
-                                      client).create_with_default_middleware(auth_provider)
-        return GraphClientFactory(api_version, endpoint, timeout,
+        if token_provider and not middleware:
+            return GraphClientFactory(api_version, base_url, timeout,
+                                      client).create_with_default_middleware(token_provider)
+        return GraphClientFactory(api_version, base_url, timeout,
                                   client).create_with_custom_middleware(middleware)

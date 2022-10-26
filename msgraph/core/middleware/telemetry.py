@@ -19,7 +19,7 @@ class GraphTelemetryHandler(BaseMiddleware):
     ) -> httpx.Response:
         """Adds telemetry headers and sends the http request.
         """
-        if self.is_graph_url(str(request.url)):
+        if self.is_graph_url(request.url):
             self._add_client_request_id_header(request)
             self._append_sdk_version_header(request)
             self._add_host_os_header(request)
@@ -33,7 +33,7 @@ class GraphTelemetryHandler(BaseMiddleware):
         non-graph endpoints"""
         endpoints = set(item.value for item in NationalClouds)
 
-        base_url = parse_url(url)
+        base_url = parse_url(str(url))
         endpoint = f"{base_url.scheme}://{base_url.netloc}"
         return endpoint in endpoints
 

@@ -9,7 +9,7 @@ import httpx
 from .._enums import FeatureUsageFlag
 
 
-class RequestContext:
+class GraphRequestContext:
     """A request context contains data that is persisted throughout the request and
     includes a ClientRequestId property, MiddlewareControl property to control behavior
     of middleware as well as a FeatureUsage  property to keep track of middleware used

@@ -26,7 +26,7 @@ class GraphRetryHandler(RetryHandler):
             start_time = time.time()
             if retry_count > 0:
                 request.headers.update({'retry-attempt': f'{retry_count}'})
-            response = await super().send(request, transport)
+            response = await super(RetryHandler, self).send(request, transport)
             # Check if the request needs to be retried based on the response method
             # and status code
             if self.should_retry(request, response):

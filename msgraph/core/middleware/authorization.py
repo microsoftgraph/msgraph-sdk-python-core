@@ -5,7 +5,7 @@
 from typing import TypeVar
 
 import httpx
-from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_abstractions.authentication import AccessTokenProvider
 from kiota_http.middleware.middleware import BaseMiddleware
 
 from .._enums import FeatureUsageFlag
@@ -17,7 +17,7 @@ class GraphAuthorizationHandler(BaseMiddleware):
     Transparently authorize requests by adding authorization header to the request
     """
 
-    def __init__(self, auth_provider: AuthenticationProvider):
+    def __init__(self, token_provider: AccessTokenProvider):
         """Constructor for authorization handler
 
         Args:
@@ -26,7 +26,7 @@ class GraphAuthorizationHandler(BaseMiddleware):
         """
         super().__init__()
 
-        self.auth_provider = auth_provider
+        self.token_provider = token_provider
 
     async def send(
         self, request: GraphRequest, transport: httpx.AsyncBaseTransport
@@ -34,7 +34,7 @@ class GraphAuthorizationHandler(BaseMiddleware):
 
         request.context.feature_usage = FeatureUsageFlag.AUTH_HANDLER_ENABLED
 
-        token = await self.auth_provider.get_authorization_token(str(request.url))
+        token = await self.token_provider.get_authorization_token(str(request.url))
         request.headers.update({'Authorization': f'Bearer {token}'})
         response = await super().send(request, transport)
         return response

@@ -22,23 +22,8 @@ from .middleware import (
 
 
 class GraphClientFactory(KiotaClientFactory):
-    """Constructs httpx AsyncClient instances configured with either custom or default
-    pipeline of middleware.
-
-    :func: Class constructor accepts a user provided session object and kwargs to configure the
-        request handling behaviour of the client
-    :keyword enum api_version: The Microsoft Graph API version to be used, for example
-        `APIVersion.v1` (default). This value is used in setting the base url for all requests for
-        that session.
-        :class:`~msgraphcore.enums.APIVersion` defines valid API versions.
-    :keyword enum cloud: a supported Microsoft Graph cloud endpoint.
-        Defaults to `NationalClouds.Global`
-        :class:`~msgraphcore.enums.NationalClouds` defines supported sovereign clouds.
-    :keyword tuple timeout: Default connection and read timeout values for all session requests.
-        Specify a tuple in the form of Tuple(connect_timeout, read_timeout) if you would like to set
-        the values separately. If you specify a single value for the timeout, the timeout value will
-        be applied to both the connect and the read timeouts.
-    :keyword obj session: A custom Session instance from the python requests library
+    """Constructs httpx.AsyncClient instances configured with either custom or default
+    pipeline of graph specific middleware.
     """
 
     def __init__(
@@ -48,8 +33,20 @@ class GraphClientFactory(KiotaClientFactory):
         timeout: httpx.Timeout,
         client: Optional[httpx.AsyncClient],
     ):
-        """Class constructor that accepts a user provided session object and kwargs
-        to configure the request handling behaviour of the client"""
+        """Class constructor accepts a user provided client object and kwargs to configure the
+        request handling behaviour of the client
+
+        Args:
+            api_version (APIVersion): The Microsoft Graph API version to be used, for example
+                                    `APIVersion.v1` (default). This value is used in setting
+                                    the base url for all requests for that session.
+            base_url (NationalClouds): a supported Microsoft Graph cloud endpoint.
+            timeout (httpx.Timeout):Default connection and read timeout values for all session
+                                    requests.Specify a tuple in the form of httpx.Timeout(
+                                    REQUEST_TIMEOUT, connect=CONNECTION_TIMEOUT),
+            client (Optional[httpx.AsyncClient]): A custom AsynClient instance from the
+                                    python httpx library
+        """
         self.api_version = api_version
         self.base_url = base_url
         self.timeout = timeout
@@ -80,7 +77,8 @@ class GraphClientFactory(KiotaClientFactory):
     ) -> httpx.AsyncClient:
         """Applies a custom middleware chain to the HTTP Client
 
-        :param list middleware: Custom middleware(HTTPAdapter) list that will be used to create
+        Args:
+            middleware(List[BaseMiddleware]): Custom middleware list that will be used to create
             a middleware pipeline. The middleware should be arranged in the order in which they will
             modify the request.
         """

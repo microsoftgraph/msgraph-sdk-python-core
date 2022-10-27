@@ -36,7 +36,7 @@ def collect_options(func):
 class GraphClient:
     """Constructs a custom HTTPClient to be used for requests against Microsoft Graph
 
-    :keyword credential: TokenCredential used to acquire an access token for the Microsoft
+    :keyword token_provider: AccessTokenProvider used to acquire an access token for the Microsoft
         Graph API. Created through one of the credential classes from `azure.identity`
     :keyword list middleware: Custom middleware list that will be used to create
         a middleware pipeline. The middleware should be arranged in the order in which they will
@@ -45,7 +45,7 @@ class GraphClient:
         `APIVersion.v1` (default). This value is used in setting the base url for all requests for
         that session.
         :class:`~msgraphcore.enums.APIVersion` defines valid API versions.
-    :keyword enum cloud: a supported Microsoft Graph cloud endpoint.
+    :keyword enum base_url: a supported Microsoft Graph cloud endpoint.
         Defaults to `NationalClouds.Global`
         :class:`~msgraphcore.enums.NationalClouds` defines supported sovereign clouds.
     :keyword tuple timeout: Default connection and read timeout values for all session requests.

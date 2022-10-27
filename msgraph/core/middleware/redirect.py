@@ -26,7 +26,10 @@ class GraphRedirectHandler(RedirectHandler):
             redirect_location = self.get_redirect_location(response)
             if redirect_location and self.should_redirect:
                 retryable = self.increment(response)
-                request = self._build_redirect_request(request, response)
+                new_request = self._build_redirect_request(request, response)
+                new_request.context = request.context
+                request = new_request
+
                 continue
 
             response.history = self.history

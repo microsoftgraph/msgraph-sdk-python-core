@@ -45,15 +45,6 @@ def test_initialize_graph_client_both_token_provider_and_custom_middleware(mock_
         graph_client = GraphClient(token_provider=mock_token_provider, middleware=middleware)
 
 
-def test_initialize_graph_client_without_token_provider_or_custom_middleware():
-    """
-    Test creating a graph client with default middleware works as expected
-    """
-
-    with pytest.raises(Exception):
-        graph_client = GraphClient()
-
-
 def test_graph_client_with_custom_configuration(mock_token_provider):
     """
     Test creating a graph client with custom middleware works as expected
@@ -75,3 +66,15 @@ def test_graph_client_uses_same_session(mock_token_provider):
 
     graph_client2 = GraphClient(token_provider=mock_token_provider)
     assert graph_client1 is graph_client2
+
+
+def test_get_base_url():
+    """
+    Test base url is formed by combining the national cloud endpoint with
+    Api version
+    """
+    url = GraphClient()._get_base_url(
+        base_url=NationalClouds.Germany,
+        api_version=APIVersion.beta,
+    )
+    assert url == f'{NationalClouds.Germany}/{APIVersion.beta}'

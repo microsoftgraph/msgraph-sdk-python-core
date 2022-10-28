@@ -9,6 +9,8 @@ import httpx
 from kiota_abstractions.authentication import AccessTokenProvider
 from kiota_http.middleware.middleware import BaseMiddleware
 
+from msgraph.core import middleware
+
 from ._enums import APIVersion, NationalClouds
 from .graph_client_factory import GraphClientFactory
 
@@ -36,23 +38,21 @@ def collect_options(func):
 class GraphClient:
     """Constructs a custom HTTPClient to be used for requests against Microsoft Graph
 
-    :keyword token_provider: AccessTokenProvider used to acquire an access token for the Microsoft
-        Graph API. Created through one of the credential classes from `azure.identity`
-    :keyword list middleware: Custom middleware list that will be used to create
+    Args:
+        token_provider (AccessTokenProvider): Used to acquire an access token for the
+                                Microsoft Graph API.
+        api_version (APIVersion): The Microsoft Graph API version to be used, for example
+                                `APIVersion.v1` (default). This value is used in setting
+                                the base url for all requests for that session.
+        base_url (NationalClouds): a supported Microsoft Graph cloud endpoint.
+        timeout (httpx.Timeout):Default connection and read timeout values for all session
+                                requests.Specify a tuple in the form of httpx.Timeout(
+                                REQUEST_TIMEOUT, connect=CONNECTION_TIMEOUT),
+        client (Optional[httpx.AsyncClient]): A custom AsynClient instance from the
+                                python httpx library
+       middleware (BaseMiddlware): Custom middleware list that will be used to create
         a middleware pipeline. The middleware should be arranged in the order in which they will
         modify the request.
-    :keyword enum api_version: The Microsoft Graph API version to be used, for example
-        `APIVersion.v1` (default). This value is used in setting the base url for all requests for
-        that session.
-        :class:`~msgraphcore.enums.APIVersion` defines valid API versions.
-    :keyword enum base_url: a supported Microsoft Graph cloud endpoint.
-        Defaults to `NationalClouds.Global`
-        :class:`~msgraphcore.enums.NationalClouds` defines supported sovereign clouds.
-    :keyword tuple timeout: Default connection and read timeout values for all session requests.
-        Specify a tuple in the form of Tuple(connect_timeout, read_timeout) if you would like to set
-        the values separately. If you specify a single value for the timeout, the timeout value will
-        be applied to both the connect and the read timeouts.
-    :keyword client: A custom client instance from the python httpx library
     """
     DEFAULT_CONNECTION_TIMEOUT: int = 30
     DEFAULT_REQUEST_TIMEOUT: int = 100
@@ -78,7 +78,7 @@ class GraphClient:
         Class constructor that accepts a session object and kwargs to
         be passed to the GraphClientFactory
         """
-        self.client = self.get_graph_client(
+        self.client = self._get_graph_client(
             token_provider, api_version, base_url, timeout, client, middleware
         )
 
@@ -272,26 +272,30 @@ class GraphClient:
                 url, params=params, headers=headers, cookies=cookies, extensions=extensions
             )
 
-    @staticmethod
-    def get_graph_client(
-        token_provider: Optional[AccessTokenProvider],
-        api_version: APIVersion,
-        base_url: NationalClouds,
-        timeout: httpx.Timeout,
-        client: Optional[httpx.AsyncClient],
-        middleware: Optional[List[BaseMiddleware]],
+    def _get_graph_client(
+        self, token_provider: Optional[AccessTokenProvider], api_version: APIVersion,
+        base_url: NationalClouds, timeout: httpx.Timeout, client: Optional[httpx.AsyncClient],
+        middleware: Optional[List[BaseMiddleware]]
     ):
         """Method to always return a single instance of a HTTP Client"""
-
+        if not client:
+            client = httpx.AsyncClient(
+                base_url=self._get_base_url(base_url, api_version), timeout=timeout, http2=True
+            )
         if token_provider and middleware:
             raise ValueError(
                 "Invalid parameters! Both TokenCredential and middleware cannot be passed"
             )
-        if not token_provider and not middleware:
-            raise ValueError("Invalid parameters!. Missing TokenCredential or middleware")
 
-        if token_provider and not middleware:
-            return GraphClientFactory(api_version, base_url, timeout,
-                                      client).create_with_default_middleware(token_provider)
-        return GraphClientFactory(api_version, base_url, timeout,
-                                  client).create_with_custom_middleware(middleware)
+        if middleware:
+            return GraphClientFactory.create_with_custom_middleware(
+                client=client, middleware=middleware
+            )
+        return GraphClientFactory.create_with_default_middleware(
+            client=client, token_provider=token_provider
+        )
+
+    def _get_base_url(self, base_url: str, api_version: APIVersion) -> str:
+        """Helper method to set the complete base url"""
+        base_url = f'{base_url}/{api_version}'
+        return base_url

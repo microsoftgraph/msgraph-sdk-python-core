@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages] # Packages required to run the application
-microsoft-kiota-abstractions = '*'
+microsoft-kiota-abstractions = "==0.1.0"
 microsoft-kiota-http = "==0.1.2"
-microsoft-kiota-authentication-azure = '*'
+microsoft-kiota-authentication-azure = "==0.1.0"
 httpx = {version = "==0.23.0", extras = ["http2"]}
 
 [dev-packages] # Packages required to develop the application

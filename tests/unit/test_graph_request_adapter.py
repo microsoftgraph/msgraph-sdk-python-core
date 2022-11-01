@@ -7,12 +7,11 @@ from kiota_abstractions.serialization import (
 )
 
 from msgraph.core.graph_request_adapter import GraphRequestAdapter
-from tests.conftest import mock_token_provider
 
 
-def test_create_graph_request_adapter(mock_token_provider):
-    request_adapter = GraphRequestAdapter(mock_token_provider)
-    assert request_adapter._authentication_provider is mock_token_provider
+def test_create_graph_request_adapter(mock_auth_provider):
+    request_adapter = GraphRequestAdapter(mock_auth_provider)
+    assert request_adapter._authentication_provider is mock_auth_provider
     assert isinstance(request_adapter._parse_node_factory, ParseNodeFactoryRegistry)
     assert isinstance(
         request_adapter._serialization_writer_factory, SerializationWriterFactoryRegistry

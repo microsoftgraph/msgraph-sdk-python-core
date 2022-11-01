@@ -9,10 +9,21 @@ import uuid
 import httpx
 import pytest
 
-from msgraph.core import SDK_VERSION, APIVersion, GraphClient, NationalClouds
+from msgraph.core import SDK_VERSION, APIVersion, NationalClouds
+from msgraph.core._enums import FeatureUsageFlag
 from msgraph.core.middleware import GraphRequestContext, GraphTelemetryHandler
 
 BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
+
+
+def test_set_request_context_and_feature_usage(mock_request, mock_transport):
+    telemetry_handler = GraphTelemetryHandler()
+    telemetry_handler.set_request_context_and_feature_usage(mock_request, mock_transport)
+
+    assert hasattr(mock_request, 'context')
+    assert mock_request.context.feature_usage == hex(
+        FeatureUsageFlag.RETRY_HANDLER_ENABLED | FeatureUsageFlag.REDIRECT_HANDLER_ENABLED
+    )
 
 
 def test_is_graph_url(mock_graph_request):

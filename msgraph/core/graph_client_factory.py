@@ -14,9 +14,6 @@ from kiota_http.middleware.middleware import BaseMiddleware
 from ._enums import APIVersion, NationalClouds
 from .middleware import GraphTelemetryHandler
 
-DEFAULT_CONNECTION_TIMEOUT: int = 30
-DEFAULT_REQUEST_TIMEOUT: int = 100
-
 
 class GraphClientFactory(KiotaClientFactory):
     """Constructs httpx.AsyncClient instances configured with either custom or default
@@ -33,16 +30,13 @@ class GraphClientFactory(KiotaClientFactory):
         Returns:
             httpx.AsycClient: An instance of the AsyncClient object
         """
-        timeout = httpx.Timeout(DEFAULT_REQUEST_TIMEOUT, connect=DEFAULT_CONNECTION_TIMEOUT)
-        client = httpx.AsyncClient(
-            base_url=GraphClientFactory._get_base_url(host, api_version),
-            timeout=timeout,
-            http2=True
-        )
+        client = KiotaClientFactory.get_default_client()
+        client.base_url = GraphClientFactory._get_base_url(host, api_version)
         current_transport = client._transport
-        middleware = KiotaClientFactory._get_default_middleware()
+
+        middleware = KiotaClientFactory.get_default_middleware()
         middleware.append(GraphTelemetryHandler())
-        middleware_pipeline = KiotaClientFactory._create_middleware_pipeline(
+        middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
             middleware, current_transport
         )
 
@@ -64,14 +58,11 @@ class GraphClientFactory(KiotaClientFactory):
             a middleware pipeline. The middleware should be arranged in the order in which they will
             modify the request.
         """
-        timeout = httpx.Timeout(DEFAULT_REQUEST_TIMEOUT, connect=DEFAULT_CONNECTION_TIMEOUT)
-        client = httpx.AsyncClient(
-            base_url=GraphClientFactory._get_base_url(host, api_version),
-            timeout=timeout,
-            http2=True
-        )
+        client = KiotaClientFactory.get_default_client()
+        client.base_url = GraphClientFactory._get_base_url(host, api_version)
         current_transport = client._transport
-        middleware_pipeline = KiotaClientFactory._create_middleware_pipeline(
+
+        middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
             middleware, current_transport
         )
 

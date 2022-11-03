@@ -11,7 +11,7 @@ from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from .graph_client_factory import GraphClientFactory
 
 
-class GraphRequestAdapter(HttpxRequestAdapter):
+class BaseGraphRequestAdapter(HttpxRequestAdapter):
 
     def __init__(
         self,

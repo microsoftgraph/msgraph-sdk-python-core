@@ -8,11 +8,10 @@ from typing import List, Optional
 
 import httpx
 from kiota_http.kiota_client_factory import KiotaClientFactory
-from kiota_http.middleware import AsyncKiotaTransport
 from kiota_http.middleware.middleware import BaseMiddleware
 
 from ._enums import APIVersion, NationalClouds
-from .middleware import GraphTelemetryHandler
+from .middleware import AsyncGraphTransport, GraphTelemetryHandler
 
 
 class GraphClientFactory(KiotaClientFactory):
@@ -40,9 +39,10 @@ class GraphClientFactory(KiotaClientFactory):
             middleware, current_transport
         )
 
-        client._transport = AsyncKiotaTransport(
+        client._transport = AsyncGraphTransport(
             transport=current_transport, pipeline=middleware_pipeline
         )
+        client._transport.pipeline
         return client
 
     @staticmethod
@@ -66,7 +66,7 @@ class GraphClientFactory(KiotaClientFactory):
             middleware, current_transport
         )
 
-        client._transport = AsyncKiotaTransport(
+        client._transport = AsyncGraphTransport(
             transport=current_transport, pipeline=middleware_pipeline
         )
         return client

@@ -4,10 +4,10 @@
 # ------------------------------------
 import httpx
 import pytest
-from kiota_http.middleware import AsyncKiotaTransport, MiddlewarePipeline, RedirectHandler
+from kiota_http.middleware import MiddlewarePipeline, RedirectHandler
 
 from msgraph_core import APIVersion, GraphClientFactory, NationalClouds
-from msgraph_core.middleware.telemetry import GraphTelemetryHandler
+from msgraph_core.middleware import AsyncGraphTransport, GraphTelemetryHandler
 
 
 def test_create_with_default_middleware():
@@ -15,7 +15,7 @@ def test_create_with_default_middleware():
     client = GraphClientFactory.create_with_default_middleware()
 
     assert isinstance(client, httpx.AsyncClient)
-    assert isinstance(client._transport, AsyncKiotaTransport)
+    assert isinstance(client._transport, AsyncGraphTransport)
     pipeline = client._transport.pipeline
     assert isinstance(pipeline, MiddlewarePipeline)
     assert isinstance(pipeline._first_middleware, RedirectHandler)
@@ -30,7 +30,7 @@ def test_create_with_custom_middleware():
     client = GraphClientFactory.create_with_custom_middleware(middleware=middleware)
 
     assert isinstance(client, httpx.AsyncClient)
-    assert isinstance(client._transport, AsyncKiotaTransport)
+    assert isinstance(client._transport, AsyncGraphTransport)
     pipeline = client._transport.pipeline
     assert isinstance(pipeline._first_middleware, GraphTelemetryHandler)
 

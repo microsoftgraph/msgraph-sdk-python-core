@@ -3,11 +3,12 @@ import json
 import platform
 
 import httpx
-from kiota_http.middleware import AsyncKiotaTransport, BaseMiddleware, RedirectHandler, RetryHandler
+from kiota_http.middleware import BaseMiddleware
 from urllib3.util import parse_url
 
 from .._constants import SDK_VERSION
-from .._enums import FeatureUsageFlag, NationalClouds
+from .._enums import NationalClouds
+from .async_graph_transport import AsyncGraphTransport
 from .request_context import GraphRequestContext
 
 
@@ -20,10 +21,9 @@ class GraphTelemetryHandler(BaseMiddleware):
     the SDK team improve the developer experience.
     """
 
-    async def send(self, request: GraphRequest, transport: AsyncKiotaTransport):
+    async def send(self, request: GraphRequest, transport: AsyncGraphTransport):
         """Adds telemetry headers and sends the http request.
         """
-        self.set_request_context_and_feature_usage(request, transport)
 
         if self.is_graph_url(request.url):
             self._add_client_request_id_header(request)
@@ -33,27 +33,6 @@ class GraphTelemetryHandler(BaseMiddleware):
 
         response = await super().send(request, transport)
         return response
-
-    def set_request_context_and_feature_usage(
-        self, request: GraphRequest, transport: AsyncKiotaTransport
-    ) -> GraphRequest:
-
-        request_options = {}
-        options = request.headers.pop('request_options', None)
-        if options:
-            request_options = json.loads(options)
-
-        request.context = GraphRequestContext(request_options, request.headers)
-        middleware = transport.pipeline._first_middleware
-        while middleware:
-            if isinstance(middleware, RedirectHandler):
-                request.context.feature_usage = FeatureUsageFlag.REDIRECT_HANDLER_ENABLED
-            if isinstance(middleware, RetryHandler):
-                request.context.feature_usage = FeatureUsageFlag.RETRY_HANDLER_ENABLED
-
-            middleware = middleware.next
-
-        return request
 
     def is_graph_url(self, url):
         """Check if the request is made to a graph endpoint. We do not add telemetry headers to

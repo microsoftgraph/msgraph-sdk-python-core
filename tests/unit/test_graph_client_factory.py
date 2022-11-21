@@ -6,8 +6,8 @@ import httpx
 import pytest
 from kiota_http.middleware import AsyncKiotaTransport, MiddlewarePipeline, RedirectHandler
 
-from msgraph.core import APIVersion, GraphClientFactory, NationalClouds
-from msgraph.core.middleware.telemetry import GraphTelemetryHandler
+from msgraph_core import APIVersion, GraphClientFactory, NationalClouds
+from msgraph_core.middleware.telemetry import GraphTelemetryHandler
 
 
 def test_create_with_default_middleware():

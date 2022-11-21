@@ -9,9 +9,9 @@ import uuid
 import httpx
 import pytest
 
-from msgraph.core import SDK_VERSION, APIVersion, NationalClouds
-from msgraph.core._enums import FeatureUsageFlag
-from msgraph.core.middleware import GraphRequestContext, GraphTelemetryHandler
+from msgraph_core import SDK_VERSION, APIVersion, NationalClouds
+from msgraph_core._enums import FeatureUsageFlag
+from msgraph_core.middleware import GraphRequestContext, GraphTelemetryHandler
 
 BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
 

@@ -1,13 +1,10 @@
 import httpx
 import pytest
 from kiota_abstractions.authentication import AnonymousAuthenticationProvider
-from kiota_authentication_azure.azure_identity_access_token_provider import (
-    AzureIdentityAccessTokenProvider,
-)
 
-from msgraph.core import APIVersion, NationalClouds
-from msgraph.core.graph_client_factory import GraphClientFactory
-from msgraph.core.middleware import GraphRequestContext
+from msgraph_core import APIVersion, NationalClouds
+from msgraph_core.graph_client_factory import GraphClientFactory
+from msgraph_core.middleware import GraphRequestContext
 
 BASE_URL = NationalClouds.Global + '/' + APIVersion.v1
 

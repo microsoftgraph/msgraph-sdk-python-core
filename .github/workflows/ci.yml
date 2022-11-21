@@ -33,7 +33,7 @@ jobs:
           pipenv run isort .
       - name: Lint with Pylint
         run: |
-          pipenv run pylint msgraph --disable=W --rcfile=.pylintrc
+          pipenv run pylint src --disable=W --rcfile=.pylintrc
       - name: Test with pytest
         run: |
           pipenv run pytest

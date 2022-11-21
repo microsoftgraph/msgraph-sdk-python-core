@@ -10,7 +10,9 @@ microsoft-kiota-authentication-azure = "==0.1.0"
 httpx = {version = "==0.23.0", extras = ["http2"]}
 
 [dev-packages] # Packages required to develop the application
-flit = "==3.7.1"
+setuptools = "==65.5.1"
+build = "==0.9.0"
+bumpver = "==2022.1119" 
 pylint = "==2.15.4"
 mypy = "==0.982"
 yapf = "==0.32.0"

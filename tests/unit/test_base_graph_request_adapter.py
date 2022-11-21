@@ -1,12 +1,11 @@
 import httpx
 import pytest
-from asyncmock import AsyncMock
 from kiota_abstractions.serialization import (
     ParseNodeFactoryRegistry,
     SerializationWriterFactoryRegistry,
 )
 
-from msgraph.core.base_graph_request_adapter import BaseGraphRequestAdapter
+from msgraph_core.base_graph_request_adapter import BaseGraphRequestAdapter
 
 
 def test_create_graph_request_adapter(mock_auth_provider):

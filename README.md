@@ -52,7 +52,7 @@ browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
 client = GraphClient(credential=browser_credential)
 ```
 
-### 6. Make a requests to the graph using the client
+### 6. Make a requests to the graph API using the client
 
 ```python
 result = client.get('/me')

@@ -6,6 +6,9 @@ The Microsoft Graph Core Python client library is a lightweight wrapper around t
 
 **Disclaimer**: Please, be aware that preview versions of `msgraph-core` package are for testing purpose only. Do not use them in a production environment.
 
+> Note:
+> This is not the most recent version of the Python Core library. Upgrading to the [newer version](https://github.com/microsoftgraph/msgraph-sdk-python-core/blob/kiota/long-term-branch/README.md) will introduce breaking changes into your application.
+
 ## Prerequisites
 
     Python 3.5+ (this library doesn't support older versions of Python)

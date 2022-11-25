@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "msgraph-core"
-version = "0.2.2"
+version = "1.0.0a0"
 authors = [{name = "Microsoft", email = "graphtooling+python@microsoft.com"}]
 description = "Core component of the Microsoft Graph Python SDK"
 dependencies = [
@@ -55,8 +55,8 @@ pythonpath = [
 ]
 
 [tool.bumpver]
-current_version = "0.2.2"
-version_pattern = "MAJOR.MINOR.PATCH"
+current_version = "1.0.0a0"
+version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
 tag = false
@@ -64,5 +64,5 @@ push = false
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
-"src/msgraph_core/__init__.py" = ["{version}"]
+"src/msgraph_core/_constants.py" = ["{version}"]
 

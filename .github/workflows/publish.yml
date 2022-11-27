@@ -1,19 +1,22 @@
 name: Publish MsGraph-Core package to PyPI
 
 on:
-  release:
-    types:
-      - published
+  workflow_dispatch:
+  push:
+    branches: [ kiota/long-term-branch ]
+  pull_request:
+    branches: [ kiota/long-term-branch ]
 
 jobs:
   publish:
     name: Create release and publish distribution to PyPI
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/kiota/long-term-branch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Set up Python 3.9
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install dependencies

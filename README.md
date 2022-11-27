@@ -2,17 +2,17 @@
 [![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
 ## Microsoft Graph Core Python Client Library (preview).
 
-The Microsoft Graph Core Python client library is a lightweight wrapper around the Microsoft Graph API. It provides functionality to create clients with desired configuration and middleware.
+The Microsoft Graph Core Python Client Library contains core classes used by [Microsoft Graph Python Client Library](https://github.com/microsoftgraph/msgraph-sdk-python) to send native HTTP requests to [Microsoft Graph API](https://graph.microsoft.com).
 
 **Disclaimer**: Please, be aware that preview versions of `msgraph-core` package are for testing purpose only. Do not use them in a production environment.
 
 > NOTE:
-> This is a new major version of the Python Core library for Microsoft Graph. We recommend to use this library with the [full Python SDK](https://github.com/microsoftgraph/msgraph-sdk-python).
-> Upgrading to this version from the [previous version of the Python Core library](https://pypi.org/project/msgraph-core/0.2.2/) will introduce breaking changes into your application.
+> This is a new major version of the Python Core library for Microsoft Graph based on the [Kiota](https://microsoft.github.io/kiota/) project. We recommend to use this library with the [full Python SDK](https://github.com/microsoftgraph/msgraph-sdk-python).
+> Upgrading to this version from the [previous version of the Python Core library](https://pypi.org/project/msgraph-core/0.2.2/) will introduce braking changes into your application.
 
 ## Prerequisites
 
-    Python 3.5+ (this library doesn't support older versions of Python)
+    Python 3.6+ (this library doesn't support older versions of Python)
 
 ## Getting started
 
@@ -33,38 +33,44 @@ python -m pip install msgraph-core
 python -m pip install azure-identity
 ```
 
-### 3. Import modules
+### 3. Configure an Authentication Provider Object
 
-```python
-from azure.identity import InteractiveBrowserCredential
-from msgraph.core import GraphClient
-```
+An instance of the `BaseGraphRequestAdapter` class handles building client. To create a new instance of this class, you need to provide an instance of `AuthenticationProvider`, which can authenticate requests to Microsoft Graph.
 
-### 4. Configure a Credential Object
+> **Note**: This client library offers an asynchronous API by default. Async is a concurrency model that is far more efficient than multi-threading, and can provide significant performance benefits and enable the use of long-lived network connections such as WebSockets. We support popular python async envronments such as `asyncio`, `anyio` or `trio`. For authentication you need to use one of the async credential classes from `azure.identity`.
 
-```python
-# Using InteractiveBrowserCredential for demonstration purposes.
+```py
+# Using EnvironmentCredential for demonstration purposes.
 # There are many other options for getting an access token. See the following for more information.
-# https://pypi.org/project/azure-identity/
+# https://pypi.org/project/azure-identity/#async-credentials
+from azure.identity.aio import EnvironmentCredential
+from kiota_authentication_azure.azure_identity_authentication_provider import AzureIdentityAuthenticationProvider
 
-browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')
+credential=EnvironmentCredential()
+auth_provider = AzureIdentityAuthenticationProvider(credential)
 ```
 
-### 5. Pass the credential object to the GraphClient constructor.
+### 5. Pass the authentication provider object to the BaseGraphRequestAdapter constructor.
 
 ```python
-client = GraphClient(credential=browser_credential)
+from msgraph_core import BaseGraphRequestAdapter
+adapter = BaseGraphRequestAdapter(auth_provider)
 ```
 
-### 6. Make a requests to the graph using the client
+### 6. Make a requests to the graph.
+
+After you have a `BaseGraphRequestAdapter` that is authenticated, you can begin making calls against the service.
 
 ```python
-result = client.get('/me')
-print(result.json())
+from kiota_abstractions.request_information import RequestInformation
+
+request_info = RequestInformation()
+request_info.url = 'https://graph.microsoft.com/v1.0/me'
+
+# User is your own type that implements Parsable or comes from the service library
+user = adapter.send_async(request_info, User)
+print(user.display_name)
 ```
-
-For more information on how to use the package, refer to the [samples](https://github.com/microsoftgraph/msgraph-sdk-python-core/tree/dev/samples).
-
 
 ## Telemetry Metadata
 

@@ -7,8 +7,9 @@ from kiota_http.middleware import BaseMiddleware
 from urllib3.util import parse_url
 
 from .._constants import SDK_VERSION
-from .._enums import NationalClouds
+from .._enums import APIVersion, NationalClouds
 from .async_graph_transport import AsyncGraphTransport
+from .options import GraphTelemetryHandlerOption
 from .request_context import GraphRequestContext
 
 
@@ -20,6 +21,18 @@ class GraphTelemetryHandler(BaseMiddleware):
     """Middleware component that attaches metadata to a Graph request in order to help
     the SDK team improve the developer experience.
     """
+
+    def __init__(
+        self, options: GraphTelemetryHandlerOption = GraphTelemetryHandlerOption(), **kwargs
+    ):
+        """Create an instance of GraphTelemetryHandler
+
+        Args:
+            options (GraphTelemetryHandlerOption, optional): The graph telemetry handler
+            options value. Defaults to GraphTelemetryHandlerOption
+        """
+        super().__init__()
+        self.options = options
 
     async def send(self, request: GraphRequest, transport: AsyncGraphTransport):
         """Adds telemetry headers and sends the http request.
@@ -52,14 +65,21 @@ class GraphTelemetryHandler(BaseMiddleware):
         version of the client SDK library(s).
         Also adds the featureUsage value.
         """
+        sdk_name = 'graph-python-core'
+
+        if self.options.api_version == APIVersion.v1:
+            sdk_name = 'graph-python'
+        if self.options.api_version == APIVersion.beta:
+            sdk_name = 'graph-python-beta'
+
         if 'sdkVersion' in request.headers:
             sdk_version = request.headers.get('sdkVersion')
-            if not sdk_version == f'graph-python-core/{SDK_VERSION} '\
+            if not sdk_version == f'{sdk_name}/{SDK_VERSION} '\
                 f'(featureUsage={request.context.feature_usage})':
                 request.headers.update(
                     {
                         'sdkVersion':
-                        f'graph-python-core/{SDK_VERSION},{ sdk_version} '\
+                        f'{sdk_name}/{SDK_VERSION},{ sdk_version} '\
                         f'(featureUsage={request.context.feature_usage})'
                     }
                 )
@@ -67,7 +87,7 @@ class GraphTelemetryHandler(BaseMiddleware):
             request.headers.update(
                 {
                     'sdkVersion':
-                    f'graph-python-core/{SDK_VERSION} '\
+                    f'{sdk_name}/{SDK_VERSION} '\
                     f'(featureUsage={request.context.feature_usage})'
                 }
             )

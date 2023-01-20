@@ -5,7 +5,7 @@
 import httpx
 import pytest
 from kiota_http.middleware import MiddlewarePipeline, RedirectHandler, RetryHandler
-from kiota_http.middleware.options import RetryHandlerOption, RedirectHandlerOption
+from kiota_http.middleware.options import RedirectHandlerOption, RetryHandlerOption
 
 from msgraph_core import APIVersion, GraphClientFactory, NationalClouds
 from msgraph_core.middleware import AsyncGraphTransport, GraphTelemetryHandler
@@ -21,7 +21,8 @@ def test_create_with_default_middleware():
     assert isinstance(pipeline, MiddlewarePipeline)
     assert isinstance(pipeline._first_middleware, RedirectHandler)
     assert isinstance(pipeline._current_middleware, GraphTelemetryHandler)
-    
+
+
 def test_create_default_with_custom_middleware():
     """Test creation of HTTP Client using default middleware and custom options"""
     retry_options = RetryHandlerOption(max_retries=5)

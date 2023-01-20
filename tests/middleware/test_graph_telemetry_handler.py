@@ -70,21 +70,20 @@ def test_append_sdk_version_header(mock_graph_request):
     assert 'sdkVersion' in mock_graph_request.headers
     assert mock_graph_request.headers.get('sdkVersion'
                                           ).startswith('graph-python-core/' + SDK_VERSION)
-    
+
+
 def test_append_sdk_version_header_beta(mock_graph_request):
     """
     Test that sdkVersion is added to the request headers
     """
     telemetry_options = GraphTelemetryHandlerOption(
-        api_version= APIVersion.beta,
-        sdk_version='1.0.0'
+        api_version=APIVersion.beta, sdk_version='1.0.0'
     )
     telemetry_handler = GraphTelemetryHandler(options=telemetry_options)
     telemetry_handler._append_sdk_version_header(mock_graph_request)
 
     assert 'sdkVersion' in mock_graph_request.headers
-    assert mock_graph_request.headers.get('sdkVersion'
-                                          ).startswith('graph-python-beta/' + '1.0.0')
+    assert mock_graph_request.headers.get('sdkVersion').startswith('graph-python-beta/' + '1.0.0')
 
 
 def test_add_host_os_header(mock_graph_request):

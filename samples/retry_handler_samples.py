@@ -8,7 +8,6 @@ import json
 from pprint import pprint
 
 from azure.identity import InteractiveBrowserCredential
-
 from msgraph.core import GraphClient, HTTPClientFactory
 
 scopes = ['user.read']

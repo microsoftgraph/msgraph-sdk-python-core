@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from kiota_abstractions.request_option import RequestOption
 
-from ..._enums import APIVersion
 from ..._constants import SDK_VERSION
+from ..._enums import APIVersion
 
 
 class GraphTelemetryHandlerOption(RequestOption):

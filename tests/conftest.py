@@ -34,6 +34,7 @@ def mock_transport():
 @pytest.fixture
 def mock_request():
     req = httpx.Request('GET', "https://example.org")
+    req.options = {}
     return req
 
 

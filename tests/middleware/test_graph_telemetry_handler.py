@@ -65,7 +65,7 @@ def test_append_sdk_version_header(mock_graph_request):
     Test that sdkVersion is added to the request headers
     """
     telemetry_handler = GraphTelemetryHandler()
-    telemetry_handler._append_sdk_version_header(mock_graph_request)
+    telemetry_handler._append_sdk_version_header(mock_graph_request, telemetry_handler.options)
 
     assert 'sdkVersion' in mock_graph_request.headers
     assert mock_graph_request.headers.get('sdkVersion'
@@ -80,7 +80,7 @@ def test_append_sdk_version_header_beta(mock_graph_request):
         api_version=APIVersion.beta, sdk_version='1.0.0'
     )
     telemetry_handler = GraphTelemetryHandler(options=telemetry_options)
-    telemetry_handler._append_sdk_version_header(mock_graph_request)
+    telemetry_handler._append_sdk_version_header(mock_graph_request, telemetry_options)
 
     assert 'sdkVersion' in mock_graph_request.headers
     assert mock_graph_request.headers.get('sdkVersion').startswith('graph-python-beta/' + '1.0.0')

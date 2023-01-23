@@ -44,5 +44,6 @@ class GraphTelemetryHandlerOption(RequestOption):
     def sdk_version(self, value: List[str]):
         self._sdk_version = value
 
-    def get_key(self) -> str:
-        return self.GRAPH_TELEMETRY_HANDLER_OPTION_KEY
+    @staticmethod
+    def get_key() -> str:
+        return GraphTelemetryHandlerOption.GRAPH_TELEMETRY_HANDLER_OPTION_KEY

@@ -37,15 +37,36 @@ class GraphTelemetryHandler(BaseMiddleware):
     async def send(self, request: GraphRequest, transport: AsyncGraphTransport):
         """Adds telemetry headers and sends the http request.
         """
+        current_options = self._get_current_options(request)
 
         if self.is_graph_url(request.url):
             self._add_client_request_id_header(request)
-            self._append_sdk_version_header(request)
+            self._append_sdk_version_header(request, current_options)
             self._add_host_os_header(request)
             self._add_runtime_environment_header(request)
 
         response = await super().send(request, transport)
         return response
+
+    def _get_current_options(self, request: httpx.Request) -> GraphTelemetryHandlerOption:
+        """Returns the options to use for the request.Overries default options if
+        request options are passed.
+
+        Args:
+            request (httpx.Request): The prepared request object
+
+        Returns:
+            GraphTelemetryHandlerOption: The options to used.
+        """
+        current_options = self.options
+        request_options = request.context.middleware_control.get(              # type:ignore
+            GraphTelemetryHandlerOption.get_key()
+        )
+        # Override default options with request options
+        if request_options:
+            current_options = request_options
+
+        return current_options
 
     def is_graph_url(self, url):
         """Check if the request is made to a graph endpoint. We do not add telemetry headers to
@@ -60,26 +81,26 @@ class GraphTelemetryHandler(BaseMiddleware):
         """Add a client-request-id header with GUID value to request"""
         request.headers.update({'client-request-id': f'{request.context.client_request_id}'})
 
-    def _append_sdk_version_header(self, request) -> None:
+    def _append_sdk_version_header(self, request, options) -> None:
         """Add SdkVersion request header to each request to identify the language and
         version of the client SDK library(s).
         Also adds the featureUsage value.
         """
         sdk_name = 'graph-python-core'
 
-        if self.options.api_version == APIVersion.v1:
+        if options.api_version == APIVersion.v1:
             sdk_name = 'graph-python'
-        if self.options.api_version == APIVersion.beta:
+        if options.api_version == APIVersion.beta:
             sdk_name = 'graph-python-beta'
 
         if 'sdkVersion' in request.headers:
             sdk_version = request.headers.get('sdkVersion')
-            if not sdk_version == f'{sdk_name}/{SDK_VERSION} '\
+            if not sdk_version == f'{sdk_name}/{options.sdk_version} '\
                 f'(featureUsage={request.context.feature_usage})':
                 request.headers.update(
                     {
                         'sdkVersion':
-                        f'{sdk_name}/{SDK_VERSION},{ sdk_version} '\
+                        f'{sdk_name}/{options.sdk_version} '\
                         f'(featureUsage={request.context.feature_usage})'
                     }
                 )
@@ -87,7 +108,7 @@ class GraphTelemetryHandler(BaseMiddleware):
             request.headers.update(
                 {
                     'sdkVersion':
-                    f'{sdk_name}/{SDK_VERSION} '\
+                    f'{sdk_name}/{options.sdk_version} '\
                     f'(featureUsage={request.context.feature_usage})'
                 }
             )

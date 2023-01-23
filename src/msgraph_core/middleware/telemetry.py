@@ -86,32 +86,27 @@ class GraphTelemetryHandler(BaseMiddleware):
         version of the client SDK library(s).
         Also adds the featureUsage value.
         """
-        sdk_name = 'graph-python-core'
+        core_library_name = f'graph-python-core/{SDK_VERSION}'
+        service_lib_name = ''
 
         if options.api_version == APIVersion.v1:
-            sdk_name = 'graph-python'
+            service_lib_name = f'graph-python/{options.sdk_version}'
         if options.api_version == APIVersion.beta:
-            sdk_name = 'graph-python-beta'
+            service_lib_name = f'graph-python-beta/{options.sdk_version}'
+
+        if service_lib_name:
+            telemetry_header_string = f'{service_lib_name}, '\
+                f'{core_library_name} (featureUsage={request.context.feature_usage})'
+        else:
+            telemetry_header_string = f'{core_library_name} '\
+                '(featureUsage={request.context.feature_usage})'
 
         if 'sdkVersion' in request.headers:
             sdk_version = request.headers.get('sdkVersion')
-            if not sdk_version == f'{sdk_name}/{options.sdk_version} '\
-                f'(featureUsage={request.context.feature_usage})':
-                request.headers.update(
-                    {
-                        'sdkVersion':
-                        f'{sdk_name}/{options.sdk_version} '\
-                        f'(featureUsage={request.context.feature_usage})'
-                    }
-                )
+            if not sdk_version == telemetry_header_string:
+                request.headers.update({'sdkVersion': telemetry_header_string})
         else:
-            request.headers.update(
-                {
-                    'sdkVersion':
-                    f'{sdk_name}/{options.sdk_version} '\
-                    f'(featureUsage={request.context.feature_usage})'
-                }
-            )
+            request.headers.update({'sdkVersion': telemetry_header_string})
 
     def _add_host_os_header(self, request) -> None:
         """

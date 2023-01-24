@@ -36,7 +36,7 @@ def test_create_default_with_custom_middleware():
     assert isinstance(pipeline._first_middleware, RedirectHandler)
     retry_handler = pipeline._first_middleware.next
     assert isinstance(retry_handler, RetryHandler)
-    assert retry_handler.max_retries == retry_options.max_retry
+    assert retry_handler.options.max_retry == retry_options.max_retry
     assert isinstance(pipeline._current_middleware, GraphTelemetryHandler)
 
 

@@ -26,10 +26,7 @@ class AsyncGraphTransport(httpx.AsyncBaseTransport):
 
     def set_request_context_and_feature_usage(self, request: httpx.Request) -> httpx.Request:
 
-        request_options = {}
-        options = request.headers.get('request_options', None)
-        if options:
-            request_options = json.loads(options)
+        request_options = request.options  # type:ignore
 
         context = GraphRequestContext(request_options, request.headers)
         middleware = self.pipeline._first_middleware

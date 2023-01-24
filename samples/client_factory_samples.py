@@ -13,9 +13,8 @@ from pprint import pprint
 # This sample uses InteractiveBrowserCredential only for demonstration.
 # Any azure-identity TokenCredential class will work the same.
 from azure.identity import InteractiveBrowserCredential
-from requests import Session
-
 from msgraph.core import APIVersion, HTTPClientFactory, NationalClouds
+from requests import Session
 
 scopes = ['user.read']
 browser_credential = InteractiveBrowserCredential(client_id='YOUR_CLIENT_ID')

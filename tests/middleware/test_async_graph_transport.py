@@ -6,7 +6,7 @@ from msgraph_core.middleware import AsyncGraphTransport, GraphRequestContext
 
 
 def test_set_request_context_and_feature_usage(mock_request, mock_transport):
-    middleware = KiotaClientFactory.get_default_middleware()
+    middleware = KiotaClientFactory.get_default_middleware(None)
     pipeline = KiotaClientFactory.create_middleware_pipeline(middleware, mock_transport)
     transport = AsyncGraphTransport(mock_transport, pipeline)
     transport.set_request_context_and_feature_usage(mock_request)

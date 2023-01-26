@@ -24,6 +24,7 @@ class GraphClientFactory(KiotaClientFactory):
     @staticmethod
     def create_with_default_middleware(
         api_version: APIVersion = APIVersion.v1,
+        client: httpx.AsyncClient = KiotaClientFactory.get_default_client(),
         host: NationalClouds = NationalClouds.Global,
         options: Optional[Dict[str, RequestOption]] = None
     ) -> httpx.AsyncClient:
@@ -33,6 +34,8 @@ class GraphClientFactory(KiotaClientFactory):
         Args:
             api_version (APIVersion): The Graph API version to be used.
             Defaults to APIVersion.v1.
+            client  (httpx.AsyncClient): The httpx.AsyncClient instance to be used.
+            Defaults to KiotaClientFactory.get_default_client().
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
             options (Optional[Dict[str, RequestOption]]): The request options to use when
@@ -41,7 +44,6 @@ class GraphClientFactory(KiotaClientFactory):
         Returns:
             httpx.AsyncClient: An instance of the AsyncClient object
         """
-        client = KiotaClientFactory.get_default_client()
         client.base_url = GraphClientFactory._get_base_url(host, api_version)
         current_transport = client._transport
 
@@ -62,6 +64,7 @@ class GraphClientFactory(KiotaClientFactory):
     def create_with_custom_middleware(
         middleware: Optional[List[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
+        client: httpx.AsyncClient = KiotaClientFactory.get_default_client(),
         host: NationalClouds = NationalClouds.Global,
     ) -> httpx.AsyncClient:
         """Applies a custom middleware chain to the HTTP Client
@@ -70,8 +73,13 @@ class GraphClientFactory(KiotaClientFactory):
             middleware(List[BaseMiddleware]): Custom middleware list that will be used to create
             a middleware pipeline. The middleware should be arranged in the order in which they will
             modify the request.
+            api_version (APIVersion): The Graph API version to be used.
+            Defaults to APIVersion.v1.
+            client  (httpx.AsyncClient): The httpx.AsyncClient instance to be used.
+            Defaults to KiotaClientFactory.get_default_client().
+            host (NationalClouds): The national clound endpoint to be used.
+            Defaults to NationalClouds.Global.
         """
-        client = KiotaClientFactory.get_default_client()
         client.base_url = GraphClientFactory._get_base_url(host, api_version)
         current_transport = client._transport
 

@@ -13,7 +13,7 @@ from msgraph_core.middleware import AsyncGraphTransport, GraphTelemetryHandler
 
 def test_create_with_default_middleware():
     """Test creation of GraphClient using default middleware"""
-    client = GraphClientFactory.create_with_default_middleware()
+    client = GraphClientFactory.create_with_default_middleware(client=httpx.AsyncClient())
 
     assert isinstance(client, httpx.AsyncClient)
     assert isinstance(client._transport, AsyncGraphTransport)
@@ -45,7 +45,9 @@ def test_create_with_custom_middleware():
     middleware = [
         GraphTelemetryHandler(),
     ]
-    client = GraphClientFactory.create_with_custom_middleware(middleware=middleware)
+    client = GraphClientFactory.create_with_custom_middleware(
+        middleware=middleware, client=httpx.AsyncClient()
+    )
 
     assert isinstance(client, httpx.AsyncClient)
     assert isinstance(client._transport, AsyncGraphTransport)

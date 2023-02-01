@@ -25,7 +25,7 @@ class AsyncGraphTransport(httpx.AsyncBaseTransport):
         return response
 
     def set_request_context_and_feature_usage(self, request: httpx.Request) -> httpx.Request:
-        
+
         request_options = request.options  # type:ignore
 
         context = GraphRequestContext(request_options, request.headers)

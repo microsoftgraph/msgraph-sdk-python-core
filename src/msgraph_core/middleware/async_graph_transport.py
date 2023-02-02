@@ -16,7 +16,7 @@ class AsyncGraphTransport(httpx.AsyncBaseTransport):
         self.pipeline = pipeline
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        if self.pipeline:
+        if self.pipeline and hasattr(request, 'options'):
             self.set_request_context_and_feature_usage(request)
             response = await self.pipeline.send(request)
             return response

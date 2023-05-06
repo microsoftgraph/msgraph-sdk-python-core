@@ -1,5 +1,6 @@
 [![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
 [![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
+
 ## Microsoft Graph Core Python Client Library (preview).
 
 The Microsoft Graph Core Python Client Library contains core classes used by [Microsoft Graph Python Client Library](https://github.com/microsoftgraph/msgraph-sdk-python) to send native HTTP requests to [Microsoft Graph API](https://graph.microsoft.com).
@@ -20,17 +21,16 @@ The Microsoft Graph Core Python Client Library contains core classes used by [Mi
 
 To call Microsoft Graph, your app must acquire an access token from the Microsoft identity platform. Learn more about this -
 
--   [Authentication and authorization basics for Microsoft Graph](https://docs.microsoft.com/en-us/graph/auth/auth-concepts)
--   [Register your app with the Microsoft identity platform](https://docs.microsoft.com/en-us/graph/auth-register-app-v2)
-
+- [Authentication and authorization basics for Microsoft Graph](https://docs.microsoft.com/en-us/graph/auth/auth-concepts)
+- [Register your app with the Microsoft identity platform](https://docs.microsoft.com/en-us/graph/auth-register-app-v2)
 
 ### 2. Install the required packages
 
 msgraph-core is available on PyPI.
 
 ```cmd
-python -m pip install msgraph-core
-python -m pip install azure-identity
+pip3 install msgraph-core
+pip3 install azure-identity
 ```
 
 ### 3. Configure an Authentication Provider Object
@@ -89,5 +89,3 @@ Please see the [contributing guidelines](CONTRIBUTING.rst).
 Copyright (c) Microsoft Corporation. All Rights Reserved. Licensed under the MIT [license](LICENSE).
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-

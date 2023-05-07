@@ -14,33 +14,8 @@ jobs:
         - name: Build
           uses: ./.github/workflows/python.yml
 
-  autorelease:
-    name: Create release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-      - name: Release Notes
-        run: |
-          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n' --no-merges >> ".github/RELEASE-TEMPLATE.md"
-      - name: Create Release Draft
-        uses: softprops/action-gh-release@v1
-        if: github.repository == 'microsoftgraph/msgraph-sdk-python-core' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        with:
-          body_path: ".github/RELEASE-TEMPLATE.md"
-          draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
     name: Publish distribution to PyPI
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/kiota/long-term-branch' }}
     runs-on: ubuntu-latest
     environment: pypi_prod
     needs: [build]
@@ -62,3 +37,30 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
+
+  autorelease:
+    name: Create release
+    runs-on: ubuntu-latest
+    needs: [build, publish]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Release Notes
+        run: |
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        if: github.repository == 'microsoftgraph/msgraph-sdk-python-core' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        with:
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+

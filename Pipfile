@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages] # Packages required to run the application
 microsoft-kiota-abstractions = "==0.5.1"
-microsoft-kiota-http = "==0.4.2"
+microsoft-kiota-http = "==0.4.3"
 microsoft-kiota-authentication-azure = "==0.2.0"
 httpx = {version = "==0.24.0", extras = ["http2"]}
 

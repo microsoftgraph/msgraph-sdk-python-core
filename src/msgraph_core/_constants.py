@@ -9,3 +9,4 @@ via the GraphClient or HttpClientFactory
 DEFAULT_REQUEST_TIMEOUT = 100
 DEFAULT_CONNECTION_TIMEOUT = 30
 SDK_VERSION = '1.0.0a4'
+MS_DEFAULT_SCOPE = 'https://graph.microsoft.com/.default'

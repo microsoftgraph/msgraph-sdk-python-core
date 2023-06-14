@@ -1,0 +1,2 @@
+class AzureIdentityAuthenticationProvider():
+    pass

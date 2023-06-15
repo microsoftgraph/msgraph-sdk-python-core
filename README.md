@@ -66,13 +66,14 @@ adapter = BaseGraphRequestAdapter(auth_provider)
 After you have a `BaseGraphRequestAdapter` that is authenticated, you can begin making calls against the service.
 
 ```python
+import asyncio
 from kiota_abstractions.request_information import RequestInformation
 
 request_info = RequestInformation()
 request_info.url = 'https://graph.microsoft.com/v1.0/me'
 
 # User is your own type that implements Parsable or comes from the service library
-user = adapter.send_async(request_info, User)
+user = asyncio.run(adapter.send_async(request_info, User, {}))
 print(user.display_name)
 ```
 

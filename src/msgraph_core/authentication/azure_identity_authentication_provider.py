@@ -15,7 +15,7 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[Dict],
+        options: Optional[Dict] = {},
         scopes: List[str] = [],
         allowed_hosts: Optional[List[str]] = [nc.value for nc in NationalClouds]
     ) -> None:

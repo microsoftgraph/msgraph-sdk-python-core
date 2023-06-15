@@ -15,8 +15,8 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
     def __init__(
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
-        options: Optional[Dict] = None,
-        scopes: Optional[List[str]] = [],
+        options: Optional[Dict],
+        scopes: List[str] = [],
         allowed_hosts: Optional[List[str]] = [nc.value for nc in NationalClouds]
     ) -> None:
         """[summary]
@@ -25,8 +25,8 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
             credentials (Union["TokenCredential", "AsyncTokenCredential"]): The
                 tokenCredential implementation to use for authentication.
             options (Optional[dict]): The options to use for authentication.
-            scopes (Optional[List[str]]): The scopes to use for authentication.
-                Defaults to 'https://graph.microsoft.com/.default'.
+            scopes (List[str]): The scopes to use for authentication.
+                Defaults to 'https://<national_cloud_domain>/.default'.
             allowed_hosts (Optional[List[str]]): The allowed hosts to use for
                 authentication. Defaults to Microsoft National Clouds.
         """

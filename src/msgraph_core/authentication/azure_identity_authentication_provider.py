@@ -16,8 +16,8 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
         self,
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
         options: Optional[Dict] = None,
-        scopes: Optional[List[str]] = None,
-        allowed_hosts: Optional[List[str]] = None
+        scopes: Optional[List[str]] = [],
+        allowed_hosts: Optional[List[str]] = [nc.value for nc in NationalClouds]
     ) -> None:
         """[summary]
 
@@ -30,7 +30,4 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
             allowed_hosts (Optional[List[str]]): The allowed hosts to use for
                 authentication. Defaults to Microsoft National Clouds.
         """
-        self.scopes: List[str] = [MS_DEFAULT_SCOPE] if scopes is None else scopes
-        self.allowed_hosts: List[str] = [nc.value
-                                         for nc in NationalClouds] if allowed_hosts is None else []
-        super().__init__(credentials, options, self.scopes, self.allowed_hosts)
+        super().__init__(credentials, options, scopes, allowed_hosts)

@@ -1,0 +1,3 @@
+from .azure_identity_authentication_provider import AzureIdentityAuthenticationProvider
+
+__all__ = ['AzureIdentityAuthenticationProvider']

@@ -14,7 +14,7 @@ The Microsoft Graph Core Python Client Library contains core classes used by [Mi
 ## Prerequisites
 
     Python 3.8+
-    
+
 This library doesn't support [older](https://devguide.python.org/versions/) versions of Python.
 
 ## Getting started
@@ -39,18 +39,20 @@ pip3 install azure-identity
 
 An instance of the `BaseGraphRequestAdapter` class handles building client. To create a new instance of this class, you need to provide an instance of `AuthenticationProvider`, which can authenticate requests to Microsoft Graph.
 
-> **Note**: This client library offers an asynchronous API by default. Async is a concurrency model that is far more efficient than multi-threading, and can provide significant performance benefits and enable the use of long-lived network connections such as WebSockets. We support popular python async envronments such as `asyncio`, `anyio` or `trio`. For authentication you need to use one of the async credential classes from `azure.identity`.
+> **Note**: This client library offers an asynchronous API by default. Async is a concurrency model that is far more efficient than multi-threading, and can provide significant performance benefits and enable the use of long-lived network connections such as WebSockets. We support popular python async environments such as `asyncio`, `anyio` or `trio`. For authentication you need to use one of the async credential classes from `azure.identity`.
 
 ```py
 # Using EnvironmentCredential for demonstration purposes.
 # There are many other options for getting an access token. See the following for more information.
 # https://pypi.org/project/azure-identity/#async-credentials
 from azure.identity.aio import EnvironmentCredential
-from kiota_authentication_azure.azure_identity_authentication_provider import AzureIdentityAuthenticationProvider
+from msgraph_core.authentication import AzureIdentityAuthenticationProvider
 
 credential=EnvironmentCredential()
 auth_provider = AzureIdentityAuthenticationProvider(credential)
 ```
+
+> **Note**: `AzureIdentityAuthenticationProvider` sets the default scopes and allowed hosts.
 
 ### 5. Pass the authentication provider object to the BaseGraphRequestAdapter constructor.
 
@@ -64,13 +66,14 @@ adapter = BaseGraphRequestAdapter(auth_provider)
 After you have a `BaseGraphRequestAdapter` that is authenticated, you can begin making calls against the service.
 
 ```python
+import asyncio
 from kiota_abstractions.request_information import RequestInformation
 
 request_info = RequestInformation()
 request_info.url = 'https://graph.microsoft.com/v1.0/me'
 
 # User is your own type that implements Parsable or comes from the service library
-user = adapter.send_async(request_info, User)
+user = asyncio.run(adapter.send_async(request_info, User, {}))
 print(user.display_name)
 ```
 

@@ -3,6 +3,8 @@
 
 ## Microsoft Graph Core Python Client Library (preview).
 
+> We are very close to GA! Stay tunned for updates in the [M365 Developer Blog](https://devblogs.microsoft.com/microsoft365dev/)
+
 The Microsoft Graph Core Python Client Library contains core classes used by [Microsoft Graph Python Client Library](https://github.com/microsoftgraph/msgraph-sdk-python) to send native HTTP requests to [Microsoft Graph API](https://graph.microsoft.com).
 
 **Disclaimer**: Please, be aware that preview versions of `msgraph-core` package are for testing purpose only. Do not use them in a production environment.

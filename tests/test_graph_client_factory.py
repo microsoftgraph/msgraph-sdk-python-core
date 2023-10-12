@@ -21,7 +21,8 @@ def test_create_with_default_middleware():
     assert isinstance(pipeline, MiddlewarePipeline)
     assert isinstance(pipeline._first_middleware, RedirectHandler)
     assert isinstance(pipeline._current_middleware, GraphTelemetryHandler)
-    
+
+
 def test_create_with_default_middleware_custom_client():
     """Test creation of GraphClient using default middleware"""
     timeout = httpx.Timeout(20, connect=10)
@@ -35,7 +36,8 @@ def test_create_with_default_middleware_custom_client():
     assert isinstance(pipeline, MiddlewarePipeline)
     assert isinstance(pipeline._first_middleware, RedirectHandler)
     assert isinstance(pipeline._current_middleware, GraphTelemetryHandler)
-    
+
+
 def test_create_with_default_middleware_custom_client_with_proxy():
     """Test creation of GraphClient using default middleware"""
     proxies = {
@@ -91,7 +93,8 @@ def test_create_with_custom_middleware_custom_client():
     assert isinstance(client._transport, AsyncGraphTransport)
     pipeline = client._transport.pipeline
     assert isinstance(pipeline._first_middleware, GraphTelemetryHandler)
-    
+
+
 def test_create_with_custom_middleware_custom_client_with_proxy():
     """Test creation of HTTP Clients with custom middleware"""
     proxies = {

@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 
-astroid==2.15.7 ; python_full_version >= '3.7.2'
+astroid==3.0.0 ; python_full_version >= '3.7.2'
 
 async-generator==1.10 ; python_version >= '3.5'
 

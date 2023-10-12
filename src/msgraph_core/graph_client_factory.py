@@ -45,20 +45,10 @@ class GraphClientFactory(KiotaClientFactory):
             httpx.AsyncClient: An instance of the AsyncClient object
         """
         client.base_url = GraphClientFactory._get_base_url(host, api_version)
-        current_transport = client._transport
-
         middleware = KiotaClientFactory.get_default_middleware(options)
         telemetry_handler = GraphClientFactory._get_telemetry_handler(options)
         middleware.append(telemetry_handler)
-        middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
-            middleware, current_transport
-        )
-
-        client._transport = AsyncGraphTransport(
-            transport=current_transport, pipeline=middleware_pipeline
-        )
-        client._transport.pipeline
-        return client
+        return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
     def create_with_custom_middleware(
@@ -81,16 +71,7 @@ class GraphClientFactory(KiotaClientFactory):
             Defaults to NationalClouds.Global.
         """
         client.base_url = GraphClientFactory._get_base_url(host, api_version)
-        current_transport = client._transport
-
-        middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
-            middleware, current_transport
-        )
-
-        client._transport = AsyncGraphTransport(
-            transport=current_transport, pipeline=middleware_pipeline
-        )
-        return client
+        return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
     def _get_base_url(host: str, api_version: APIVersion) -> str:
@@ -110,3 +91,36 @@ class GraphClientFactory(KiotaClientFactory):
             if graph_telemetry_options:
                 return GraphTelemetryHandler(options=graph_telemetry_options)
         return GraphTelemetryHandler()
+
+    @staticmethod
+    def _load_middleware_to_client(
+        client: httpx.AsyncClient, middleware: Optional[List[BaseMiddleware]]
+    ) -> httpx.AsyncClient:
+        current_transport = client._transport
+        client._transport = GraphClientFactory._replace_transport_with_custom_graph_transport(
+            current_transport, middleware
+        )
+        if client._mounts:
+            mounts: dict = {}
+            for pattern, transport in client._mounts.items():
+                if transport is None:
+                    mounts[pattern] = None
+                else:
+                    mounts[pattern
+                           ] = GraphClientFactory._replace_transport_with_custom_graph_transport(
+                               transport, middleware
+                           )
+            client._mounts = dict(sorted(mounts.items()))
+        return client
+
+    @staticmethod
+    def _replace_transport_with_custom_graph_transport(
+        current_transport: httpx.AsyncBaseTransport, middleware: Optional[List[BaseMiddleware]]
+    ) -> AsyncGraphTransport:
+        middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
+            middleware, current_transport
+        )
+        new_transport = AsyncGraphTransport(
+            transport=current_transport, pipeline=middleware_pipeline
+        )
+        return new_transport

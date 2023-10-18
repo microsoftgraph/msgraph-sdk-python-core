@@ -1,7 +1,9 @@
-from typing import TYPE_CHECKING, List, Union, Optional, Dict
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from kiota_authentication_azure.azure_identity_authentication_provider import \
-    AzureIdentityAuthenticationProvider as KiotaAzureIdentityAuthenticationProvider
+from kiota_authentication_azure.azure_identity_authentication_provider import (
+    AzureIdentityAuthenticationProvider as KiotaAzureIdentityAuthenticationProvider,
+)
+
 from msgraph_core._constants import MS_DEFAULT_SCOPE
 from msgraph_core._enums import NationalClouds
 

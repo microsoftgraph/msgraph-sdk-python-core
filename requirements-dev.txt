@@ -56,7 +56,7 @@ msal==1.24.1
 
 msal-extensions==1.0.0
 
-mypy==1.6.0
+mypy==1.6.1
 
 mypy-extensions==1.0.0 ; python_version >= '3.5'
 

@@ -1,11 +1,10 @@
-[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/msgraph-sdk-python-core/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
+[![PyPI version](https://badge.fury.io/py/msgraph-core.svg)](https://badge.fury.io/py/msgraph-core)
+[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/build.yml/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
 [![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
 
-## Microsoft Graph Core Python Client Library (preview).
+## Microsoft Graph Core Python Client Library.
 
 The Microsoft Graph Core Python Client Library contains core classes used by [Microsoft Graph Python Client Library](https://github.com/microsoftgraph/msgraph-sdk-python) to send native HTTP requests to [Microsoft Graph API](https://graph.microsoft.com).
-
-**Disclaimer**: Please, be aware that preview versions of `msgraph-core` package are for testing purpose only. Do not use them in a production environment.
 
 > NOTE:
 > This is a new major version of the Python Core library for Microsoft Graph based on the [Kiota](https://microsoft.github.io/kiota/) project. We recommend to use this library with the [full Python SDK](https://github.com/microsoftgraph/msgraph-sdk-python).

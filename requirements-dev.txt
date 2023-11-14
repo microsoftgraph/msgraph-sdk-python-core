@@ -112,7 +112,7 @@ types-python-dateutil==2.8.19.14
 
 typing-extensions==4.8.0 ; python_version >= '3.7'
 
-urllib3==2.0.7 ; python_version >= '3.7'
+urllib3==2.1.0 ; python_version >= '3.7'
 
 wrapt==1.15.0 ; python_version < '3.11'
 

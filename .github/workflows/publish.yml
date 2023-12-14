@@ -1,8 +1,9 @@
-name: Publish package
+name: Publish package to PyPI
 
 on:
-  push:
-    branches: [kiota/long-term-branch]
+  release:
+    types:
+      - published
 
 jobs:
   build:

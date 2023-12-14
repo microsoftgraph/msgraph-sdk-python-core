@@ -32,7 +32,7 @@ class GraphTelemetryHandlerOption(RequestOption):
         return self._api_version
 
     @api_version.setter
-    def api_version(self, value: bool):
+    def api_version(self, value: APIVersion):
         self._api_version = value
 
     @property
@@ -41,7 +41,7 @@ class GraphTelemetryHandlerOption(RequestOption):
         return self._sdk_version
 
     @sdk_version.setter
-    def sdk_version(self, value: List[str]):
+    def sdk_version(self, value: str):
         self._sdk_version = value
 
     @staticmethod

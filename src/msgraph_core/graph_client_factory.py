@@ -44,7 +44,7 @@ class GraphClientFactory(KiotaClientFactory):
         Returns:
             httpx.AsyncClient: An instance of the AsyncClient object
         """
-        client.base_url = GraphClientFactory._get_base_url(host, api_version)
+        client.base_url = GraphClientFactory._get_base_url(host, api_version) # type: ignore
         middleware = KiotaClientFactory.get_default_middleware(options)
         telemetry_handler = GraphClientFactory._get_telemetry_handler(options)
         middleware.append(telemetry_handler)
@@ -70,7 +70,7 @@ class GraphClientFactory(KiotaClientFactory):
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
         """
-        client.base_url = GraphClientFactory._get_base_url(host, api_version)
+        client.base_url = GraphClientFactory._get_base_url(host, api_version) # type: ignore
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod

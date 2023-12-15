@@ -2,7 +2,7 @@ name: Create a release
 
 on:
   push:
-    branches: [kiota/long-term-branch]
+    branches: [master, kiota/long-term-branch]
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 

@@ -3,6 +3,8 @@ name: Publish package to PyPI
 on:
   push:
     branches: [master, kiota/long-term-branch]
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   build:

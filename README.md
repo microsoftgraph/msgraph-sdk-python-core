@@ -10,6 +10,9 @@ The Microsoft Graph Core Python Client Library contains core classes used by [Mi
 > This is a new major version of the Python Core library for Microsoft Graph based on the [Kiota](https://microsoft.github.io/kiota/) project. We recommend to use this library with the [full Python SDK](https://github.com/microsoftgraph/msgraph-sdk-python).
 > Upgrading to this version from the [previous version of the Python Core library](https://pypi.org/project/msgraph-core/0.2.2/) will introduce breaking changes into your application.
 
+> Note:
+> This is not the most recent version of the Python Core library. Upgrading to the [newer version](https://github.com/microsoftgraph/msgraph-sdk-python-core/blob/kiota/long-term-branch/README.md) will introduce breaking changes into your application.
+
 ## Prerequisites
 
     Python 3.8+

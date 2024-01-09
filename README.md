@@ -1,5 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/msgraph-core.svg)](https://badge.fury.io/py/msgraph-core)
-[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/workflows/build.yml/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions)
+[![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions/workflows/build.yml/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions/workflows/build.yml)
 [![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
 
 ## Microsoft Graph Core Python Client Library.

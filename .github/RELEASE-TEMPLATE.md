@@ -1,4 +1,0 @@
-# Notes
-* First Note
-
-# Changes

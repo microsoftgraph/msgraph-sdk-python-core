@@ -2,7 +2,7 @@ name: Auto-merge dependabot updates
 
 on:
   pull_request:
-    branches: [kiota/long-term-branch]
+    branches: [master]
 
 permissions:
   pull-requests: write

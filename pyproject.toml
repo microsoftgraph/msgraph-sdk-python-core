@@ -64,25 +64,3 @@ push = false
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "src/msgraph_core/_constants.py" = ["{version}"]
-
-[project.urls]
-homepage = "https://github.com/microsoftgraph/msgraph-sdk-python-core#readme"
-repository = "https://github.com/microsoftgraph/msgraph-sdk-python-core"
-documentation = "https://github.com/microsoftgraph/msgraph-sdk-python-core/docs"
-
-[tool.flit.module]
-name = "msgraph"
-
-[tool.mypy]
-warn_unused_configs = true
-files = "msgraph"
-ignore_missing_imports = true
-
-[tool.yapf]
-based_on_style = "pep8"
-dedent_closing_brackets = true
-each_dict_entry_on_separate_line = true
-column_limit = 100
-
-[tool.isort]
-profile = "hug"

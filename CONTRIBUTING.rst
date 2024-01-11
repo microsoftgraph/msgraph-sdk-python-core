@@ -172,8 +172,8 @@ To install dependencies that are necessary for development run,
 
 .. code::
 
-    pip install -r requirements.txt
-    pip install -r dev_requirements.txt
+    pip3 install -r requirements.txt
+    pip3 install -r dev_requirements.txt
 
 To edit files, open them in an editor of your choice and modify them. To
 create a new file, use the editor of your choice and save the new file
@@ -194,8 +194,8 @@ To run tests,
 
 .. code::
 
-    python -m unittest discover tests/unit
-    python -m unittest discover tests/integration
+    python3 -m unittest discover tests/unit
+    python3 -m unittest discover tests/integration
 
 To run linting,
 

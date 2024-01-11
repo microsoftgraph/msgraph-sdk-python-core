@@ -1,0 +1,156 @@
+-i https://pypi.org/simple
+
+astroid==3.0.2 ; python_full_version >= '3.7.2'
+
+async-generator==1.10 ; python_version >= '3.5'
+
+asyncmock==0.4.2
+
+attrs==23.2.0 ; python_version >= '3.7'
+
+azure-core==1.29.6 ; python_version >= '3.7'
+
+azure-identity==1.15.0
+
+build==1.0.3
+
+bumpver==2023.1129
+
+certifi==2023.11.17 ; python_version >= '3.6'
+
+cffi==1.16.0 ; os_name == 'nt' and implementation_name != 'pypy'
+
+charset-normalizer==3.3.2 ; python_full_version >= '3.7.0'
+
+click==8.1.7 ; python_version >= '3.6'
+
+colorama==0.4.6 ; os_name == 'nt'
+
+coverage[toml]==7.4.0 ; python_version >= '3.7'
+
+cryptography==41.0.7 ; python_version >= '3.7'
+
+dill==0.3.6 ; python_version < '3.11'
+
+exceptiongroup==1.1.1 ; python_version < '3.11'
+
+idna==3.6 ; python_version >= '3.5'
+
+importlib-metadata==6.8.0 ; python_version >= '3.7'
+
+iniconfig==2.0.0 ; python_version >= '3.7'
+
+isort==5.13.2
+
+lazy-object-proxy==1.10.0 ; python_version >= '3.7'
+
+lexid==2021.1006 ; python_version >= '2.7'
+
+looseversion==1.3.0 ; python_version >= '3.5'
+
+mccabe==0.7.0 ; python_version >= '3.6'
+
+mock==5.1.0 ; python_version >= '3.6'
+
+msal==1.26.0
+
+msal-extensions==1.1.0
+
+mypy==1.8.0
+
+mypy-extensions==1.0.0 ; python_version >= '3.5'
+
+outcome==1.3.0.post0 ; python_version >= '3.7'
+
+packaging==23.2 ; python_version >= '3.7'
+
+pathlib2==2.3.7.post1
+
+platformdirs==4.1.0 ; python_version >= '3.7'
+
+pluggy==1.3.0 ; python_version >= '3.7'
+
+portalocker==2.8.2 ; python_version >= '3.5' and platform_system == 'Windows'
+
+pycparser==2.21
+
+pyjwt[crypto]==2.8.0 ; python_version >= '3.7'
+
+pylint==3.0.3
+
+pyproject-hooks==1.0.0 ; python_version >= '3.7'
+
+pytest==7.4.4
+
+pytest-cov==4.1.0
+
+pytest-mock==3.12.0
+
+pytest-trio==0.8.0
+
+pywin32==306 ; platform_system == 'Windows'
+
+requests==2.31.0 ; python_version >= '3.7'
+
+setuptools==69.0.3
+
+six==1.16.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+
+sniffio==1.3.0 ; python_version >= '3.7'
+
+sortedcontainers==2.4.0
+
+toml==0.10.2
+
+tomli==2.0.1 ; python_version < '3.11'
+
+tomlkit==0.12.3 ; python_version >= '3.7'
+
+trio==0.24.0
+
+types-python-dateutil==2.8.19.20240106
+
+typing-extensions==4.9.0 ; python_version >= '3.7'
+
+urllib3==2.1.0 ; python_version >= '3.7'
+
+wrapt==1.15.0 ; python_version < '3.11'
+
+yapf==0.40.2
+
+zipp==3.17.0 ; python_version >= '3.7'
+
+aiohttp==3.9.1 ; python_version >= '3.6'
+
+aiosignal==1.3.1 ; python_version >= '3.7'
+
+anyio==4.2.0 ; python_version >= '3.7'
+
+async-timeout==4.0.3 ; python_version >= '3.6'
+
+frozenlist==1.4.1 ; python_version >= '3.7'
+
+h11==0.14.0 ; python_version >= '3.7'
+
+h2==4.1.0
+
+hpack==4.0.0 ; python_full_version >= '3.6.1'
+
+httpcore==1.0.2 ; python_version >= '3.7'
+
+httpx[http2]==0.26.0
+
+hyperframe==6.0.1 ; python_full_version >= '3.6.1'
+
+microsoft-kiota-abstractions==1.0.0
+
+microsoft-kiota-authentication-azure==1.0.0
+
+microsoft-kiota-http==1.2.0
+
+multidict==6.0.4 ; python_version >= '3.7'
+
+uritemplate==4.1.1 ; python_version >= '3.6'
+
+yarl==1.9.4 ; python_version >= '3.7'
+

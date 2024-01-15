@@ -44,9 +44,9 @@ configuration:
     # Restrict who can dismiss pull request reviews. boolean
     restrictsReviewDismissals: false
 
-  - branchNamePattern: master
-    # This branch pattern applies to the following branches as of 06/12/2023 11:37:28:
-    # master
+  - branchNamePattern: main
+    # This branch pattern applies to the following branches as of 01/12/2024 13:14:28:
+    # main
 
     # Specifies whether this branch can be deleted. boolean
     allowsDeletions: false

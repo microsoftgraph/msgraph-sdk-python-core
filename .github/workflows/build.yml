@@ -5,7 +5,9 @@ name: Build and test
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main, dev]
   workflow_call:
 
 jobs:

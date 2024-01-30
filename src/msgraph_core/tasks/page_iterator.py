@@ -41,7 +41,15 @@ class PageIterator:
         self.pause_index = pause_index
 
     def iterate(self, callback: Callable) -> None:
-        pass
+        while True:
+            keep_iterating = self.enumerate(callback)
+            if not keep_iterating:
+                return
+            next_page = self.next()
+            if not next_page:
+                return
+            self.current_page = next_page
+            self.pause_index = 0
 
     def next(self) -> Optional[dict]:
         if not self.current_page['@odata.nextLink']:
@@ -81,7 +89,15 @@ class PageIterator:
         return response.json()
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
-        pass
+        keep_iterating = True
+        page_items = self.current_page.get('value', [])
+        if not page_items:
+            return False
+        for i in range(self.pause_index, len(page_items)):
+            keep_iterating = callback(page_items[i]) if callback else True
+            if not keep_iterating:
+                self.pause_index = i + 1
+                break
 
     def has_next(self) -> bool:
         return self.has_next

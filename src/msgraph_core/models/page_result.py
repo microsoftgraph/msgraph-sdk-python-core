@@ -29,5 +29,16 @@ class PageResult(Parsable):
     def create_from_discriminator_value(self, parse_node: ParseNode) -> 'PageResult':
         pass
 
-    def get_field_deserializer() -> dict:
-        pass
+    def set_value(self, parse_node):
+        self.value = parse_node.get_collection_of_primitive_values()
+
+    def get_field_deserializers(self) -> dict:
+        return {
+            '@odata.nextLink':
+            lambda parse_node: self.odata_next_link(parse_node.get_string_value()),
+            'value': self.set_value
+        }
+
+    def serializer(self, writer: 'SerializationWriter') -> None:
+        writer.write_string_value('@odata.nextLink', self.odata_next_link)
+        writer.write_any_value('value', self.value)

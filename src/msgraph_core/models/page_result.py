@@ -9,3 +9,11 @@ class PageResult(Parsable):
     def __init__(self):
         self._odata_next_link: Optional[str] = None
         self._value: Optional[List[Any]] = None
+
+    @property
+    def odata_next_link(self) -> Optional[str]:
+        return self._odata_next_link
+
+    @property
+    def value(self) -> Optional[List[Any]]:
+        return self._value

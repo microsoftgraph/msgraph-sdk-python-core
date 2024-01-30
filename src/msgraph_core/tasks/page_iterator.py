@@ -51,7 +51,22 @@ class PageIterator:
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> dict:
-        pass
+        if not response:
+            raise ValueError('Response cannot be null.')
+        value = None
+        if isinstance(response, list):
+            value = response.get('value', [])
+        elif hasattr(response, 'value'):
+            value = getattr(response, 'value')
+        elif isinstance(response, object):
+            value = getattr(response, 'value', [])
+        if value is None:
+            raise ValueError('The response does not contain a value.')
+        parsable_page = response if isinstance(response, dict) else vars(response)
+        next_link = parsable_page.get('@odata.nextLink', '') if isinstance(
+            parsable_page, dict
+        ) else getattr(parsable_page, '@odata.nextLink', '')
+        return {'@odata.nextLink': next_link, 'value': value}
 
     def fetch_next_page(self) -> dict:
         next_link = self.current_page.get('@odata.nextLink')

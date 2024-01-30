@@ -51,7 +51,16 @@ class PageIterator:
         pass
 
     def fetch_next_page(self) -> dict:
-        pass
+        next_link = self.current_page.get('@odata.nextLink')
+        if not next_link:
+            raise ValueError('The response does not contain a nextLink.')
+        if not next_link.startswith('http'):
+            raise InvalidURL('Could not parse nextLink URL.')
+        request_info = Request(
+            'GET', next_link, headers=self.headers
+        )  # check  type: RequestInformation and update accordingly
+        response = self.request_adapter.send(request_info.prepare())
+        return response.json()
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         pass

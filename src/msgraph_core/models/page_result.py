@@ -17,3 +17,11 @@ class PageResult(Parsable):
     @property
     def value(self) -> Optional[List[Any]]:
         return self._value
+
+    @odata_next_link.setter
+    def odata_next_link(self, next_link: Optional[str]) -> None:
+        self._odata_next_link = next_link
+
+    @value.setter
+    def value(self, value: Optional[List[Any]]) -> None:
+        self._value = value

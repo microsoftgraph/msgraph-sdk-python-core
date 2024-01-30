@@ -44,7 +44,10 @@ class PageIterator:
         pass
 
     def next(self) -> Optional[dict]:
-        pass
+        if not self.current_page['@odata.nextLink']:
+            return None
+        response = self.fetch_next_page()
+        return self.convert_to_page(response)
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> dict:

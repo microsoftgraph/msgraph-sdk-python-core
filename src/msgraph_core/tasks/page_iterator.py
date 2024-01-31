@@ -12,7 +12,7 @@ from kiota_abstractions.serialization.parsable import Parsable
 
 from ..models import PageResult
 
-T = TypeVar('T')
+T = TypeVar('T', bound=Parsable)
 
 
 class PageIterator:
@@ -20,19 +20,19 @@ class PageIterator:
     def __init__(
         self,
         response: Union[T, list, object],
-        request_adapter: Session,
+        request_adapter: RequestAdapter,
         constructor_callable: Optional[Callable] = None
     ):
         self.request_adapter = request_adapter
         self.constructor_callable = constructor_callable or (lambda x: x)
         self.pause_index = 0
-        self.headers = {}
-        self.request_options = []
+        self.headers = RequestHeaders()
+        self.request_options = [] # check implementation of RequestOption and apply use it here
         self.current_page = self.convert_to_page(response)
         self.has_next = bool(self.current_page['value'])
 
     def set_headers(self, headers: dict) -> None:
-        self.headers.update(headers)
+        self.headers.add_all(headers)
 
     def set_request_options(self, request_options: list) -> None:
         self.request_options = request_options
@@ -58,7 +58,7 @@ class PageIterator:
         return self.convert_to_page(response)
 
     @staticmethod
-    def convert_to_page(response: Union[T, list, object]) -> dict:
+    def convert_to_page(response: Union[T, list, object]) -> PageResult:
         if not response:
             raise ValueError('Response cannot be null.')
         value = None
@@ -71,10 +71,11 @@ class PageIterator:
         if value is None:
             raise ValueError('The response does not contain a value.')
         parsable_page = response if isinstance(response, dict) else vars(response)
-        next_link = parsable_page.get('@odata.nextLink', '') if isinstance(
-            parsable_page, dict
-        ) else getattr(parsable_page, '@odata.nextLink', '')
-        return {'@odata.nextLink': next_link, 'value': value}
+        next_link = parsable_page.get('@odata.nextLink', '') if isinstance(parsable_page, dict) else getattr(parsable_page, '@odata.nextLink', '')
+        page = PageResult()
+        page.set_odata_next_link(next_link)
+        page.set_value(value)
+        return page
 
     def fetch_next_page(self) -> dict:
         next_link = self.current_page.get('@odata.nextLink')
@@ -82,11 +83,14 @@ class PageIterator:
             raise ValueError('The response does not contain a nextLink.')
         if not next_link.startswith('http'):
             raise InvalidURL('Could not parse nextLink URL.')
-        request_info = Request(
-            'GET', next_link, headers=self.headers
-        )  # check  type: RequestInformation and update accordingly
-        response = self.request_adapter.send(request_info.prepare())
-        return response.json()
+        request_info = RequestInformation()
+        request_info.http_method = Method.GET
+        request_info.url = next_link
+        request_info.headers = self.headers.get_all()
+        if self.request_options:
+            request_info.add_request_options(*self.request_options)
+        response = self.request_adapter.send_async(request_info, self.constructor_callable)
+        return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         keep_iterating = True

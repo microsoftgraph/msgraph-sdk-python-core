@@ -7,9 +7,7 @@ from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_option import RequestOption
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders # Use for headers
 from kiota_abstractions.serialization.parsable import Parsable
-
 from models import PageResult
 
 T = TypeVar('T', bound=Parsable)

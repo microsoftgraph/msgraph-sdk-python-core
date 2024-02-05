@@ -29,8 +29,8 @@ class PageResult(Parsable):
     def create_from_discriminator_value(self, parse_node: ParseNode) -> 'PageResult':
         return PageResult()
 
-    def set_value(self, parse_node):
-        self.value = parse_node.get_collection_of_primitive_values()
+    def set_value(self, value: List[Any]):
+        self.value = value
 
     def get_field_deserializers(self) -> dict:
         return {

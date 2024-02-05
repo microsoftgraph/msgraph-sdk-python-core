@@ -1,16 +1,16 @@
 from typing import Callable, Optional, Union
 
-from requests import Session
+from typing import TypeVar
 from requests.exceptions import InvalidURL
 
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_option import RequestOption
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
+from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders # Use for headers
 from kiota_abstractions.serialization.parsable import Parsable
 
-from ..models import PageResult
+from models import PageResult
 
 T = TypeVar('T', bound=Parsable)
 
@@ -26,13 +26,15 @@ class PageIterator:
         self.request_adapter = request_adapter
         self.constructor_callable = constructor_callable or (lambda x: x)
         self.pause_index = 0
-        self.headers = RequestHeaders()
-        self.request_options = [] # check implementation of RequestOption and apply use it here
+        self.headers = {}
+        self.request_options = []  # check implementation of RequestOption and apply use it here
         self.current_page = self.convert_to_page(response)
-        self.has_next = bool(self.current_page['value'])
+        self.has_next = bool(self.current_page.odata_next_link)
+        # self.current_page.get('@odata.nextLink')
+
 
     def set_headers(self, headers: dict) -> None:
-        self.headers.add_all(headers)
+        self.headers.update(**headers)
 
     def set_request_options(self, request_options: list) -> None:
         self.request_options = request_options
@@ -52,7 +54,7 @@ class PageIterator:
             self.pause_index = 0
 
     def next(self) -> Optional[dict]:
-        if not self.current_page['@odata.nextLink']:
+        if not self.current_page.odata_next_link:
             return None
         response = self.fetch_next_page()
         return self.convert_to_page(response)
@@ -71,9 +73,11 @@ class PageIterator:
         if value is None:
             raise ValueError('The response does not contain a value.')
         parsable_page = response if isinstance(response, dict) else vars(response)
-        next_link = parsable_page.get('@odata.nextLink', '') if isinstance(parsable_page, dict) else getattr(parsable_page, '@odata.nextLink', '')
+        next_link = parsable_page.get('@odata.nextLink', '') if isinstance(
+            parsable_page, dict
+        ) else getattr(parsable_page, '@odata.nextLink', '')
         page = PageResult()
-        page.set_odata_next_link(next_link)
+        page.odata_next_link = next_link
         page.set_value(value)
         return page
 

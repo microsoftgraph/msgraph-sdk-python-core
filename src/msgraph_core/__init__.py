@@ -13,5 +13,7 @@ from ._enums import APIVersion, NationalClouds
 from .authentication import AzureIdentityAuthenticationProvider
 from .base_graph_request_adapter import BaseGraphRequestAdapter
 from .graph_client_factory import GraphClientFactory
+from .models import (PageResult)
+from .tasks import PageIterator
 
 __version__ = SDK_VERSION

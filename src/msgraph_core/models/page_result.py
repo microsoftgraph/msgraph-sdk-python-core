@@ -39,6 +39,6 @@ class PageResult(Parsable):
             'value': self.set_value
         }
 
-    def serialize(self, writer: 'SerializationWriter') -> None:
-        writer.write_string_value('@odata.nextLink', self.odata_next_link)
-        writer.write_any_value('value', self.value)
+    def serialize(self, writer: SerializationWriter) -> None:
+        writer.write_str_value('@odata.nextLink', self.odata_next_link, self.value)
+        writer.write_collection_of_object_values('key', 'value', list(self.value))

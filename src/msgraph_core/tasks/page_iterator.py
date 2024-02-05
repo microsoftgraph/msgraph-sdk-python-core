@@ -82,7 +82,13 @@ class PageIterator:
         return page
 
     def fetch_next_page(self) -> dict:
-        next_link = self.current_page.get('@odata.nextLink')
+        error_map = {
+            400: 'BadRequestError',
+            401: 'UnauthorizedError',
+            403: 'ForbiddenError',
+            404: 'NotFoundError',
+        }
+        next_link = self.current_page.odata_next_link
         if not next_link:
             raise ValueError('The response does not contain a nextLink.')
         if not next_link.startswith('http'):
@@ -90,15 +96,16 @@ class PageIterator:
         request_info = RequestInformation()
         request_info.http_method = Method.GET
         request_info.url = next_link
-        request_info.headers = self.headers.get_all()
+        request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        response = self.request_adapter.send_async(request_info, self.constructor_callable)
+            
+        response = self.request_adapter.send_async(request_info, self.constructor_callable, error_map)
         return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         keep_iterating = True
-        page_items = self.current_page.get('value', [])
+        page_items = self.current_page.value or  []
         if not page_items:
             return False
         for i in range(self.pause_index, len(page_items)):

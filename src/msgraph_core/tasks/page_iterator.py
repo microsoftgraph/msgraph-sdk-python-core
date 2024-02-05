@@ -106,6 +106,3 @@ class PageIterator:
             if not keep_iterating:
                 self.pause_index = i + 1
                 break
-
-    def has_next(self) -> bool:
-        return self.has_next

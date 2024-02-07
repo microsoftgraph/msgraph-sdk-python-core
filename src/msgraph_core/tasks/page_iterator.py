@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union
+from typing import Callable, Optional, Union, Dict
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL
@@ -24,7 +24,7 @@ class PageIterator:
         self.request_adapter = request_adapter
         self.constructor_callable = constructor_callable or (lambda x: x)
         self.pause_index = 0
-        self.headers = {}
+        self.headers: Dict[str, str] = {}
         self.request_options = []  # check implementation of RequestOption and apply use it here
         self.current_page = self.convert_to_page(response)
         self.has_next = bool(self.current_page.odata_next_link)
@@ -62,7 +62,7 @@ class PageIterator:
             raise ValueError('Response cannot be null.')
         value = None
         if isinstance(response, list):
-            value = response.get('value', [])
+            value = response.value
         elif hasattr(response, 'value'):
             value = getattr(response, 'value')
         elif isinstance(response, object):

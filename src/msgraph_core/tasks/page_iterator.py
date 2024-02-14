@@ -27,7 +27,7 @@ class PageIterator:
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            constructor_callable = [type(response), 'create_from_discriminator_value']
+            constructor_callable = getattr(type(response), 'create_from_discriminator_value')
         elif constructor_callable is None:
             constructor_callable = PageResult.create_from_discriminator_value
         self.pause_index = 0

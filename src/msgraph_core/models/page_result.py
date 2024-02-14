@@ -1,14 +1,26 @@
-from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
-from kiota_abstractions.serialization.parsable_factory import ParsableFactory  # type: ignore
-from kiota_abstractions.serialization.serialization_writer import SerializationWriter  # type: ignore
-from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
-from kiota_serialization_json.json_parse_node import JsonParseNode  # type: ignore
-from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory  # type: ignore
+"""
+This module defines the PageResult class which represents a page of
+items in a paged response.
+
+The PageResult class provides methods to get and set the next link and
+the items in the page, create a PageResult from a discriminator value, set
+the value, get the field deserializers, and serialize the PageResult.
+
+Classes:
+    PageResult: Represents a page of items in a paged response.
+"""
 from typing import Any, List, Optional
-import importlib
+
+from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_abstractions.serialization.serialization_writer \
+     import SerializationWriter  # type: ignore
+from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
 
 
 class PageResult(Parsable):
+    """
+    Represents a page of items in a paged response.
+    """
     object_type = None
 
     def __init__(self, object_type: Optional[Any] = None) -> None:
@@ -18,22 +30,48 @@ class PageResult(Parsable):
 
     @property
     def odata_next_link(self) -> Optional[str]:
+        """
+        Gets the next link for the page.
+        Returns:
+            Optional[str]: The next link, or None if there is no next link.
+        """
         return self._odata_next_link
 
     @odata_next_link.setter
     def odata_next_link(self, next_link: Optional[str]) -> None:
+        """
+        Sets the next link for the page.
+        Args:
+            next_link (Optional[str]): The next link to set.
+        """
         self._odata_next_link = next_link
 
     @property
     def value(self) -> Optional[List[Any]]:
+        """
+        Gets the items in the page.
+        Returns:
+            Optional[List[Any]]: The items in the page, or None if there
+            are no items.
+        """
         return self._value
 
     @value.setter
     def value(self, value: Optional[List[Any]]) -> None:
+        """
+        Sets the items in the page.
+        Args:
+            value (Optional[List[Any]]): The items to set.
+        """
         self._value = value
 
     @staticmethod
-    def create_from_discriminator_value(node: ParseNode) -> 'PageResult':
+    def create_from_discriminator_value(parse_node: ParseNode) -> 'PageResult':
+        """
+        Creates a PageResult from a discriminator value.
+        Returns:
+            PageResult: The created PageResult.
+        """
         impprt_statement = f"from msgraph.generated.models.message import {PageResult.object_type}"
         exec(impprt_statement)
         if isinstance(PageResult.object_type, str):
@@ -41,9 +79,20 @@ class PageResult(Parsable):
         return PageResult()
 
     def set_value(self, value: List[Any]):
+        """
+        Sets the items in the page.
+
+        Args:
+            value (List[Any]): The items to set.
+        """
         self.value = value
 
     def get_field_deserializers(self):
+        """
+        Gets the field deserializers for the PageResult.
+        Returns:
+            Dict[str, Callable]: The field deserializers.
+        """
         class_name = PageResult.object_type
 
         instance = class_name()
@@ -61,6 +110,11 @@ class PageResult(Parsable):
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
+        """
+        Serializes the PageResult into a SerializationWriter.
+        Args:
+            writer (SerializationWriter): The writer to serialize into.
+        """
         writer.write_str_value('@odata.nextLink', self.odata_next_link, self.value)
         if self.value is not None:
             writer.write_collection_of_object_values('key', 'value', list(self.value))

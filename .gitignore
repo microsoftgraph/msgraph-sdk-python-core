@@ -132,4 +132,4 @@ dmypy.json
 # Pycharm
 .idea/
 
-app.py
+app*.py

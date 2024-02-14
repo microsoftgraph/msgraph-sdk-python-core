@@ -3,15 +3,15 @@ from typing import Callable, Optional, Union, Dict
 from typing import TypeVar
 from requests.exceptions import InvalidURL
 
-from kiota_abstractions.request_adapter import RequestAdapter
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter
-from kiota_abstractions.method import Method
-from kiota_abstractions.request_option import RequestOption
-from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization.parsable import Parsable
-from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
-from models import PageResult
+from kiota_abstractions.request_adapter import RequestAdapter  # type: ignore
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter  # type: ignore
+from kiota_abstractions.method import Method  # type: ignore
+from kiota_abstractions.request_option import RequestOption  # type: ignore
+from kiota_abstractions.headers_collection import HeadersCollection  # type: ignore
+from kiota_abstractions.request_information import RequestInformation  # type: ignore
+from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter  # type: ignore
+from models.page_result import PageResult
 
 T = TypeVar('T', bound=Parsable)
 

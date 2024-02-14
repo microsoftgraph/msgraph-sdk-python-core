@@ -1,9 +1,9 @@
-from kiota_abstractions.serialization.parsable import Parsable
-from kiota_abstractions.serialization.parsable_factory import ParsableFactory
-from kiota_abstractions.serialization.serialization_writer import SerializationWriter
-from kiota_abstractions.serialization.parse_node import ParseNode
-from kiota_serialization_json.json_parse_node import JsonParseNode
-from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
+from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_abstractions.serialization.parsable_factory import ParsableFactory  # type: ignore
+from kiota_abstractions.serialization.serialization_writer import SerializationWriter  # type: ignore
+from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
+from kiota_serialization_json.json_parse_node import JsonParseNode  # type: ignore
+from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory  # type: ignore
 from typing import Any, List, Optional
 import importlib
 

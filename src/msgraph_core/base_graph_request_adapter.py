@@ -1,12 +1,12 @@
 import httpx
-from kiota_abstractions.authentication import AuthenticationProvider
+from kiota_abstractions.authentication import AuthenticationProvider  # type: ignore
 from kiota_abstractions.serialization import (
     ParseNodeFactory,
     ParseNodeFactoryRegistry,
     SerializationWriterFactory,
     SerializationWriterFactoryRegistry,
-)
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+)  # type: ignore
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter  # type: ignore
 
 from .graph_client_factory import GraphClientFactory
 

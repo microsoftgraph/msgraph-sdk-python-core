@@ -27,9 +27,8 @@ from kiota_abstractions.method import Method  # type: ignore
 from kiota_abstractions.headers_collection import HeadersCollection  # type: ignore
 from kiota_abstractions.request_information import RequestInformation  # type: ignore
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
-from requests.exceptions import RequestException  # type: ignore
 
-from models import PageResult
+from models import PageResult  # pylint: disable=import-error
 
 T = TypeVar('T', bound=Parsable)
 

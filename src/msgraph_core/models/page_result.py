@@ -66,13 +66,14 @@ class PageResult(Parsable):
         self._value = value
 
     @staticmethod
-    def create_from_discriminator_value(parse_node: ParseNode) -> 'PageResult':
+    def create_from_discriminator_value(parse_node: ParseNode) -> 'PageResult':  # pylint: disable=unused-argument
         """
         Creates a PageResult from a discriminator value.
         Returns:
             PageResult: The created PageResult.
         """
         impprt_statement = f"from msgraph.generated.models.message import {PageResult.object_type}"
+        # pylint: disable=exec-used
         exec(impprt_statement)
         if isinstance(PageResult.object_type, str):
             return PageResult(locals()[PageResult.object_type])
@@ -94,11 +95,12 @@ class PageResult(Parsable):
             Dict[str, Callable]: The field deserializers.
         """
         class_name = PageResult.object_type
-
+        # pylint: disable=not-callable
         instance = class_name()
         module_path = instance.__class__.__module__
         class_name = instance.__class__.__name__
         import_statement = f'from {module_path} import {class_name}'
+        # pylint: disable=exec-used
         exec(import_statement)
         serialization_model = locals()[class_name]
         return {

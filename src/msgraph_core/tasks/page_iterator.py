@@ -12,6 +12,7 @@ from kiota_abstractions.request_information import RequestInformation  # type: i
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter  # type: ignore
 from models import PageResult
+from requests.exceptions import SomeException  # type: ignore
 
 T = TypeVar('T', bound=Parsable)
 

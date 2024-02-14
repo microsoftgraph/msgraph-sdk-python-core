@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union, List, Any
+from typing import Callable, Optional, Union, List, Any, Dict
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL
@@ -106,7 +106,7 @@ class PageIterator:
         if self.request_options:
             request_info.add_request_options(*self.request_options)
         parsable_factory = PageResult(self.object_type)
-        error_map = {}
+        error_map: Dict[str, int] = {}
         response = await self.request_adapter.send_async(request_info, parsable_factory, error_map)
 
         return response

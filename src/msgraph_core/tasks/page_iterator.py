@@ -12,7 +12,6 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.serialization.parsable_factory import ParsableFactory
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
-# from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
 from models import PageResult
 
 T = TypeVar('T', bound=Parsable)
@@ -37,7 +36,10 @@ class PageIterator:
         self.headers: HeadersCollection = HeadersCollection()
         self.request_options = []  # check implementation of RequestOption and apply use it here
         self.current_page = self.convert_to_page(response)
+        self.object_type = self.current_page.value[
+            0].__class__.__name__ if self.current_page.value else None
         page = self.current_page
+
         if page is not None:
             self.current_page = page
             self.has_next = bool(page.odata_next_link)
@@ -102,14 +104,12 @@ class PageIterator:
         request_info.http_method = Method.GET
         request_info.url = next_link
         request_info.headers = self.headers
-        print(f"The request info {request_info.url}")
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        parsable_factory = PageResult()
+        parsable_factory = PageResult(self.object_type)
         error_map = {}
         response = await self.request_adapter.send_async(request_info, parsable_factory, error_map)
 
-        print(f"The response model {response}")
         return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:

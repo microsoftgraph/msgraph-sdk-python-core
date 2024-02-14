@@ -11,7 +11,7 @@ import importlib
 class PageResult(Parsable):
     object_type = None
 
-    def __init__(self, object_type=None):
+    def __init__(self, object_type: Optional[Any] = None) -> None:
         PageResult.object_type = object_type
         self._odata_next_link: Optional[str] = None
         self._value: Optional[List[Any]] = None
@@ -20,13 +20,13 @@ class PageResult(Parsable):
     def odata_next_link(self) -> Optional[str]:
         return self._odata_next_link
 
-    @property
-    def value(self) -> Optional[List[Any]]:
-        return self._value
-
     @odata_next_link.setter
     def odata_next_link(self, next_link: Optional[str]) -> None:
         self._odata_next_link = next_link
+
+    @property
+    def value(self) -> Optional[List[Any]]:
+        return self._value
 
     @value.setter
     def value(self, value: Optional[List[Any]]) -> None:
@@ -36,7 +36,9 @@ class PageResult(Parsable):
     def create_from_discriminator_value(node: ParseNode) -> 'PageResult':
         impprt_statement = f"from msgraph.generated.models.message import {PageResult.object_type}"
         exec(impprt_statement)
-        return PageResult(locals()[PageResult.object_type])
+        if isinstance(PageResult.object_type, str):
+            return PageResult(locals()[PageResult.object_type])
+        return PageResult()
 
     def set_value(self, value: List[Any]):
         self.value = value
@@ -60,4 +62,5 @@ class PageResult(Parsable):
 
     def serialize(self, writer: SerializationWriter) -> None:
         writer.write_str_value('@odata.nextLink', self.odata_next_link, self.value)
-        writer.write_collection_of_object_values('key', 'value', list(self.value))
+        if self.value is not None:
+            writer.write_collection_of_object_values('key', 'value', list(self.value))

@@ -75,7 +75,7 @@ class PageIterator:
             raise ValueError('Response cannot be null.')
         value = None
         if isinstance(response, list):
-            value = response.value
+            value = response.value  # type: ignore
         elif hasattr(response, 'value'):
             value = getattr(response, 'value')
         elif isinstance(response, object):

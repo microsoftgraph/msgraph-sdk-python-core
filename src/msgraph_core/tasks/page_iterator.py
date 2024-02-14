@@ -11,7 +11,7 @@ from kiota_abstractions.headers_collection import HeadersCollection  # type: ign
 from kiota_abstractions.request_information import RequestInformation  # type: ignore
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter  # type: ignore
-from models.page_result import PageResult  # type: ignore
+from models import PageResult  # type: ignore
 
 T = TypeVar('T', bound=Parsable)
 
@@ -32,8 +32,7 @@ class PageIterator:
             constructor_callable = PageResult.create_from_discriminator_value
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
-        self.request_options = List[Any] = [
-        ]  # check implementation of RequestOption and apply use it here
+        self.request_options = List[Any] = []  # type: ignore
         self.current_page = self.convert_to_page(response)
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None

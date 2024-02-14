@@ -10,7 +10,6 @@ from kiota_abstractions.request_option import RequestOption
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.parsable import Parsable
-from kiota_abstractions.serialization.parsable_factory import ParsableFactory
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter
 from models import PageResult
 

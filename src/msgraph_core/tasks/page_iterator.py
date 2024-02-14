@@ -11,7 +11,7 @@ from kiota_abstractions.headers_collection import HeadersCollection  # type: ign
 from kiota_abstractions.request_information import RequestInformation  # type: ignore
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_serialization_json.json_serialization_writer import JsonSerializationWriter  # type: ignore
-from models import PageResult  # type: ignore
+from models import PageResult  # type: ignore[import]
 
 T = TypeVar('T', bound=Parsable)
 

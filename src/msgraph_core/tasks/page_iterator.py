@@ -53,12 +53,13 @@ class PageIterator:
     def set_pause_index(self, pause_index: int) -> None:
         self.pause_index = pause_index
 
-    def iterate(self, callback: Callable) -> None:
+    async def iterate(self, callback: Callable) -> None:
         while True:
             keep_iterating = self.enumerate(callback)
             if not keep_iterating:
                 return
-            next_page = self.next()
+            next_page = await self.next()
+            print(f"Has next {next_page}")
             if not next_page:
                 return
             self.current_page = next_page
@@ -114,11 +115,12 @@ class PageIterator:
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         keep_iterating = True
-        page_items = self.current_page.value or []
+        page_items = self.current_page.value
         if not page_items:
             return False
         for i in range(self.pause_index, len(page_items)):
-            keep_iterating = callback(page_items[i]) if callback else True
+            keep_iterating = callback(page_items[i]) if callback is not None else True
             if not keep_iterating:
                 self.pause_index = i + 1
                 break
+        return keep_iterating

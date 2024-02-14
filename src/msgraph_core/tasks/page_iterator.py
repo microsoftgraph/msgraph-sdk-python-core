@@ -20,7 +20,7 @@ and models modules.
 from typing import Callable, Optional, Union, Dict
 
 from typing import TypeVar
-from requests.exceptions import InvalidURL
+from requests.exceptions import InvalidURL  # type: ignore
 
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter  # type: ignore
 from kiota_abstractions.method import Method  # type: ignore

@@ -29,10 +29,11 @@ class PageIterator:
         if isinstance(response, Parsable) and not constructor_callable:
             constructor_callable = [type(response), 'create_from_discriminator_value']
         elif constructor_callable is None:
-            constructor_callable = PageResult.create_from_discriminator_value        self.constructor_callable = constructor_callable
+            constructor_callable = PageResult.create_from_discriminator_value
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
-        self.request_options = List[Any] = []  # check implementation of RequestOption and apply use it here
+        self.request_options = List[Any] = [
+        ]  # check implementation of RequestOption and apply use it here
         self.current_page = self.convert_to_page(response)
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None

@@ -28,7 +28,7 @@ colorama==0.4.6 ; os_name == 'nt'
 
 coverage[toml]==7.4.1 ; python_version >= '3.7'
 
-cryptography==42.0.2 ; python_version >= '3.7'
+cryptography==42.0.3 ; python_version >= '3.7'
 
 dill==0.3.6 ; python_version < '3.11'
 

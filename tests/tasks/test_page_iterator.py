@@ -1,17 +1,24 @@
-import pytest
+import os
+from unittest.mock import AsyncMock, patch
 
-from kiota_abstractions.request_adapter import RequestAdapter
-from kiota_abstractions.request_information import RequestInformation
-from kiota_serialization_json import JsonNodeFactory
-from kiota_serialization_json import JsonParseNode
-from kiota_http_python.exceptions import KiotaHTTPXError
-from ...src.msgraph_core.page_iterator import PageIterator
+import pytest
+from azure.identity import ClientSecretCredential
+from kiota_authentication_azure.azure_identity_authentication_provider\
+     import AzureIdentityAuthenticationProvider
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from dotenv import load_dotenv
+
+from msgraph_core.tasks.page_iterator import PageIterator  # pylint: disable=import-error, no-name-in-module
+from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
+
 
 @pytest.fixture
 def first_page_data():
     return {
-        "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users",
-        "@odata.nextLink": "https://graph.microsoft.com/v1.0/users?skip=2&page=10",
+        "@odata.context":
+        "https://graph.microsoft.com/v1.0/$metadata#users",
+        "@odata.next_link":
+        "https://graph.microsoft.com/v1.0/users?skip=2&page=10",
         "value": [
             {
                 "businessPhones": [],
@@ -25,11 +32,8 @@ def first_page_data():
                 "surname": None,
                 "userPrincipalName": "Adams@contoso.com",
                 "id": "6ea91a8d-e32e-41a1-b7bd-d2d185eed0e0"
-            },
-            {
-                "businessPhones": [
-                    "425-555-0100"
-                ],
+            }, {
+                "businessPhones": ["425-555-0100"],
                 "displayName": "MOD Administrator 1",
                 "givenName": "MOD",
                 "jobTitle": None,
@@ -44,10 +48,12 @@ def first_page_data():
         ]
     }
 
+
 @pytest.fixture
 def second_page_data():
     return {
-        "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users",
+        "@odata.context":
+        "https://graph.microsoft.com/v1.0/$metadata#users",
         "value": [
             {
                 "businessPhones": [],
@@ -61,11 +67,8 @@ def second_page_data():
                 "surname": None,
                 "userPrincipalName": "Adams@contoso.com",
                 "id": "6ea91a8d-e32e-41a1-b7bd-d2d185eed0e0"
-            },
-            {
-                "businessPhones": [
-                    "425-555-0100"
-                ],
+            }, {
+                "businessPhones": ["425-555-0100"],
                 "displayName": "MOD Administrator 2",
                 "givenName": "MOD",
                 "jobTitle": None,
@@ -80,12 +83,36 @@ def second_page_data():
         ]
     }
 
-def test_handler_can_work(first_page_data, second_page_data):
-    with requests_mock.Mocker() as m:
-        m.get('https://graph.microsoft.com/v1.0/users', json=first_page_data)
-        m.get('https://graph.microsoft.com/v1.0/users?skip=2&page=10', json=second_page_data)
 
-        page_iterator = PageIterator(first_page_data, RequestAdapter())
-        count = 0
-        page_iterator.iterate(lambda _: count + 1) 
-        assert count == 4
+load_dotenv()  # take environment variables from .env.
+
+credential = ClientSecretCredential(
+    os.getenv('tenant_id'), os.getenv('client_id'), os.getenv('client_secret')
+)
+auth_provider = AzureIdentityAuthenticationProvider(credential)
+
+request_adapter = HttpxRequestAdapter(authentication_provider=auth_provider)
+
+
+def test_convert_to_page(first_page_data):  # pylint: disable=redefined-outer-name
+
+    page_iterator = PageIterator(first_page_data, request_adapter)
+    first_page = page_iterator.convert_to_page(first_page_data)
+    first_page.set_value(first_page_data['value'])
+    first_page.odata_next_link = first_page_data['@odata.next_link']
+    assert isinstance(first_page, PageResult)
+    assert first_page_data['value'] == first_page.value
+    assert first_page_data['@odata.next_link'] == first_page.odata_next_link
+
+
+@pytest.mark.asyncio
+async def test_iterate():
+    # Mock the next method to return None after the first call
+    with patch.object(PageIterator, 'next', new_callable=AsyncMock) as mock_next:
+        mock_next.side_effect = [True, None]
+
+        with patch.object(PageIterator, 'enumerate', return_value=True) as mock_enumerate:
+            page_iterator = PageIterator(first_page_data, request_adapter)
+            await page_iterator.iterate(lambda _: True)
+            assert mock_next.call_count == 2
+            assert mock_enumerate.call_count == 2

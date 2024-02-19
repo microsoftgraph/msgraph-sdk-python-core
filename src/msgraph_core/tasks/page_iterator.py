@@ -28,9 +28,7 @@ from kiota_abstractions.headers_collection import HeadersCollection  # type: ign
 from kiota_abstractions.request_information import RequestInformation  # type: ignore
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 
-from models import PageResult  # pylint: disable=import-error
-# from msgraph_core.models.page_result import PageResult  # pylint: disable=import-error
-# from ..models import PageResult  # pylint: disable=import-error
+from ..models import PageResult  # pylint: disable=import-error
 
 T = TypeVar('T', bound=Parsable)
 

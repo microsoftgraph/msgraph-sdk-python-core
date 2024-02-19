@@ -28,8 +28,8 @@ from kiota_abstractions.headers_collection import HeadersCollection  # type: ign
 from kiota_abstractions.request_information import RequestInformation  # type: ignore
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 
-# from models import PageResult  # pylint: disable=import-error
-from msgraph_core.models.page_result import PageResult  # pylint: disable=import-error
+from models import PageResult  # pylint: disable=import-error
+# from msgraph_core.models.page_result import PageResult  # pylint: disable=import-error
 # from ..models import PageResult  # pylint: disable=import-error
 
 T = TypeVar('T', bound=Parsable)
@@ -125,10 +125,12 @@ Methods:
             print(f"Has next {next_page}")
             if not next_page:
                 return
+            print(f"Next page type  {type(next_page)}")
+            print(f"Current Page   {type(self.current_page)}")
             self.current_page = next_page
             self.pause_index = 0
 
-    async def next(self) -> Optional[dict]:
+    async def next(self) -> Optional[PageResult]:
         """
         Fetches the next page of items.
         Returns:
@@ -136,8 +138,11 @@ Methods:
         """
         if not self.current_page.odata_next_link:
             return None
-        response = await self.fetch_next_page()
-        return self.convert_to_page(response)
+        response = self.convert_to_page(await self.fetch_next_page())
+        page = PageResult()
+        page.odata_next_link = response.odata_next_link
+        page.set_value(response.get('value', []) if isinstance(response, dict) else [])
+        return page
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> PageResult:

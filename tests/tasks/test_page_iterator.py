@@ -87,7 +87,7 @@ def second_page_data():
 load_dotenv()  # take environment variables from .env.
 
 credential = ClientSecretCredential(
-    os.getenv('tenant_id'), os.getenv('client_id'), os.getenv('client_secret')
+    os.getenv('AZURE_TENANT_ID'), os.getenv('AZURE_CLIENT_ID'), os.getenv('AZURE_CLIENT_SECRET')
 )
 auth_provider = AzureIdentityAuthenticationProvider(credential)
 

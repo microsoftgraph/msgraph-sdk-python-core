@@ -120,7 +120,6 @@ Methods:
             if not keep_iterating:
                 return
             next_page = await self.next()
-            print(f"Has next {next_page}")
             if not next_page:
                 return
             print(f"Next page type  {type(next_page)}")

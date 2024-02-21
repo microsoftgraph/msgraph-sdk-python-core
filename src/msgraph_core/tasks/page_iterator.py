@@ -122,8 +122,6 @@ Methods:
             next_page = await self.next()
             if not next_page:
                 return
-            print(f"Next page type  {type(next_page)}")
-            print(f"Current Page   {type(self.current_page)}")
             self.current_page = next_page
             self.pause_index = 0
 

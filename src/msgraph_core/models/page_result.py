@@ -15,6 +15,9 @@ from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_abstractions.serialization.serialization_writer \
      import SerializationWriter  # type: ignore
 from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
+from typing import TypeVar, List, Optional
+
+T = TypeVar('T')
 
 
 class PageResult(Parsable):
@@ -26,7 +29,7 @@ class PageResult(Parsable):
     def __init__(self, object_type: Optional[Any] = None) -> None:
         PageResult.object_type = object_type
         self._odata_next_link: Optional[str] = None
-        self._value: Optional[List[Any]] = None
+        self._value: Optional[List[T]] = None
 
     @property
     def odata_next_link(self) -> Optional[str]:
@@ -47,7 +50,7 @@ class PageResult(Parsable):
         self._odata_next_link = next_link
 
     @property
-    def value(self) -> Optional[List[Any]]:
+    def value(self) -> Optional[List[T]]:
         """
         Gets the items in the page.
         Returns:
@@ -57,7 +60,7 @@ class PageResult(Parsable):
         return self._value
 
     @value.setter
-    def value(self, value: Optional[List[Any]]) -> None:
+    def value(self, value: Optional[List[T]]) -> None:
         """
         Sets the items in the page.
         Args:
@@ -72,7 +75,7 @@ class PageResult(Parsable):
         Returns:
             PageResult: The created PageResult.
         """
-        impprt_statement = f"from msgraph.generated.models.message import {PageResult.object_type}"
+        impprt_statement = f"from msgraph.generated.models.{str(PageResult.object_type).lower()} import {PageResult.object_type}"
         # pylint: disable=exec-used
         exec(impprt_statement)
         if isinstance(PageResult.object_type, str):

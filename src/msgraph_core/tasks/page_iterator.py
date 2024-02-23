@@ -201,7 +201,7 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        parsable_factory = PageResult(self.object_type)
+        parsable_factory: PageResult[Any] = PageResult(self.object_type)
         error_map: Dict[str, int] = {}
         response = await self.request_adapter.send_async(request_info, parsable_factory, error_map)
 

@@ -98,14 +98,6 @@ Methods:
         """
         self.request_options = request_options
 
-    def set_pause_index(self, pause_index: int) -> None:
-        """
-        Sets the index at which to pause iteration.
-        Args:
-            pause_index (int): The pause index to set.
-        """
-        self.pause_index = pause_index
-
     async def iterate(self, callback: Callable) -> None:
         """
         Iterates over the pages and applies a callback function to each item.

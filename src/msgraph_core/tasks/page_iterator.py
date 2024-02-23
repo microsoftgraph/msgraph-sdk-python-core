@@ -96,6 +96,14 @@ Methods:
         """
         self.headers.add_all(**headers)
 
+    @property
+    def delta_link(self):
+        return self.delta_link
+
+    @property
+    def next_link(self):
+        return self.next_link
+
     def set_request_options(self, request_options: list) -> None:
         """
         Sets the request options for the HTTP requests.

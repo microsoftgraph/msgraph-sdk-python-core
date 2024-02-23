@@ -17,7 +17,7 @@ from kiota_abstractions.serialization.serialization_writer \
 from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
 from typing import TypeVar, List, Optional
 
-T = TypeVar('T')
+T = TypeVar('T', bound=Parsable)
 
 
 class PageResult(Parsable):

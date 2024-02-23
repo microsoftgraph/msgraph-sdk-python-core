@@ -17,7 +17,7 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict
+from typing import Callable, Optional, Union, Dict, Any
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL  # type: ignore
@@ -74,10 +74,10 @@ Methods:
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
         page = self.current_page
-        self.next_link = response.get('@odata.nextLink', '') if isinstance(
+        self._next_link = response.get('@odata.nextLink', '') if isinstance(
             response, dict
         ) else getattr(response, '@odata.nextLink', '')
-        self.delta_link = response.get('@odata.deltaLink', '') if isinstance(
+        self._delta_link = response.get('@odata.deltaLink', '') if isinstance(
             response, dict
         ) else getattr(response, '@odata.deltaLink', '')
 
@@ -98,11 +98,11 @@ Methods:
 
     @property
     def delta_link(self):
-        return self.delta_link
+        return self._delta_link
 
     @property
     def next_link(self):
-        return self.next_link
+        return self._next_link
 
     def set_request_options(self, request_options: list) -> None:
         """
@@ -140,7 +140,7 @@ Methods:
         if not self.current_page.odata_next_link:
             return None
         response = self.convert_to_page(await self.fetch_next_page())
-        page = PageResult()
+        page: PageResult[Any] = PageResult()
         page.odata_next_link = response.odata_next_link
         page.set_value(response.get('value', []) if isinstance(response, dict) else [])
         return page
@@ -175,7 +175,7 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page = PageResult()
+        page: PageResult[Any] = PageResult()
         page.odata_next_link = next_link
         page.set_value(value)
         return page

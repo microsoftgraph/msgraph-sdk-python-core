@@ -15,12 +15,12 @@ from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_abstractions.serialization.serialization_writer \
      import SerializationWriter  # type: ignore
 from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
-from typing import TypeVar, List, Optional
+from typing import TypeVar, List, Optional, Generic
 
-T = TypeVar('T', bound=Parsable)
+T = TypeVar('T')
 
 
-class PageResult(Parsable):
+class PageResult(Parsable, Generic[T]):
     """
     Represents a page of items in a paged response.
     """

@@ -75,7 +75,9 @@ class PageResult(Parsable, Generic[T]):
         Returns:
             PageResult: The created PageResult.
         """
-        impprt_statement = f"from msgraph.generated.models.{str(PageResult.object_type).lower()} import {PageResult.object_type}"
+        impprt_statement = f"from msgraph.generated.models.{str(PageResult.object_type).lower()} \
+            import {PageResult.object_type}"
+
         # pylint: disable=exec-used
         exec(impprt_statement)
         if isinstance(PageResult.object_type, str):

@@ -74,6 +74,12 @@ Methods:
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
         page = self.current_page
+        self.next_link = response.get('@odata.nextLink', '') if isinstance(
+            response, dict
+        ) else getattr(response, '@odata.nextLink', '')
+        self.delta_link = response.get('@odata.deltaLink', '') if isinstance(
+            response, dict
+        ) else getattr(response, '@odata.deltaLink', '')
 
         if page is not None:
             self.current_page = page

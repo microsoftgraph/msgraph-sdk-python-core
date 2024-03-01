@@ -12,7 +12,7 @@ azure-core==1.30.0 ; python_version >= '3.7'
 
 azure-identity==1.15.0
 
-build==1.0.3
+build==1.1.1
 
 bumpver==2023.1129
 

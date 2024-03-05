@@ -137,7 +137,7 @@ Methods:
         Returns:
             dict: The next page of items, or None if there are no more pages.
         """
-        if not self.current_page.odata_next_link:
+        if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = self.convert_to_page(await self.fetch_next_page())
         page: PageResult[Any] = PageResult()

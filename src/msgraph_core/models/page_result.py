@@ -125,4 +125,4 @@ class PageResult(Parsable, Generic[T]):
         """
         writer.write_str_value('@odata.nextLink', self.odata_next_link, self.value)
         if self.value is not None:
-            writer.write_collection_of_object_values('key', 'value', list(self.value))
+            writer.write_collection_of_object_values(None, list(self.value))

@@ -85,7 +85,7 @@ Methods:
             self.current_page = page
             self.has_next = bool(page.odata_next_link)
 
-    def set_headers(self, headers: dict) -> None:
+    def set_headers(self, headers: dict) -> HeadersCollection:
         """
         Sets the headers for the HTTP requests.
         This method takes a dictionary of headers and adds them to the

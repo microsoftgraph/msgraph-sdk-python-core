@@ -10,6 +10,7 @@ Classes:
     PageResult: Represents a page of items in a paged response.
 """
 from typing import Any, List, Optional
+from __future__ import annotations
 
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_abstractions.serialization.serialization_writer \
@@ -69,7 +70,7 @@ class PageResult(Parsable, Generic[T]):
         self._value = value
 
     @staticmethod
-    def create_from_discriminator_value(parse_node: ParseNode) -> 'PageResult':  # pylint: disable=unused-argument
+    def create_from_discriminator_value(parse_node: ParseNode) -> PageResult:  # pylint: disable=unused-argument
         """
         Creates a PageResult from a discriminator value.
         Returns:

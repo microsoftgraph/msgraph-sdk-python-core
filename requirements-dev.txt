@@ -36,7 +36,7 @@ exceptiongroup==1.1.1 ; python_version < '3.11'
 
 idna==3.6 ; python_version >= '3.5'
 
-importlib-metadata==6.8.0 ; python_version >= '3.7'
+importlib-metadata==7.0.2 ; python_version >= '3.7'
 
 iniconfig==2.0.0 ; python_version >= '3.7'
 

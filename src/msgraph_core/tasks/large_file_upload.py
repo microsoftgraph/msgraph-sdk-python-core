@@ -9,7 +9,7 @@ from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
 
-from msgraph_core.models import LargeFileUploadCreateSession, LargeFileUploadSession
+from msgraph_core.models import LargeFileUploadCreateSession, LargeFileUploadSession  # check imports
 
 
 class LargeFileUploadTask:
@@ -39,14 +39,20 @@ class LargeFileUploadTask:
     def get_adapter(self) -> RequestAdapter:
         return self.request_adapter
 
-    def create_upload_session(self, model: LargeFileUploadCreateSession, callback: Method):
+    def create_upload_session(
+        self,
+        request_body: LargeFileUploadSession,
+        model: LargeFileUploadCreateSession,
+    ) -> Future:
         request_info = RequestInformation()
-        request_info.set_uri(self.options.get_item_path())
-        request_info.set_http_method('POST')
-        request_info.set_content_type('application/json')
-        request_info.set_payload(model)
+        request_info.url = ""
+        request_info.http_method = Method.POST
+        request_info.set_content_from_parsable(
+            self.request_adapter, 'application/json', request_body
+        )
+        request_info.set_stream_content(model)
 
-        self.request_adapter.send_async(request_info, LargeFileUploadSession, callback)
+        return self.request_adapter.send_async(request_info, LargeFileUploadSession, {})
 
     def get_chunks(self) -> int:
         return self.chunks
@@ -102,19 +108,24 @@ class LargeFileUploadTask:
 
     def process_chunk(self, upload_session, uploaded_range):
         if upload_session is None:
-            return upload_session
+            return None
+
         next_range = upload_session.get_next_expected_ranges()
-        old_url = self.get_validated_upload_url(self.upload_session)
-        upload_session.set_upload_url(old_url)
-        if self.on_chunk_upload_complete is not None:
-            self.on_chunk_upload_complete(uploaded_range)
         if not next_range:
             return upload_session
+
+        old_url = self.get_validated_upload_url(self.upload_session)
+        upload_session.set_upload_url(old_url)
+
+        if self.on_chunk_upload_complete is not None:
+            self.on_chunk_upload_complete(uploaded_range)
+
         range_parts = next_range[0].split("-")
         end = min(int(range_parts[0]) + self.max_chunk_size, self.file_size)
-        uploaded_range = [range_parts[0], end]
-        self.set_next_range(next_range[0] + "-")
-        process_next = self.next_chunk(self.stream)
+        self.set_next_range(f"{range_parts[0]}-{end}")
+
+        self.next_chunk(self.stream)
+
         return upload_session
 
     def handle_error(self, error):
@@ -129,8 +140,8 @@ class LargeFileUploadTask:
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
         info = RequestInformation()
-        info.set_uri(upload_url)
-        info.http_method = HttpMethod.PUT
+        info.url = upload_url
+        info.http_method = Method.PUT
         if not self.next_range:
             self.set_next_range(f'{range_start}-{range_end}')
         range_parts = self.next_range.split('-') if self.next_range else ['-']
@@ -150,15 +161,14 @@ class LargeFileUploadTask:
             end = min(end, self.max_chunk_size + start)
             chunk_data = file.read(end - start + 1)
 
-        info.set_headers(
-            {
-                **info.get_headers(), 'Content-Range': f'bytes {start}-{end}/{self.file_size}'
-            }
-        )
-        info.set_headers({**info.get_headers(), 'Content-Length': str(len(chunk_data))})
+        info.headers = {
+            **info.request_headers(), 'Content-Range': f'bytes {start}-{end}/{self.file_size}'
+        }
+
+        info.headers = {**info.request_headers(), 'Content-Length': str(len(chunk_data))}
 
         info.set_stream_content(BytesIO(chunk_data))
-        return await self.adapter.send_async(
+        return await self.request_adapter.send_async(
             info, LargeFileUploadSession.create_from_discriminator_value
         )
 
@@ -166,13 +176,10 @@ class LargeFileUploadTask:
         return self.stream
 
     async def cancel(self) -> Optional[Future]:
-        request_information = RequestInformation()
-        request_information.http_method = HttpMethod.DELETE
-
         upload_url = self.get_validated_upload_url(self.upload_session)
+        request_information = RequestInformation(http_method=Method.DELETE, url=upload_url)
 
-        request_information.set_uri(upload_url)
-        result = await self.request_adapter.send_no_content_async(request_information)
+        await self.request_adapter.send_no_response_content_async(request_information)
 
         if hasattr(self.upload_session, 'set_is_cancelled'):
             self.upload_session.set_is_cancelled(True)
@@ -181,6 +188,7 @@ class LargeFileUploadTask:
             current = self.upload_session.get_additional_data()
             new = {**current, 'is_cancelled': True}
             self.upload_session.set_additional_data(new)
+
         return self.upload_session
 
     def additional_data_contains(self, parsable: Parsable,
@@ -189,7 +197,7 @@ class LargeFileUploadTask:
             raise ValueError(
                 f'The object passed does not contain property/properties {",".join(property_candidates)} and does not implement AdditionalDataHolder'
             )
-        additional_data = parsable.get_additional_data()
+        additional_data = parsable.additional_data
         for property_candidate in property_candidates:
             if property_candidate in additional_data:
                 return True, additional_data[property_candidate]

@@ -74,6 +74,8 @@ class PageResult(Parsable, Generic[T]):
         return {
             '@odata.nextLink':
             lambda parse_node: setattr(self, 'odata_next_link', parse_node.get_str_value()),
+            'odata.deltaLink':
+            lambda parse_node: setattr(self, 'odata_delta_link', parse_node.get_str_value()),
             'value':
             lambda parse_node: self.
             set_value(parse_node.get_collection_of_object_values(serialization_model))

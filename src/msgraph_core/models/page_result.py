@@ -10,6 +10,7 @@ Classes:
     PageResult: Represents a page of items in a paged response.
 """
 from typing import Any, List, Optional
+from dataclasses import dataclass
 from __future__ import annotations
 
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
@@ -21,53 +22,14 @@ from typing import TypeVar, List, Optional, Generic
 T = TypeVar('T')
 
 
+@dataclass
 class PageResult(Parsable, Generic[T]):
     """
     Represents a page of items in a paged response.
     """
-    object_type = None
-
-    def __init__(self, object_type: Optional[Any] = None) -> None:
-        PageResult.object_type = object_type
-        self._odata_next_link: Optional[str] = None
-        self._value: Optional[List[T]] = None
-
-    @property
-    def odata_next_link(self) -> Optional[str]:
-        """
-        Gets the next link for the page.
-        Returns:
-            Optional[str]: The next link, or None if there is no next link.
-        """
-        return self._odata_next_link
-
-    @odata_next_link.setter
-    def odata_next_link(self, next_link: Optional[str]) -> None:
-        """
-        Sets the next link for the page.
-        Args:
-            next_link (Optional[str]): The next link to set.
-        """
-        self._odata_next_link = next_link
-
-    @property
-    def value(self) -> Optional[List[T]]:
-        """
-        Gets the items in the page.
-        Returns:
-            Optional[List[Any]]: The items in the page, or None if there
-            are no items.
-        """
-        return self._value
-
-    @value.setter
-    def value(self, value: Optional[List[T]]) -> None:
-        """
-        Sets the items in the page.
-        Args:
-            value (Optional[List[Any]]): The items to set.
-        """
-        self._value = value
+    object_type: Optional[Any] = None
+    odata_next_link: Optional[str] = None
+    value: Optional[List[T]] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: ParseNode) -> PageResult:  # pylint: disable=unused-argument

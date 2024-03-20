@@ -141,9 +141,10 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = self.convert_to_page(await self.fetch_next_page())
-        page: PageResult = PageResult()
-        page.odata_next_link = response.odata_next_link
-        page.value = response.get('value', []) if isinstance(response, dict) else []
+        page: PageResult = PageResult(
+            response.odata_next_link,
+            response.get('value', []) if isinstance(response, dict) else []
+        )
         return page
 
     @staticmethod
@@ -176,9 +177,7 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page: PageResult = PageResult()
-        page.odata_next_link = next_link
-        page.value = value
+        page: PageResult = PageResult(next_link, value)
         return page
 
     async def fetch_next_page(self) -> dict:

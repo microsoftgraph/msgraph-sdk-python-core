@@ -143,7 +143,7 @@ Methods:
         response = self.convert_to_page(await self.fetch_next_page())
         page: PageResult = PageResult()
         page.odata_next_link = response.odata_next_link
-        page.set_value(response.get('value', []) if isinstance(response, dict) else [])
+        page.value = response.get('value', []) if isinstance(response, dict) else []
         return page
 
     @staticmethod
@@ -178,7 +178,7 @@ Methods:
 
         page: PageResult = PageResult()
         page.odata_next_link = next_link
-        page.set_value(value)
+        page.value = value
         return page
 
     async def fetch_next_page(self) -> dict:

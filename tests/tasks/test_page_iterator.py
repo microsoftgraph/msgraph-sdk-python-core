@@ -98,7 +98,7 @@ def test_convert_to_page(first_page_data):  # pylint: disable=redefined-outer-na
 
     page_iterator = PageIterator(first_page_data, request_adapter)
     first_page = page_iterator.convert_to_page(first_page_data)
-    first_page.set_value(first_page_data['value'])
+    first_page.value = first_page_data['value']
     first_page.odata_next_link = first_page_data['@odata.next_link']
     assert isinstance(first_page, PageResult)
     assert first_page_data['value'] == first_page.value

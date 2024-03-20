@@ -20,13 +20,13 @@ and models modules.
 from typing import Callable, Optional, Union, Dict, Any
 
 from typing import TypeVar
-from requests.exceptions import InvalidURL  # type: ignore
+from requests.exceptions import InvalidURL
 
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter  # type: ignore
-from kiota_abstractions.method import Method  # type: ignore
-from kiota_abstractions.headers_collection import HeadersCollection  # type: ignore
-from kiota_abstractions.request_information import RequestInformation  # type: ignore
-from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from kiota_abstractions.method import Method
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization.parsable import Parsable
 
 from msgraph_core.models import PageResult  # pylint: disable=no-name-in-module, import-error
 
@@ -141,7 +141,7 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = self.convert_to_page(await self.fetch_next_page())
-        page: PageResult[Any] = PageResult()
+        page: PageResult = PageResult()
         page.odata_next_link = response.odata_next_link
         page.set_value(response.get('value', []) if isinstance(response, dict) else [])
         return page
@@ -176,7 +176,7 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page: PageResult[Any] = PageResult()
+        page: PageResult = PageResult()
         page.odata_next_link = next_link
         page.set_value(value)
         return page

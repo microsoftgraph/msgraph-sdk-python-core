@@ -13,11 +13,11 @@ from typing import List, Optional, Dict, Callable
 from dataclasses import dataclass
 from __future__ import annotations
 
-from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.serialization.serialization_writer \
-     import SerializationWriter  # type: ignore
-from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
-from typing import TypeVar, List, Optional, Generic
+     import SerializationWriter
+from kiota_abstractions.serialization.parse_node import ParseNode
+from typing import TypeVar, List, Optional
 
 T = TypeVar('T')
 

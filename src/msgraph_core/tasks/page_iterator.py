@@ -64,9 +64,10 @@ Methods:
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            constructor_callable = getattr(type(response), 'create_from_discriminator_value')
+            parsable_factory = type(response)
         elif constructor_callable is None:
-            constructor_callable = PageResult.create_from_discriminator_value
+            parsable_factory = PageResult
+        self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
         self.request_options = []  # type: ignore
@@ -201,10 +202,10 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        parsable_factory: PageResult[Any] = PageResult(self.object_type)
         error_map: Dict[str, int] = {}
-        response = await self.request_adapter.send_async(request_info, parsable_factory, error_map)
-
+        response = await self.request_adapter.send_async(
+            request_info, self.parsable_factory, error_map
+        )
         return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:

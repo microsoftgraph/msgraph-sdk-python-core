@@ -132,7 +132,7 @@ Methods:
             self.current_page = next_page
             self.pause_index = 0
 
-    async def next(self, response: PageResult) -> Optional[PageResult]:
+    async def next(self) -> Optional[PageResult]:
         """
         Fetches the next page of items.
         Returns:
@@ -141,7 +141,8 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = await self.fetch_next_page()
-        page: PageResult = PageResult(response.odata_next_link, response.value)
+        print(f"Response - {type(response)}")
+        page: PageResult = PageResult(response.odata_next_link, response.value)  # type: ignore
         return page
 
     @staticmethod

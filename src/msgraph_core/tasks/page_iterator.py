@@ -132,7 +132,7 @@ Methods:
             self.current_page = next_page
             self.pause_index = 0
 
-    async def next(self) -> Optional[PageResult]:
+    async def next(self, response: PageResult) -> Optional[PageResult]:
         """
         Fetches the next page of items.
         Returns:

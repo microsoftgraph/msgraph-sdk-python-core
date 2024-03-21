@@ -17,7 +17,7 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict, Any
+from typing import Callable, Optional, Union, Dict, List
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL
@@ -28,7 +28,7 @@ from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.parsable import Parsable
 
-from msgraph_core.models import PageResult  # pylint: disable=no-name-in-module, import-error
+from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
 
 T = TypeVar('T', bound=Parsable)
 
@@ -75,9 +75,9 @@ Methods:
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
         page = self.current_page
-        self._next_link = response.get('@odata.nextLink', '') if isinstance(
+        self._next_link = response.get('odata_next_link', '') if isinstance(
             response, dict
-        ) else getattr(response, '@odata.nextLink', '')
+        ) else getattr(response, 'odata_next_link', '')
         self._delta_link = response.get('@odata.deltaLink', '') if isinstance(
             response, dict
         ) else getattr(response, '@odata.deltaLink', '')
@@ -140,11 +140,8 @@ Methods:
         """
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
-        response = self.convert_to_page(await self.fetch_next_page())
-        page: PageResult = PageResult(
-            response.odata_next_link,
-            response.get('value', []) if isinstance(response, dict) else []
-        )
+        response = await self.fetch_next_page()
+        page: PageResult = PageResult(response.odata_next_link, response.value)
         return page
 
     @staticmethod
@@ -180,7 +177,7 @@ Methods:
         page: PageResult = PageResult(next_link, value)
         return page
 
-    async def fetch_next_page(self) -> dict:
+    async def fetch_next_page(self) -> List[Parsable]:
         """
         Fetches the next page of items from the server.
         Returns:

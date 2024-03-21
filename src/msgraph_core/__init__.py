@@ -14,5 +14,6 @@ from .authentication import AzureIdentityAuthenticationProvider
 from .base_graph_request_adapter import BaseGraphRequestAdapter
 from .graph_client_factory import GraphClientFactory
 from .tasks import PageIterator
+from .models import PageResult
 
 __version__ = SDK_VERSION

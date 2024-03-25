@@ -9,9 +9,9 @@ the value, get the field deserializers, and serialize the PageResult.
 Classes:
     PageResult: Represents a page of items in a paged response.
 """
+from __future__ import annotations
 from typing import Any, List, Optional
 from dataclasses import dataclass
-from __future__ import annotations
 
 from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
 from kiota_abstractions.serialization.serialization_writer \

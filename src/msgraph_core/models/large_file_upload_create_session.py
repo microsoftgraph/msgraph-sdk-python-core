@@ -6,7 +6,7 @@ from kiota_abstractions.store.backing_store import BackingStore
 from kiota_abstractions.store.backing_store_factory_singleton import BackingStoreFactorySingleton
 
 
-class LargeFileUploadCreateSessionBody(Parsable, AdditionalDataHolder, BackedModel):
+class LargeFileUploadCreateSession(Parsable, AdditionalDataHolder, BackedModel):
 
     def __init__(self):
         self.backing_store = BackingStoreFactorySingleton.get_instance().create_backing_store()

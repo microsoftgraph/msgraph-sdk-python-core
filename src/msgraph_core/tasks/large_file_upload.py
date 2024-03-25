@@ -18,7 +18,7 @@ class LargeFileUploadTask:
         self,
         upload_session: Parsable,
         request_adapter: RequestAdapter,
-        stream: BytesIO,
+        stream: BytesIO,  # counter check this
         max_chunk_size: int = 4 * 1024 * 1024
     ):
         self.upload_session = upload_session
@@ -36,16 +36,13 @@ class LargeFileUploadTask:
     def get_upload_session(self) -> Parsable:
         return self.upload_session
 
-    def get_adapter(self) -> RequestAdapter:
-        return self.request_adapter
-
     def create_upload_session(
         self,
         request_body: LargeFileUploadSession,
         model: LargeFileUploadCreateSession,
     ) -> Future:
         request_info = RequestInformation()
-        request_info.url = ""
+        request_info.url = request_info.url  # check the URL
         request_info.http_method = Method.POST
         request_info.set_content_from_parsable(
             self.request_adapter, 'application/json', request_body
@@ -53,6 +50,9 @@ class LargeFileUploadTask:
         request_info.set_stream_content(model)
 
         return self.request_adapter.send_async(request_info, LargeFileUploadSession, {})
+
+    def get_adapter(self) -> RequestAdapter:
+        return self.request_adapter
 
     def get_chunks(self) -> int:
         return self.chunks
@@ -80,7 +80,7 @@ class LargeFileUploadTask:
         return False
 
     async def upload(self, after_chunk_upload: Optional[Callable] = None) -> Future:
-        # Rewinds to take care of failures.
+        # Rewind to take care of failures.
         self.stream.seek(0)
         if self.upload_session_expired(self.upload_session):
             raise RuntimeError('The upload session is expired.')
@@ -90,7 +90,6 @@ class LargeFileUploadTask:
             self.stream, 0, max(0, min(self.max_chunk_size - 1, self.file_size - 1))
         )
         process_next = session
-        # determine the range uploaded
         # includes when resuming existing upload sessions.
         range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
@@ -250,5 +249,5 @@ class LargeFileUploadTask:
     def get_next_range(self) -> Optional[str]:
         return self.next_range
 
-    def get_next_range(self) -> Optional[str]:
-        return self.next_range
+    def get_file_size(self) -> int:
+        return self.file_size

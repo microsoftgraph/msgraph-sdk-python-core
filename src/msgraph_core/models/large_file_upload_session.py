@@ -34,12 +34,12 @@ class LargeFileUploadSession:
     def get_field_deserializers(self) -> Dict[str, any]:
         return {
             'upload_url':
-            lambda parse_node: setattr(self, 'upload_url', parse_node.get_string_value()),
+            lambda parse_node: setattr(self, 'upload_url', parse_node.get_str_value()),
             'expiration_date_time':
             lambda parse_node:
-            setattr(self, 'expiration_date_time', parse_node.get_date_time_value()),
+            setattr(self, 'expiration_date_time', parse_node.get_datetime_value()),
             'is_cancelled':
-            lambda parse_node: setattr(self, 'is_cancelled', parse_node.get_boolean_value()),
+            lambda parse_node: setattr(self, 'is_cancelled', parse_node.get_bool_value()),
             'next_expected_ranges':
             lambda parse_node: setattr(
                 self, 'next_expected_ranges', parse_node.

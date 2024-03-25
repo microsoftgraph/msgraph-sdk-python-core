@@ -9,7 +9,7 @@ from kiota_abstractions.serialization.serialization_writer import SerializationW
 
 
 @dataclass
-class LargeFileUploadSession:
+class LargeFileUploadSession(Parsable, AdditionalDataHolder):
     upload_url: Optional[str] = None
     expiration_date_time: Optional[datetime] = None
     additional_data: List[Dict[str, any]] = field(default_factory=list)

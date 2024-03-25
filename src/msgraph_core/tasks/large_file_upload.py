@@ -61,7 +61,7 @@ class LargeFileUploadTask:
         now = datetime.now()
 
         validated_value = self.check_value_exists(
-            upload_session or self.upload_session, 'get_expiration_date_time',
+            upload_session or self.upload_session, 'expiration_date_time',
             ['ExpirationDateTime', 'expirationDateTime']
         )
         if not validated_value[0]:
@@ -71,10 +71,11 @@ class LargeFileUploadTask:
 
         if expiry is None:
             raise ValueError('The upload session does not contain a valid expiry date.')
-
-        then = datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%S")
+        if isinstance(expiry, str):
+            then = datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%S")
+        else:
+            then = expiry
         interval = (now - then).total_seconds()
-
         if interval < 0:
             return True
         return False
@@ -180,11 +181,11 @@ class LargeFileUploadTask:
 
         await self.request_adapter.send_no_response_content_async(request_information)
 
-        if hasattr(self.upload_session, 'set_is_cancelled'):
-            self.upload_session.set_is_cancelled(True)
-        elif hasattr(self.upload_session, 'set_additional_data'
-                     ) and hasattr(self.upload_session, 'get_additional_data'):
-            current = self.upload_session.get_additional_data()
+        if hasattr(self.upload_session, 'is_cancelled'):
+            self.upload_session.is_cancelled = True
+        elif hasattr(self.upload_session,
+                     'additional_data') and hasattr(self.upload_session, 'additional_data'):
+            current = self.upload_session.additional_data
             new = {**current, 'is_cancelled': True}
             self.upload_session.set_additional_data(new)
 
@@ -203,7 +204,7 @@ class LargeFileUploadTask:
         return False, None
 
     def check_value_exists(
-        self, parsable: Parsable, getter_name: str, property_names_in_additional_data: List[str]
+        self, parsable: Parsable, attribute_name: str, property_names_in_additional_data: List[str]
     ) -> Tuple[bool, Any]:
         checked_additional_data = self.additional_data_contains(
             parsable, property_names_in_additional_data
@@ -211,8 +212,8 @@ class LargeFileUploadTask:
         if issubclass(type(parsable), AdditionalDataHolder) and checked_additional_data[0]:
             return True, checked_additional_data[1]
 
-        if hasattr(parsable, getter_name):
-            return True, getattr(parsable, getter_name)()
+        if hasattr(parsable, attribute_name):
+            return True, getattr(parsable, attribute_name)
 
         return False, None
 
@@ -221,7 +222,7 @@ class LargeFileUploadTask:
             raise RuntimeError('The upload session is expired.')
 
         validated_value = self.check_value_exists(
-            self.upload_session, 'get_next_expected_ranges',
+            self.upload_session, 'next_expected_ranges',
             ['NextExpectedRanges', 'nextExpectedRanges']
         )
         if not validated_value[0]:
@@ -238,7 +239,7 @@ class LargeFileUploadTask:
         return await self.upload()
 
     def get_validated_upload_url(self, upload_session: Parsable) -> str:
-        if not hasattr(upload_session, 'get_upload_url'):
+        if not hasattr(upload_session, 'upload_url'):
             raise RuntimeError('The upload session does not contain a valid upload url')
         result = upload_session.get_upload_url()
 

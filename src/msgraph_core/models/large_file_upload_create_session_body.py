@@ -6,12 +6,14 @@ from kiota_abstractions.store.backing_store import BackingStore
 from kiota_abstractions.store.backing_store_factory_singleton import BackingStoreFactorySingleton
 
 
-class LargeFileUploadCreateSession(Parsable, AdditionalDataHolder, BackedModel):
+class LargeFileUploadCreateSessionBody(Parsable, AdditionalDataHolder, BackedModel):
 
     def __init__(self):
-        self.backing_store = BackingStoreFactorySingleton.get_instance().create_backing_store()
+        singleton = BackingStoreFactorySingleton.get_instance()
+        factory = singleton.backing_store_factory
+        self.backing_store = factory.create_backing_store(
+        )  # throws error -AttributeError: type object 'BackingStoreFactorySingleton' has no attribute '_BackingStoreFactorySingleton__instance'
         self.set_additional_data([])
-        self.backing_store = BackingStore()
 
     def get_additional_data(self):
         return self.backing_store.get('additional_data')

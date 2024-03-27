@@ -1,15 +1,18 @@
-from typing import Callable, Optional, List, Tuple, Any
+from typing import Callable, Optional, List, Tuple, Any, Dict
 from io import BytesIO
 from datetime import datetime
 from asyncio import Future
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.method import Method
-from kiota_abstractions.request_adapter import RequestAdapter
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter as RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
 
-from msgraph_core.models import LargeFileUploadCreateSession, LargeFileUploadSession  # check imports
+from msgraph_core.models import LargeFileUploadCreateSessionBody, LargeFileUploadSession  # check imports
 
 
 class LargeFileUploadTask:
@@ -19,7 +22,7 @@ class LargeFileUploadTask:
         upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,  # counter check this
-        max_chunk_size: int = 4 * 1024 * 1024
+        max_chunk_size: int = 1024  # 4 * 1024 * 1024 - use smaller chnuks for testing
     ):
         self.upload_session = upload_session
         self.request_adapter = request_adapter
@@ -36,20 +39,22 @@ class LargeFileUploadTask:
     def get_upload_session(self) -> Parsable:
         return self.upload_session
 
-    def create_upload_session(
-        self,
-        request_body: LargeFileUploadSession,
-        model: LargeFileUploadCreateSession,
-    ) -> Future:
-        request_info = RequestInformation()
-        request_info.url = request_info.url  # check the URL
-        request_info.http_method = Method.POST
-        request_info.set_content_from_parsable(
-            self.request_adapter, 'application/json', request_body
+    @staticmethod
+    async def create_upload_session(request_adapter: RequestAdapter, request_body, url: str):
+        request_information = RequestInformation()
+        base_url = request_adapter.base_url.rstrip('/')
+        path = url.lstrip('/')
+        new_url = f"{base_url}/{path}"
+        request_information.url = new_url
+        request_information.http_method = Method.POST
+        request_information.set_content_from_parsable(
+            request_adapter, 'application/json', request_body
         )
-        request_info.set_stream_content(model)
+        error_map: Dict[str, int] = {}
 
-        return self.request_adapter.send_async(request_info, LargeFileUploadSession, {})
+        return await request_adapter.send_async(
+            request_information, LargeFileUploadSession.create_from_discriminator_value, error_map
+        )
 
     def get_adapter(self) -> RequestAdapter:
         return self.request_adapter
@@ -57,79 +62,87 @@ class LargeFileUploadTask:
     def get_chunks(self) -> int:
         return self.chunks
 
-    def upload_session_expired(self, upload_session: Optional[Parsable] = None) -> bool:
+    def upload_session_expired(self, upload_session=None):
         now = datetime.now()
 
-        validated_value = self.check_value_exists(
-            upload_session or self.upload_session, 'expiration_date_time',
-            ['ExpirationDateTime', 'expirationDateTime']
-        )
-        if not validated_value[0]:
+        if upload_session is None:
+            upload_session = self.upload_session
+
+        if not hasattr(upload_session, 'expiration_date_time'):
             raise Exception('The upload session does not contain an expiry datetime.')
 
-        expiry = validated_value[1]
+        expiry = upload_session.expiration_date_time
+        print(f"Expiry {expiry}")
 
         if expiry is None:
             raise ValueError('The upload session does not contain a valid expiry date.')
+
         if isinstance(expiry, str):
             then = datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%S")
         else:
             then = expiry
-        interval = (now - then).total_seconds()
-        if interval < 0:
+        interval = relativedelta(now, then)
+
+        if interval.days < 0 or (interval.days == 0 and interval.seconds < 0):
             return True
         return False
 
-    async def upload(self, after_chunk_upload: Optional[Callable] = None) -> Future:
-        # Rewind to take care of failures.
+    async def upload(self, after_chunk_upload=None):
+        # Rewind at this point to take care of failures.
         self.stream.seek(0)
         if self.upload_session_expired(self.upload_session):
             raise RuntimeError('The upload session is expired.')
 
-        self.on_chunk_upload_complete = after_chunk_upload if after_chunk_upload is not None else self.on_chunk_upload_complete
-        session = self.next_chunk(
+        self.on_chunk_upload_complete = after_chunk_upload if self.on_chunk_upload_complete is None else self.on_chunk_upload_complete
+        session = await self.next_chunk(
             self.stream, 0, max(0, min(self.max_chunk_size - 1, self.file_size - 1))
         )
         process_next = session
-        # includes when resuming existing upload sessions.
+        # determine the range  to be uploaded
+        # even when resuming existing upload sessions.
         range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
         while self.chunks > 0:
             session = process_next
-            process_next = session.then(
-                lambda upload_session: self.process_chunk(upload_session, uploaded_range),
-                lambda error: self.handle_error(error)
-            )
-            if process_next is not None:
-                await process_next
-            self.chunks -= 1
+            future = Future()
+
+            def success_callback(large_file_uploasd_session):
+                nonlocal process_next, uploaded_range
+
+                if large_file_uploasd_session is None:
+                    return large_file_uploasd_session
+
+                next_range = large_file_uploasd_session.next_expected_ranges
+                old_url = self.get_validated_upload_url(self.upload_session)
+                large_file_uploasd_session.upload_url = old_url
+
+                if self.on_chunk_upload_complete is not None:
+                    self.on_chunk_upload_complete(uploaded_range)
+
+                if not next_range:
+                    return large_file_uploasd_session
+
+                range_parts = next_range[0].split("-")
+                end = min(int(range_parts[0]) + self.max_chunk_size, self.file_size)
+                uploaded_range = [range_parts[0], end]
+                self.set_next_range(next_range[0] + "-")
+                process_next = self.next_chunk(self.stream)
+
+                return large_file_uploasd_session
+
+        def failure_callback(error):
+            raise error
+
+        future.add_done_callback(success_callback)
+        future.set_exception_callback(failure_callback)
+
+        if future is not None:
+            future.result()  # This will block until the future is resolved
+
+        self.chunks -= 1
+
         return session
-
-    def process_chunk(self, upload_session, uploaded_range):
-        if upload_session is None:
-            return None
-
-        next_range = upload_session.get_next_expected_ranges()
-        if not next_range:
-            return upload_session
-
-        old_url = self.get_validated_upload_url(self.upload_session)
-        upload_session.set_upload_url(old_url)
-
-        if self.on_chunk_upload_complete is not None:
-            self.on_chunk_upload_complete(uploaded_range)
-
-        range_parts = next_range[0].split("-")
-        end = min(int(range_parts[0]) + self.max_chunk_size, self.file_size)
-        self.set_next_range(f"{range_parts[0]}-{end}")
-
-        self.next_chunk(self.stream)
-
-        return upload_session
-
-    def handle_error(self, error):
-        raise error
 
     def set_next_range(self, next_range: Optional[str]) -> None:
         self.next_range = next_range
@@ -160,17 +173,24 @@ class LargeFileUploadTask:
             file.seek(start)
             end = min(end, self.max_chunk_size + start)
             chunk_data = file.read(end - start + 1)
+        print(f"Chunk data {chunk_data}")
+        info.headers = HeadersCollection()
 
-        info.headers = {
-            **info.request_headers(), 'Content-Range': f'bytes {start}-{end}/{self.file_size}'
-        }
-
-        info.headers = {**info.request_headers(), 'Content-Length': str(len(chunk_data))}
-
+        info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
+        # info.headers.try_add(**info.request_headers) what do we do if headers need to be passed
+        info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.set_stream_content(BytesIO(chunk_data))
-        return await self.request_adapter.send_async(
-            info, LargeFileUploadSession.create_from_discriminator_value
-        )
+        error_map: Dict[str, int] = {}
+
+        parsable_factory: LargeFileUploadSession[Any] = self.upload_session
+
+        print(f"Body {LargeFileUploadSession.create_from_discriminator_value}")
+        print(f"Upload session url {self.upload_session.upload_url}")
+        print(f"Expiraton date {self.upload_session.expiration_date_time}")
+        print(f"Additional data {self.upload_session.additional_data}")
+        print(f"Session is canceled {self.upload_session.is_cancelled}")
+        print(f"Next expected ranges {self.upload_session.next_expected_ranges}")
+        return await self.request_adapter.send_async(info, parsable_factory, error_map)
 
     def get_file(self) -> BytesIO:
         return self.stream
@@ -187,7 +207,7 @@ class LargeFileUploadTask:
                      'additional_data') and hasattr(self.upload_session, 'additional_data'):
             current = self.upload_session.additional_data
             new = {**current, 'is_cancelled': True}
-            self.upload_session.set_additional_data(new)
+            self.upload_session.additional_data = new
 
         return self.upload_session
 
@@ -241,7 +261,7 @@ class LargeFileUploadTask:
     def get_validated_upload_url(self, upload_session: Parsable) -> str:
         if not hasattr(upload_session, 'upload_url'):
             raise RuntimeError('The upload session does not contain a valid upload url')
-        result = upload_session.get_upload_url()
+        result = upload_session.upload_url
 
         if result is None or result.strip() == '':
             raise RuntimeError('The upload URL cannot be empty.')

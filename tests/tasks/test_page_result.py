@@ -9,7 +9,7 @@ def test_initialization():
 
 def test_set_and_get_values():
     page_result = PageResult()
-    page_result.set_value([{"name": "John Doe"}, {"name": "Ian Smith"}])
+    page_result.value = [{"name": "John Doe"}, {"name": "Ian Smith"}]
     page_result.odata_next_link = "next_page"
     assert 2 == len(page_result.value)
     assert "next_page" == page_result.odata_next_link

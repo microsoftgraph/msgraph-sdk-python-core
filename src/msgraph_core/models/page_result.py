@@ -10,83 +10,54 @@ Classes:
     PageResult: Represents a page of items in a paged response.
 """
 from __future__ import annotations
-from typing import Any, List, Optional
+from typing import List, Any, Optional, Dict, Callable
 from dataclasses import dataclass
 
-from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.serialization.serialization_writer \
-     import SerializationWriter  # type: ignore
-from kiota_abstractions.serialization.parse_node import ParseNode  # type: ignore
-from typing import TypeVar, List, Optional, Generic
+     import SerializationWriter
+from kiota_abstractions.serialization.parse_node import ParseNode
+from typing import TypeVar, List, Optional
 
 T = TypeVar('T')
 
 
 @dataclass
-class PageResult(Parsable, Generic[T]):
-    """
-    Represents a page of items in a paged response.
-    """
-    object_type: Optional[Any] = None
+class PageResult(Parsable):
     odata_next_link: Optional[str] = None
-    value: Optional[List[T]] = None
+    value: Optional[List[Parsable]] = None
 
     @staticmethod
-    def create_from_discriminator_value(parse_node: ParseNode) -> PageResult:  # pylint: disable=unused-argument
+    def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> PageResult:
         """
-        Creates a PageResult from a discriminator value.
-        Returns:
-            PageResult: The created PageResult.
+        Creates a new instance of the appropriate class based on discriminator value
+        Args:
+            parseNode: The parse node to use to read the discriminator value and create the object
+        Returns: Attachment
         """
-        impprt_statement = f"from msgraph.generated.models.{str(PageResult.object_type).lower()} \
-            import {PageResult.object_type}"
-
-        # pylint: disable=exec-used
-        exec(impprt_statement)
-        if isinstance(PageResult.object_type, str):
-            return PageResult(locals()[PageResult.object_type])
+        if not parse_node:
+            raise TypeError("parse_node cannot be null")
         return PageResult()
 
-    def set_value(self, value: List[Any]):
-        """
-        Sets the items in the page.
+    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+        """Gets the deserialization information for this object.
 
-        Args:
-            value (List[Any]): The items to set.
-        """
-        self.value = value
-
-    def get_field_deserializers(self):
-        """
-        Gets the field deserializers for the PageResult.
         Returns:
-            Dict[str, Callable]: The field deserializers.
+            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            object where each entry is a property key with its deserialization callback.
         """
-        class_name = PageResult.object_type
-        # pylint: disable=not-callable
-        instance = class_name()
-        module_path = instance.__class__.__module__
-        class_name = instance.__class__.__name__
-        import_statement = f'from {module_path} import {class_name}'
-        # pylint: disable=exec-used
-        exec(import_statement)
-        serialization_model = locals()[class_name]
         return {
-            '@odata.nextLink':
-            lambda parse_node: setattr(self, 'odata_next_link', parse_node.get_str_value()),
-            'odata.deltaLink':
-            lambda parse_node: setattr(self, 'odata_delta_link', parse_node.get_str_value()),
-            'value':
-            lambda parse_node: self.
-            set_value(parse_node.get_collection_of_object_values(serialization_model))
+            "@odata.nextLink": lambda x: setattr(self, "odata_next_link", x.get_str_value()),
+            "value": lambda x: setattr(self, "value", x.get_collection_of_object_values(Parsable))
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
-        """
-        Serializes the PageResult into a SerializationWriter.
+        """Writes the objects properties to the current writer.
+
         Args:
-            writer (SerializationWriter): The writer to serialize into.
+            writer (SerializationWriter): The writer to write to.
         """
-        writer.write_str_value('@odata.nextLink', self.odata_next_link, self.value)
-        if self.value is not None:
-            writer.write_collection_of_object_values(None, list(self.value))
+        if not writer:
+            raise TypeError("Writer cannot be null")
+        writer.write_str_value("@odata.nextLink", self.odata_next_link)
+        writer.write_collection_of_object_values("value", self.value)

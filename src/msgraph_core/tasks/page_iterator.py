@@ -17,18 +17,18 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict, Any
+from typing import Callable, Optional, Union, Dict, List
 
 from typing import TypeVar
-from requests.exceptions import InvalidURL  # type: ignore
+from requests.exceptions import InvalidURL
 
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter  # type: ignore
-from kiota_abstractions.method import Method  # type: ignore
-from kiota_abstractions.headers_collection import HeadersCollection  # type: ignore
-from kiota_abstractions.request_information import RequestInformation  # type: ignore
-from kiota_abstractions.serialization.parsable import Parsable  # type: ignore
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from kiota_abstractions.method import Method
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization.parsable import Parsable
 
-from msgraph_core.models import PageResult  # pylint: disable=no-name-in-module, import-error
+from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
 
 T = TypeVar('T', bound=Parsable)
 
@@ -64,9 +64,10 @@ Methods:
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            constructor_callable = getattr(type(response), 'create_from_discriminator_value')
+            parsable_factory = type(response)
         elif constructor_callable is None:
-            constructor_callable = PageResult.create_from_discriminator_value
+            parsable_factory = PageResult
+        self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
         self.request_options = []  # type: ignore
@@ -74,9 +75,9 @@ Methods:
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
         page = self.current_page
-        self._next_link = response.get('@odata.nextLink', '') if isinstance(
+        self._next_link = response.get('odata_next_link', '') if isinstance(
             response, dict
-        ) else getattr(response, '@odata.nextLink', '')
+        ) else getattr(response, 'odata_next_link', '')
         self._delta_link = response.get('@odata.deltaLink', '') if isinstance(
             response, dict
         ) else getattr(response, '@odata.deltaLink', '')
@@ -139,10 +140,9 @@ Methods:
         """
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
-        response = self.convert_to_page(await self.fetch_next_page())
-        page: PageResult[Any] = PageResult()
-        page.odata_next_link = response.odata_next_link
-        page.set_value(response.get('value', []) if isinstance(response, dict) else [])
+        response = await self.fetch_next_page()
+        print(f"Response - {type(response)}")
+        page: PageResult = PageResult(response.odata_next_link, response.value)  # type: ignore
         return page
 
     @staticmethod
@@ -175,12 +175,10 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page: PageResult[Any] = PageResult()
-        page.odata_next_link = next_link
-        page.set_value(value)
+        page: PageResult = PageResult(next_link, value)
         return page
 
-    async def fetch_next_page(self) -> dict:
+    async def fetch_next_page(self) -> List[Parsable]:
         """
         Fetches the next page of items from the server.
         Returns:
@@ -201,10 +199,10 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        parsable_factory: PageResult[Any] = PageResult(self.object_type)
         error_map: Dict[str, int] = {}
-        response = await self.request_adapter.send_async(request_info, parsable_factory, error_map)
-
+        response = await self.request_adapter.send_async(
+            request_info, self.parsable_factory, error_map
+        )
         return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:

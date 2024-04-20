@@ -18,11 +18,51 @@ class LargeFileUploadSession(Parsable, AdditionalDataHolder):
         is_cancelled: Optional[bool] = False,
         next_expected_ranges: Optional[List[str]] = None
     ):
-        self.upload_url = upload_url
-        self.expiration_date_time = expiration_date_time
+        self._upload_url = upload_url
+        self._expiration_date_time = expiration_date_time
         self.additional_data = additional_data if additional_data is not None else []
         self.is_cancelled = is_cancelled
         self.next_expected_ranges = next_expected_ranges if next_expected_ranges is not None else []
+
+    @property
+    def upload_url(self):
+        return self._upload_url
+
+    @upload_url.setter
+    def upload_url(self, value):
+        self._upload_url = value
+
+    @property
+    def expiration_date_time(self):
+        return self._expiration_date_time
+
+    @expiration_date_time.setter
+    def expiration_date_time(self, value):
+        self._expiration_date_time = value
+
+    @property
+    def additional_data(self):
+        return self._additional_data
+
+    @additional_data.setter
+    def additional_data(self, value):
+        self._additional_data = value if value is not None else []
+
+    @property
+    def is_cancelled(self):
+        return self._is_cancelled
+
+    @is_cancelled.setter
+    def is_cancelled(self, value):
+        self._is_cancelled = value
+
+    @property
+    def next_expected_ranges(self):
+        return self._next_expected_ranges
+
+    @next_expected_ranges.setter
+    def next_expected_ranges(self, value):
+        self._next_expected_ranges = value if value is not None else []
 
     @staticmethod
     def create_from_discriminator_value(

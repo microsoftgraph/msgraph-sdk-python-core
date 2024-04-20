@@ -1,9 +1,7 @@
 from typing import Callable, Optional, List, Tuple, Any, Dict
 from io import BytesIO
-from datetime import datetime
 from asyncio import Future
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta
 
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.method import Method
@@ -19,13 +17,13 @@ class LargeFileUploadTask:
 
     def __init__(
         self,
-        upload_session: Parsable,
+        upload_session: LargeFileUploadSession,
         request_adapter: RequestAdapter,
         stream: BytesIO,  # counter check this
         max_chunk_size: int = 1024  # 4 * 1024 * 1024 - use smaller chnuks for testing
     ):
-        self.upload_session = upload_session
-        self.request_adapter = request_adapter
+        self._upload_session = upload_session
+        self._request_adapter = request_adapter
         self.stream = stream
         self.file_size = stream.getbuffer().nbytes
         self.max_chunk_size = max_chunk_size
@@ -33,11 +31,12 @@ class LargeFileUploadTask:
             upload_session, 'get_next_expected_range', ['next_expected_range', 'NextExpectedRange']
         )
         self.next_range = cleaned_value[0]
-        self.chunks = int((self.file_size / max_chunk_size) + 0.5)
+        self._chunks = int((self.file_size / max_chunk_size) + 0.5)
         self.on_chunk_upload_complete: Optional[Callable[[int, int], None]] = None
 
-    def get_upload_session(self) -> Parsable:
-        return self.upload_session
+    @property
+    def upload_session(self) -> Parsable:
+        return self._upload_session
 
     @staticmethod
     async def create_upload_session(request_adapter: RequestAdapter, request_body, url: str):
@@ -45,6 +44,7 @@ class LargeFileUploadTask:
         base_url = request_adapter.base_url.rstrip('/')
         path = url.lstrip('/')
         new_url = f"{base_url}/{path}"
+        print(f"New url {new_url}")
         request_information.url = new_url
         request_information.http_method = Method.POST
         request_information.set_content_from_parsable(
@@ -56,34 +56,33 @@ class LargeFileUploadTask:
             request_information, LargeFileUploadSession.create_from_discriminator_value, error_map
         )
 
-    def get_adapter(self) -> RequestAdapter:
-        return self.request_adapter
+    @property
+    def request_adapter(self) -> RequestAdapter:
+        return self._request_adapter
 
-    def get_chunks(self) -> int:
-        return self.chunks
+    @property
+    def chunks(self) -> int:
+        return self._chunks
 
-    def upload_session_expired(self, upload_session=None):
+    def upload_session_expired(self, upload_session: LargeFileUploadSession = None) -> bool:
         now = datetime.now()
-
-        if upload_session is None:
-            upload_session = self.upload_session
-
-        if not hasattr(upload_session, 'expiration_date_time'):
-            raise Exception('The upload session does not contain an expiry datetime.')
-
+        upload_session = upload_session or self._upload_session
+        if not hasattr(upload_session, "expiration_date_time"):
+            raise ValueError("Upload session does not have an expiration date time")
         expiry = upload_session.expiration_date_time
-        print(f"Expiry {expiry}")
-
+        print(expiry)
         if expiry is None:
-            raise ValueError('The upload session does not contain a valid expiry date.')
-
+            raise ValueError("Expiry is None")
         if isinstance(expiry, str):
             then = datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%S")
-        else:
+        elif isinstance(expiry, datetime):
             then = expiry
-        interval = relativedelta(now, then)
-
-        if interval.days < 0 or (interval.days == 0 and interval.seconds < 0):
+        else:
+            raise ValueError("Expiry is not a string or datetime")
+        interval = now - then
+        if not isinstance(interval, timedelta):
+            raise ValueError("Interval is not a timedelta")
+        if interval.total_seconds() <= 0:
             return True
         return False
 
@@ -103,6 +102,7 @@ class LargeFileUploadTask:
         range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
+        print(f"File size {self.file_size}")
         while self.chunks > 0:
             session = process_next
             future = Future()

@@ -8,13 +8,21 @@ from kiota_abstractions.serialization.parse_node import ParseNode
 from kiota_abstractions.serialization.serialization_writer import SerializationWriter
 
 
-@dataclass
 class LargeFileUploadSession(Parsable, AdditionalDataHolder):
-    upload_url: Optional[str] = None
-    expiration_date_time: Optional[datetime] = None
-    additional_data: List[Dict[str, any]] = field(default_factory=list)
-    is_cancelled: Optional[bool] = False
-    next_expected_ranges: Optional[List[str]] = field(default_factory=list)
+
+    def __init__(
+        self,
+        upload_url: Optional[str] = None,
+        expiration_date_time: Optional[datetime] = None,
+        additional_data: Optional[List[Dict[str, any]]] = None,
+        is_cancelled: Optional[bool] = False,
+        next_expected_ranges: Optional[List[str]] = None
+    ):
+        self.upload_url = upload_url
+        self.expiration_date_time = expiration_date_time
+        self.additional_data = additional_data if additional_data is not None else []
+        self.is_cancelled = is_cancelled
+        self.next_expected_ranges = next_expected_ranges if next_expected_ranges is not None else []
 
     @staticmethod
     def create_from_discriminator_value(

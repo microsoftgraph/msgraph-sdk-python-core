@@ -133,3 +133,4 @@ dmypy.json
 .idea/
 
 app*.py
+app*

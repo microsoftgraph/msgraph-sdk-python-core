@@ -7,11 +7,12 @@ import logging
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter as RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
 
-from msgraph_core.models import LargeFileUploadCreateSessionBody, LargeFileUploadSession  # check imports
+from kiota_http.httpx_request_adapter import HttpxRequestAdapter as RequestAdapter
+
+from msgraph_core.models import LargeFileUploadSession  # check imports
 
 
 class LargeFileUploadTask:
@@ -192,7 +193,7 @@ class LargeFileUploadTask:
 
     async def cancel(self) -> Optional[Future]:
         upload_url = self.get_validated_upload_url(self.upload_session)
-        request_information = RequestInformation(http_method=Method.DELETE, url=upload_url)
+        request_information = RequestInformation(method=Method.DELETE, url_template=upload_url)
 
         await self.request_adapter.send_no_response_content_async(request_information)
 
@@ -210,7 +211,9 @@ class LargeFileUploadTask:
                                  property_candidates: List[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
-                f'The object passed does not contain property/properties {",".join(property_candidates)} and does not implement AdditionalDataHolder'
+                f'The object passed does not contain property/properties '
+                f'{",".join(property_candidates)} and does not implement '
+                f'AdditionalDataHolder'
             )
         additional_data = parsable.additional_data
         for property_candidate in property_candidates:

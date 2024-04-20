@@ -12,7 +12,9 @@ class LargeFileUploadCreateSessionBody(Parsable, AdditionalDataHolder, BackedMod
         singleton = BackingStoreFactorySingleton.get_instance()
         factory = singleton.backing_store_factory
         self.backing_store = factory.create_backing_store(
-        )  # throws error -AttributeError: type object 'BackingStoreFactorySingleton' has no attribute '_BackingStoreFactorySingleton__instance'
+        )  # throws error -AttributeError: type object
+        #'BackingStoreFactorySingleton' has no attribute
+        #  '_BackingStoreFactorySingleton__instance'
         self.set_additional_data([])
 
     def get_additional_data(self):

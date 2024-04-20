@@ -25,8 +25,8 @@ class LargeFileUploadTask:
     ):
         if not isinstance(upload_session, LargeFileUploadSession):
             raise TypeError("upload_session must be an instance of LargeFileUploadSession")
-        self.upload_session = upload_session
-        self.request_adapter = request_adapter
+        self._upload_session = upload_session
+        self._request_adapter = request_adapter
         self.stream = stream
         self.file_size = stream.getbuffer().nbytes
         self.max_chunk_size = max_chunk_size
@@ -35,11 +35,15 @@ class LargeFileUploadTask:
         )
         self.next_range = cleaned_value[0]
         self._chunks = int((self.file_size / max_chunk_size) + 0.5)
-        self.on_chunk_upload_complete: Optional[Callable[[int, int], None]] = None
+        self.on_chunk_upload_complete: Optional[Callable[[List[int]], None]] = None
 
     @property
-    def upload_session(self) -> Parsable:
-        return self.upload_session
+    def upload_session(self):
+        return self._upload_session
+
+    @upload_session.setter
+    def upload_session(self, value):
+        self._upload_session = value
 
     @staticmethod
     async def create_upload_session(request_adapter: RequestAdapter, request_body, url: str):
@@ -59,14 +63,24 @@ class LargeFileUploadTask:
         )
 
     @property
-    def request_adapter(self) -> RequestAdapter:
-        return self.request_adapter
+    def request_adapter(self):
+        return self._request_adapter
+
+    @request_adapter.setter
+    def request_adapter(self, value):
+        self._request_adapter = value
 
     @property
-    def chunks(self) -> int:
+    def chunks(self):
         return self._chunks
 
-    def upload_session_expired(self, upload_session: LargeFileUploadSession = None) -> bool:
+    @chunks.setter
+    def chunks(self, value):
+        self._chunks = value
+
+    def upload_session_expired(
+        self, upload_session: Optional[LargeFileUploadSession] = None
+    ) -> bool:
         now = datetime.now()
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
@@ -120,7 +134,7 @@ class LargeFileUploadTask:
                 end = min(int(range_parts[0]) + self.max_chunk_size, self.file_size)
                 uploaded_range = [range_parts[0], end]
                 self.next_range = next_range[0] + "-"
-                process_next = self.next_chunk(self.stream)
+                process_next = await self.next_chunk(self.stream)
             except Exception as error:
                 logging.error(f"Error uploading chunk {error}")
                 raise  # remove after manual testing
@@ -161,7 +175,6 @@ class LargeFileUploadTask:
             file.seek(start)
             end = min(end, self.max_chunk_size + start)
             chunk_data = file.read(end - start + 1)
-        print(f"Chunk data {chunk_data}")
         info.headers = HeadersCollection()
 
         info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
@@ -170,7 +183,7 @@ class LargeFileUploadTask:
         info.set_stream_content(BytesIO(chunk_data))
         error_map: Dict[str, int] = {}
 
-        parsable_factory: LargeFileUploadSession[Any] = self.upload_session
+        parsable_factory: LargeFileUploadSession = self.upload_session
 
         return await self.request_adapter.send_async(info, parsable_factory, error_map)
 

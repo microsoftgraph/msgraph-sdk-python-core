@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from datetime import datetime
 
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
@@ -14,7 +14,7 @@ class LargeFileUploadSession(Parsable, AdditionalDataHolder):
         self,
         upload_url: Optional[str] = None,
         expiration_date_time: Optional[datetime] = None,
-        additional_data: Optional[List[Dict[str, any]]] = None,
+        additional_data: Optional[List[Dict[str, Any]]] = None,
         is_cancelled: Optional[bool] = False,
         next_expected_ranges: Optional[List[str]] = None
     ):
@@ -79,7 +79,7 @@ class LargeFileUploadSession(Parsable, AdditionalDataHolder):
         )
         writer.write_additional_data_value(self.additional_data)
 
-    def get_field_deserializers(self) -> Dict[str, any]:
+    def get_field_deserializers(self) -> Dict[str, Any]:
         return {
             'upload_url':
             lambda parse_node: setattr(self, 'upload_url', parse_node.get_str_value()),

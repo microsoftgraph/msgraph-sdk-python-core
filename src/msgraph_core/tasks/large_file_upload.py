@@ -1,3 +1,4 @@
+import os
 from typing import Callable, Optional, List, Tuple, Any, Dict
 from io import BytesIO
 from asyncio import Future
@@ -29,7 +30,10 @@ class LargeFileUploadTask:
         self._upload_session = upload_session
         self._request_adapter = request_adapter
         self.stream = stream
-        self.file_size = stream.getbuffer().nbytes
+        try:
+            self.file_size = stream.getbuffer().nbytes
+        except AttributeError:
+            self.file_size = os.stat(stream.name).st_size
         self.max_chunk_size = max_chunk_size
         cleaned_value = self.check_value_exists(
             upload_session, 'get_next_expected_range', ['next_expected_range', 'NextExpectedRange']
@@ -98,7 +102,7 @@ class LargeFileUploadTask:
         interval = now - then
         if not isinstance(interval, timedelta):
             raise ValueError("Interval is not a timedelta")
-        if interval.total_seconds() <= 0:
+        if interval.total_seconds() >= 0:
             return True
         return False
 
@@ -115,13 +119,15 @@ class LargeFileUploadTask:
         process_next = session
         # determine the range  to be uploaded
         # even when resuming existing upload sessions.
-        range_parts = self.next_range[0].split("-") if self.next_range else ['0']
+        #range_parts = self.next_range[0].split("-") if self.next_range else ['0']
+
+        range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
         while self.chunks > 0:
             session = process_next
             try:
-                lfu_session: Optional[LargeFileUploadSession] = await session
+                lfu_session: LargeFileUploadSession = session
                 if lfu_session is None:
                     continue
                 next_range = lfu_session.next_expected_ranges
@@ -137,9 +143,9 @@ class LargeFileUploadTask:
                 self.next_range = next_range[0] + "-"
                 process_next = await self.next_chunk(self.stream)
             except Exception as error:
-                logging.error(f"Error uploading chunk {error}")
-                raise  # remove after manual testing
-            self.chunks -= 1
+                logging.error("Error uploading chunk  %s", error)
+            finally:
+                self.chunks -= 1
         return session
 
     @property
@@ -152,7 +158,6 @@ class LargeFileUploadTask:
 
     async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> Future:
         upload_url = self.get_validated_upload_url(self.upload_session)
-
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
         info = RequestInformation()
@@ -177,15 +182,15 @@ class LargeFileUploadTask:
             end = min(end, self.max_chunk_size + start)
             chunk_data = file.read(end - start + 1)
         info.headers = HeadersCollection()
+        access_token = "<place_holder_pending CAE fix>"
 
         info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
-        # info.headers.try_add(**info.request_headers) what do we do if headers need to be passed
         info.headers.try_add('Content-Length', str(len(chunk_data)))
-        info.set_stream_content(BytesIO(chunk_data))
+        info.headers.try_add("Content-Type", "application/octet-stream")
+        info.headers.try_add("Authorization", f"Bearer {access_token}")
+        info.set_stream_content(bytes(chunk_data))  # Convert chunk_data to bytes
         error_map: Dict[str, int] = {}
-
-        parsable_factory: LargeFileUploadSession = self.upload_session
-
+        parsable_factory = LargeFileUploadSession
         return await self.request_adapter.send_async(info, parsable_factory, error_map)
 
     def get_file(self) -> BytesIO:

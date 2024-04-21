@@ -20,7 +20,7 @@ class LargeFileUploadSession(Parsable, AdditionalDataHolder):
     ):
         self._upload_url = upload_url
         self._expiration_date_time = expiration_date_time
-        self.additional_data = additional_data if additional_data is not None else []
+        self.additional_data = additional_data if additional_data is not None else {}
         self.is_cancelled = is_cancelled
         self.next_expected_ranges = next_expected_ranges if next_expected_ranges is not None else []
 
@@ -66,8 +66,10 @@ class LargeFileUploadSession(Parsable, AdditionalDataHolder):
 
     @staticmethod
     def create_from_discriminator_value(
-        parse_node: ParseNode
+        parse_node: Optional[ParseNode] = None
     ) -> Optional['LargeFileUploadSession']:
+        if not parse_node:
+            return None
         return LargeFileUploadSession()
 
     def serialize(self, writer: SerializationWriter) -> None:

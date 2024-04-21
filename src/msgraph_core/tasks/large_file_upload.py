@@ -127,7 +127,7 @@ class LargeFileUploadTask:
         while self.chunks > 0:
             session = process_next
             try:
-                lfu_session: LargeFileUploadSession = session
+                lfu_session: LargeFileUploadSession = session  # type: ignore
                 if lfu_session is None:
                     continue
                 next_range = lfu_session.next_expected_ranges

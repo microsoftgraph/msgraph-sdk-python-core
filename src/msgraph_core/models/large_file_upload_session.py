@@ -3,7 +3,9 @@ from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
 import datetime
 from dataclasses import dataclass, field
 
-from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+from kiota_abstractions.serialization import (
+    AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+)
 
 
 @dataclass
@@ -22,8 +24,9 @@ class LargeFileUploadSession(AdditionalDataHolder, Parsable):
         parse_node: Optional[ParseNode] = None
     ) -> LargeFileUploadSession:
         """
-        Creates a new instance of the appropriate class based on discriminator value
-        param parse_node: The parse node to use to read the discriminator value and create the object
+        Creates a new instance of the appropriate class based
+        on discriminator value param parse_node: The parse node    
+        to use to read the discriminator value and create the object
         Returns: UploadSession
         """
         if not parse_node:

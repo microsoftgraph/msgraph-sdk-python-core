@@ -22,8 +22,8 @@ class LargeFileUploadTask:
         self,
         upload_session: LargeFileUploadSession,
         request_adapter: RequestAdapter,
-        stream: BytesIO,  # counter check this
-        max_chunk_size: int = 409600  # 4 * 1024 * 1024 - use smaller chnuks for testing
+        stream: BytesIO,
+        max_chunk_size: int = 409600
     ):
         if not isinstance(upload_session, LargeFileUploadSession):
             raise TypeError("upload_session must be an instance of LargeFileUploadSession")
@@ -119,8 +119,6 @@ class LargeFileUploadTask:
         process_next = session
         # determine the range  to be uploaded
         # even when resuming existing upload sessions.
-        #range_parts = self.next_range[0].split("-") if self.next_range else ['0']
-
         range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
@@ -186,7 +184,7 @@ class LargeFileUploadTask:
         info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
         info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.headers.try_add("Content-Type", "application/octet-stream")
-        info.set_stream_content(bytes(chunk_data))  # Convert chunk_data to bytes
+        info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
         parsable_factory = LargeFileUploadSession
         return await self.request_adapter.send_async(info, parsable_factory, error_map)

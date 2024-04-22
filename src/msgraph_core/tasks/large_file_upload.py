@@ -182,7 +182,7 @@ class LargeFileUploadTask:
             end = min(end, self.max_chunk_size + start)
             chunk_data = file.read(end - start + 1)
         info.headers = HeadersCollection()
-        access_token = "<place_holder_pending CAE fix>"
+        access_token = "<pending auth fix>"
 
         info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
         info.headers.try_add('Content-Length', str(len(chunk_data)))

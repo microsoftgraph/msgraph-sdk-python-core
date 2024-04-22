@@ -68,7 +68,7 @@ pathlib2==2.3.7.post1
 
 platformdirs==4.2.0 ; python_version >= '3.7'
 
-pluggy==1.4.0 ; python_version >= '3.7'
+pluggy==1.5.0 ; python_version >= '3.7'
 
 portalocker==2.8.2 ; python_version >= '3.5' and platform_system == 'Windows'
 

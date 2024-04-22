@@ -1,98 +1,63 @@
+from __future__ import annotations
+from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+import datetime
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Any
-from datetime import datetime
 
-from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
-from kiota_abstractions.serialization.parsable import Parsable
-from kiota_abstractions.serialization.parse_node import ParseNode
-from kiota_abstractions.serialization.serialization_writer import SerializationWriter
+from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
 
 
-class LargeFileUploadSession(Parsable, AdditionalDataHolder):
+@dataclass
+class LargeFileUploadSession(AdditionalDataHolder, Parsable):
 
-    def __init__(
-        self,
-        upload_url: Optional[str] = None,
-        expiration_date_time: Optional[datetime] = None,
-        additional_data: Optional[List[Dict[str, Any]]] = None,
-        is_cancelled: Optional[bool] = False,
-        next_expected_ranges: Optional[List[str]] = None
-    ):
-        self._upload_url = upload_url
-        self._expiration_date_time = expiration_date_time
-        self.additional_data = additional_data if additional_data is not None else {}
-        self.is_cancelled = is_cancelled
-        self.next_expected_ranges = next_expected_ranges if next_expected_ranges is not None else []
-
-    @property
-    def upload_url(self):
-        return self._upload_url
-
-    @upload_url.setter
-    def upload_url(self, value):
-        self._upload_url = value
-
-    @property
-    def expiration_date_time(self):
-        return self._expiration_date_time
-
-    @expiration_date_time.setter
-    def expiration_date_time(self, value):
-        self._expiration_date_time = value
-
-    @property
-    def additional_data(self):
-        return self._additional_data
-
-    @additional_data.setter
-    def additional_data(self, value):
-        self._additional_data = value if value is not None else []
-
-    @property
-    def is_cancelled(self):
-        return self._is_cancelled
-
-    @is_cancelled.setter
-    def is_cancelled(self, value):
-        self._is_cancelled = value
-
-    @property
-    def next_expected_ranges(self):
-        return self._next_expected_ranges
-
-    @next_expected_ranges.setter
-    def next_expected_ranges(self, value):
-        self._next_expected_ranges = value if value is not None else []
+    additional_data: Dict[str, Any] = field(default_factory=dict)
+    expiration_date_time: Optional[datetime.datetime] = None
+    next_expected_ranges: Optional[List[str]] = None
+    is_cancelled: Optional[bool] = False
+    odata_type: Optional[str] = None
+    # The URL endpoint that accepts PUT requests for byte ranges of the file.
+    upload_url: Optional[str] = None
 
     @staticmethod
     def create_from_discriminator_value(
         parse_node: Optional[ParseNode] = None
-    ) -> Optional['LargeFileUploadSession']:
+    ) -> LargeFileUploadSession:
+        """
+        Creates a new instance of the appropriate class based on discriminator value
+        param parse_node: The parse node to use to read the discriminator value and create the object
+        Returns: UploadSession
+        """
         if not parse_node:
-            return None
+            raise TypeError("parse_node cannot be null.")
         return LargeFileUploadSession()
 
-    def serialize(self, writer: SerializationWriter) -> None:
-        writer.write_str_value('upload_url', self.upload_url)
-        writer.write_datetime_value('expiration_date_time', self.expiration_date_time)
-        writer.write_bool_value('is_cancelled', self.is_cancelled)
-        writer.write_collection_of_primitive_values(
-            'next_expected_ranges', self.next_expected_ranges
-        )
-        writer.write_additional_data_value(self.additional_data)
-
-    def get_field_deserializers(self) -> Dict[str, Any]:
-        return {
-            'upload_url':
-            lambda parse_node: setattr(self, 'upload_url', parse_node.get_str_value()),
-            'expiration_date_time':
-            lambda parse_node:
-            setattr(self, 'expiration_date_time', parse_node.get_datetime_value()),
-            'is_cancelled':
-            lambda parse_node: setattr(self, 'is_cancelled', parse_node.get_bool_value()),
-            'next_expected_ranges':
-            lambda parse_node: setattr(
-                self, 'next_expected_ranges', parse_node.
-                get_collection_of_primitive_values('string')
-            )
+    def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
+        """
+        The deserialization information for the current model
+        Returns: Dict[str, Callable[[ParseNode], None]]
+        """
+        fields: Dict[str, Callable[[Any], None]] = {
+            "expirationDateTime":
+            lambda n: setattr(self, 'expiration_date_time', n.get_datetime_value()),
+            "nextExpectedRanges":
+            lambda n:
+            setattr(self, 'next_expected_ranges', n.get_collection_of_primitive_values(str)),
+            "@odata.type":
+            lambda n: setattr(self, 'odata_type', n.get_str_value()),
+            "uploadUrl":
+            lambda n: setattr(self, 'upload_url', n.get_str_value()),
         }
+        return fields
+
+    def serialize(self, writer: SerializationWriter) -> None:
+        """
+        Serializes information the current object
+        param writer: Serialization writer to use to serialize this model
+        Returns: None
+        """
+        if not writer:
+            raise TypeError("writer cannot be null.")
+        writer.write_datetime_value("expirationDateTime", self.expiration_date_time)
+        writer.write_collection_of_primitive_values("nextExpectedRanges", self.next_expected_ranges)
+        writer.write_str_value("@odata.type", self.odata_type)
+        writer.write_str_value("uploadUrl", self.upload_url)
+        writer.write_additional_data_value(self.additional_data)

@@ -13,7 +13,7 @@ from kiota_abstractions.serialization.additional_data_holder import AdditionalDa
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
-from msgraph_core.models import LargeFileUploadSession  # check imports
+from msgraph_core.models import LargeFileUploadSession, UploadResult, UploadSessionDataHolder  # check imports
 
 
 class LargeFileUploadTask:
@@ -123,7 +123,15 @@ class LargeFileUploadTask:
                 logging.error("Error uploading chunk  %s", error)
             finally:
                 self.chunks -= 1
-        return session
+        upload_result = UploadResult()
+        upload_result.upload_session = UploadSessionDataHolder(
+            expiration_datetime=self.upload_session.expiration_date_time,
+            next_expected_ranges=self.upload_session.next_expected_ranges,
+            upload_url=self.upload_session.upload_url
+        )
+        upload_result.item_response = session
+        upload_result.location = self.upload_session.upload_url
+        return upload_result
 
     @property
     def next_range(self):

@@ -2,7 +2,7 @@ import os
 from typing import Callable, Optional, List, Tuple, Any, Dict
 from io import BytesIO
 from asyncio import Future
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 from kiota_abstractions.serialization.parsable import Parsable
@@ -20,13 +20,11 @@ class LargeFileUploadTask:
 
     def __init__(
         self,
-        upload_session: LargeFileUploadSession,
+        upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,
         max_chunk_size: int = 5 * 1024 * 1024
     ):
-        if not isinstance(upload_session, LargeFileUploadSession):
-            raise TypeError("upload_session must be an instance of LargeFileUploadSession")
         self._upload_session = upload_session
         self._request_adapter = request_adapter
         self.stream = stream
@@ -62,10 +60,8 @@ class LargeFileUploadTask:
     def chunks(self, value):
         self._chunks = value
 
-    def upload_session_expired(
-        self, upload_session: Optional[LargeFileUploadSession] = None
-    ) -> bool:
-        now = datetime.now()
+    def upload_session_expired(self, upload_session: Optional[Parsable] = None) -> bool:
+        now = datetime.now(timezone.utc)
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
             raise ValueError("Upload session does not have an expiration date time")

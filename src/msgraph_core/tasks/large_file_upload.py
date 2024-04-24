@@ -23,7 +23,7 @@ class LargeFileUploadTask:
         upload_session: LargeFileUploadSession,
         request_adapter: RequestAdapter,
         stream: BytesIO,
-        max_chunk_size: int = 409600
+        max_chunk_size: int = 5 * 1024 * 1024
     ):
         if not isinstance(upload_session, LargeFileUploadSession):
             raise TypeError("upload_session must be an instance of LargeFileUploadSession")

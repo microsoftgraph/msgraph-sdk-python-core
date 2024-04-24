@@ -11,7 +11,7 @@ from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
 
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter as RequestAdapter
+from kiota_abstractions.request_adapter import RequestAdapter
 
 from msgraph_core.models import LargeFileUploadSession  # check imports
 

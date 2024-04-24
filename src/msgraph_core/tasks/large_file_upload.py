@@ -125,7 +125,7 @@ class LargeFileUploadTask:
                 self.chunks -= 1
         upload_result = UploadResult()
         upload_result.upload_session = UploadSessionDataHolder(
-            expiration_datetime=self.upload_session.expiration_date_time,
+            expiration_date_time=self.upload_session.expiration_date_time,
             next_expected_ranges=self.upload_session.next_expected_ranges,
             upload_url=self.upload_session.upload_url
         )

@@ -12,9 +12,10 @@ T = TypeVar('T')
 
 @dataclass
 class UploadSessionDataHolder(AdditionalDataHolder, Parsable):
-    expiration_datetime: Optional[datetime] = None
+    expiration_date_time: Optional[datetime] = None
     next_expected_ranges: Optional[List[str]] = None
     upload_url: Optional[str] = None
+    odata_type: Optional[str] = None
 
     def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
         """

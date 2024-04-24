@@ -50,30 +50,9 @@ class LargeFileUploadTask:
     def upload_session(self, value):
         self._upload_session = value
 
-    @staticmethod
-    async def create_upload_session(request_adapter: RequestAdapter, request_body, url: str):
-        request_information = RequestInformation()
-        base_url = request_adapter.base_url.rstrip('/')
-        path = url.lstrip('/')
-        new_url = f"{base_url}/{path}"
-        request_information.url = new_url
-        request_information.http_method = Method.POST
-        request_information.set_content_from_parsable(
-            request_adapter, 'application/json', request_body
-        )
-        error_map: Dict[str, int] = {}
-
-        return await request_adapter.send_async(
-            request_information, LargeFileUploadSession.create_from_discriminator_value, error_map
-        )
-
     @property
     def request_adapter(self):
         return self._request_adapter
-
-    @request_adapter.setter
-    def request_adapter(self, value):
-        self._request_adapter = value
 
     @property
     def chunks(self):

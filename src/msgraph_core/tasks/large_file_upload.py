@@ -25,7 +25,7 @@ class LargeFileUploadTask:
         request_adapter: RequestAdapter,
         stream: BytesIO,
         parsable_factory: Optional[ParsableFactory] = None,
-        max_chunk_size: int = 409600  #5 * 1024 * 1024
+        max_chunk_size: int = 5 * 1024 * 1024
     ):
         self._upload_session = upload_session
         self._request_adapter = request_adapter

@@ -10,6 +10,7 @@ from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
+from kiota_abstractions.serialization.parsable_factory import ParsableFactory
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
@@ -23,7 +24,8 @@ class LargeFileUploadTask:
         upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,
-        max_chunk_size: int = 5 * 1024 * 1024
+        parsable_factory: Optional[ParsableFactory] = None,
+        max_chunk_size: int = 409600  #5 * 1024 * 1024
     ):
         self._upload_session = upload_session
         self._request_adapter = request_adapter
@@ -33,6 +35,7 @@ class LargeFileUploadTask:
         except AttributeError:
             self.file_size = os.stat(stream.name).st_size
         self.max_chunk_size = max_chunk_size
+        self.factory = parsable_factory
         cleaned_value = self.check_value_exists(
             upload_session, 'get_next_expected_range', ['next_expected_range', 'NextExpectedRange']
         )
@@ -97,8 +100,17 @@ class LargeFileUploadTask:
         range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
         end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
-        while self.chunks > 0:
+        response = None
+
+        while self.chunks >= 0:
             session = process_next
+            print(f"Chunks for upload  : {self.chunks}")
+            if self.chunks == 0:
+                # last chunk
+                print(f"Last chunk: {self.chunks} upload stated")
+                response = await self.last_chunk(self.stream)
+                print("Last chunk response: received")
+
             try:
                 lfu_session: LargeFileUploadSession = session  # type: ignore
                 if lfu_session is None:
@@ -115,17 +127,13 @@ class LargeFileUploadTask:
                 uploaded_range = [range_parts[0], end]
                 self.next_range = next_range[0] + "-"
                 process_next = await self.next_chunk(self.stream)
+
             except Exception as error:
                 logging.error("Error uploading chunk  %s", error)
             finally:
                 self.chunks -= 1
         upload_result = UploadResult()
-        upload_result.upload_session = UploadSessionDataHolder(
-            expiration_date_time=self.upload_session.expiration_date_time,
-            next_expected_ranges=self.upload_session.next_expected_ranges,
-            upload_url=self.upload_session.upload_url
-        )
-        upload_result.item_response = session
+        upload_result.item_response = response
         upload_result.location = self.upload_session.upload_url
         return upload_result
 
@@ -170,6 +178,47 @@ class LargeFileUploadTask:
         info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
         parsable_factory = LargeFileUploadSession
+        return await self.request_adapter.send_async(info, parsable_factory, error_map)
+
+    async def last_chunk(
+        self,
+        file: BytesIO,
+        range_start: int = 0,
+        range_end: int = 0,
+        parsable_factory: Optional[ParsableFactory] = None
+    ) -> Future:
+        upload_url = self.get_validated_upload_url(self.upload_session)
+        if not upload_url:
+            raise ValueError('The upload session URL must not be empty.')
+        info = RequestInformation()
+        info.url = upload_url
+        info.http_method = Method.PUT
+        if not self.next_range:
+            self.next_range = f'{range_start}-{range_end}'
+        range_parts = self.next_range.split('-') if self.next_range else ['-']
+        start = int(range_parts[0])
+        end = int(range_parts[1]) if len(range_parts) > 1 else 0
+        if start == 0 and end == 0:
+            chunk_data = file.read(self.max_chunk_size)
+            end = min(self.max_chunk_size - 1, self.file_size - 1)
+        elif start == 0:
+            chunk_data = file.read(end + 1)
+        elif end == 0:
+            file.seek(start)
+            chunk_data = file.read(self.max_chunk_size)
+            end = start + len(chunk_data) - 1
+        else:
+            file.seek(start)
+            end = min(end, self.max_chunk_size + start)
+            chunk_data = file.read(end - start + 1)
+        info.headers = HeadersCollection()
+
+        info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
+        info.headers.try_add('Content-Length', str(len(chunk_data)))
+        info.headers.try_add("Content-Type", "application/octet-stream")
+        info.set_stream_content(bytes(chunk_data))
+        error_map: Dict[str, int] = {}
+        parsable_factory = self.factory or parsable_factory
         return await self.request_adapter.send_async(info, parsable_factory, error_map)
 
     def get_file(self) -> BytesIO:

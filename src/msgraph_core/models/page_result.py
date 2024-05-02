@@ -10,14 +10,13 @@ Classes:
     PageResult: Represents a page of items in a paged response.
 """
 from __future__ import annotations
-from typing import List, Optional, Dict, Callable
+from typing import List, Optional, Dict, Callable, TypeVar
 from dataclasses import dataclass
 
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.serialization.serialization_writer \
      import SerializationWriter
 from kiota_abstractions.serialization.parse_node import ParseNode
-from typing import TypeVar, List, Optional
 
 T = TypeVar('T')
 

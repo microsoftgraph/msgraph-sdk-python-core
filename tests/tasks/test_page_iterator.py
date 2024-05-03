@@ -1,5 +1,5 @@
 import os
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 
 import pytest
 from azure.identity import ClientSecretCredential
@@ -84,14 +84,9 @@ def second_page_data():
     }
 
 
-load_dotenv()  # take environment variables from .env.
-
-credential = ClientSecretCredential(
-    os.getenv('AZURE_TENANT_ID'), os.getenv('AZURE_CLIENT_ID'), os.getenv('AZURE_CLIENT_SECRET')
-)
-auth_provider = AzureIdentityAuthenticationProvider(credential)
-
-request_adapter = HttpxRequestAdapter(authentication_provider=auth_provider)
+credential = Mock()
+auth_provider = Mock()
+request_adapter = Mock()
 
 
 def test_convert_to_page(first_page_data):  # pylint: disable=redefined-outer-name

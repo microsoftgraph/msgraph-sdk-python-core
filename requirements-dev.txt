@@ -74,7 +74,7 @@ pycparser==2.22
 
 pyjwt[crypto]==2.8.0 ; python_version >= '3.7'
 
-pylint==3.1.1
+pylint==3.2.0
 
 pyproject-hooks==1.1.0 ; python_version >= '3.7'
 

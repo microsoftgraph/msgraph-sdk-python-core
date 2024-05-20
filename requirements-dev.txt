@@ -78,7 +78,7 @@ pylint==3.1.1
 
 pyproject-hooks==1.1.0 ; python_version >= '3.7'
 
-pytest==8.2.0
+pytest==8.2.1
 
 pytest-cov==4.1.0
 

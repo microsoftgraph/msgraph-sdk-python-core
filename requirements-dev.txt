@@ -90,7 +90,7 @@ pytest-trio==0.8.0
 
 pywin32==306 ; platform_system == 'Windows'
 
-requests==2.32.1 ; python_version >= '3.7'
+requests==2.32.2 ; python_version >= '3.7'
 
 setuptools==69.5.1
 

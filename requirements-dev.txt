@@ -14,7 +14,7 @@ build==1.2.1
 
 bumpver==2023.1129
 
-certifi==2024.2.2 ; python_version >= '3.6'
+certifi==2024.6.2 ; python_version >= '3.6'
 
 cffi==1.16.0 ; os_name == 'nt' and implementation_name != 'pypy'
 

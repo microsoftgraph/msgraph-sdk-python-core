@@ -50,7 +50,7 @@ mccabe==0.7.0 ; python_version >= '3.6'
 
 mock==5.1.0 ; python_version >= '3.6'
 
-msal==1.28.0
+msal==1.28.1
 
 msal-extensions==1.1.0
 
@@ -111,7 +111,7 @@ trio==0.25.1
 types-python-dateutil==2.9.0.20240316
 
 types-requests==2.32.0.20240602; python_version >= '3.7'
-urllib3==2.2.1 ; python_version >= '3.7'
+urllib3==2.2.2 ; python_version >= '3.7'
 typing-extensions==4.12.2 ; python_version >= '3.7'
 
 

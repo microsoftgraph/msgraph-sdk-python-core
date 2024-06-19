@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+* removes unecessary printout in large file upload task.
 * replaces older contributing rst by md version ([70f6fb2](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/70f6fb25e612b7d01abba27c6c43ca43f166dcbf))
 
 ## [1.0.1] - 2024-04-22

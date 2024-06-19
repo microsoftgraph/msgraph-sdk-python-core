@@ -67,6 +67,10 @@ Methods:
             parsable_factory = type(response)
         elif constructor_callable is None:
             parsable_factory = PageResult
+        else:
+            raise ValueError(
+                'One of the constructor_callable or the PageResult type parameter is required.'
+            )
         self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
@@ -141,7 +145,6 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = await self.fetch_next_page()
-        print(f"Response - {type(response)}")
         page: PageResult = PageResult(response.odata_next_link, response.value)  # type: ignore
         return page
 

@@ -2,22 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [1.0.1] - 2024-04-22
 
 ### Added
 
 ### Changed
- -Enabled Large File Upload and Page iterator support
 
+ -Enabled Large File Upload and Page iterator support
 
 ## [1.0.0] - 2023-10-31
 
 ### Added
 
 ### Changed
+
 - GA release.
 
 ## [1.0.0a6] - 2023-10-12
@@ -25,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
 - Replaced default transport with graph transport when using custom client with proxy.
 
 ## [1.0.0a5] - 2023-06-20

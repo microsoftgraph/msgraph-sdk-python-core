@@ -68,7 +68,9 @@ Methods:
         elif constructor_callable is None:
             parsable_factory = PageResult
         else:
-            raise ValueError('One of the constructor_callable or the PageResult type parameter is required.')
+            raise ValueError(
+                'One of the constructor_callable or the PageResult type parameter is required.'
+            )
         self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()

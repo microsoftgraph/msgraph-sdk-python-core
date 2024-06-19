@@ -2,7 +2,7 @@
 [![CI Actions Status](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions/workflows/build.yml/badge.svg)](https://github.com/microsoftgraph/msgraph-sdk-python-core/actions/workflows/build.yml)
 [![Downloads](https://pepy.tech/badge/msgraph-core)](https://pepy.tech/project/msgraph-core)
 
-## Microsoft Graph Core Python Client Library.
+## Microsoft Graph Core Python Client Library
 
 The Microsoft Graph Core Python Client Library contains core classes used by [Microsoft Graph Python Client Library](https://github.com/microsoftgraph/msgraph-sdk-python) to send native HTTP requests to [Microsoft Graph API](https://graph.microsoft.com).
 
@@ -53,14 +53,14 @@ auth_provider = AzureIdentityAuthenticationProvider(credential)
 
 > **Note**: `AzureIdentityAuthenticationProvider` sets the default scopes and allowed hosts.
 
-### 5. Pass the authentication provider object to the BaseGraphRequestAdapter constructor.
+### 5. Pass the authentication provider object to the BaseGraphRequestAdapter constructor
 
 ```python
 from msgraph_core import BaseGraphRequestAdapter
 adapter = BaseGraphRequestAdapter(auth_provider)
 ```
 
-### 6. Make a requests to the graph.
+### 6. Make a requests to the graph
 
 After you have a `BaseGraphRequestAdapter` that is authenticated, you can begin making calls against the service.
 
@@ -86,7 +86,7 @@ View or log issues on the [Issues](https://github.com/microsoftgraph/msgraph-sdk
 
 ## Contributing
 
-Please see the [contributing guidelines](CONTRIBUTING.rst).
+Please see the [contributing guidelines](CONTRIBUTING.md).
 
 ## Copyright and license
 

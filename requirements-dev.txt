@@ -52,7 +52,7 @@ mock==5.1.0 ; python_version >= '3.6'
 
 msal==1.29.0
 
-msal-extensions==1.1.0
+msal-extensions==1.2.0
 
 mypy==1.10.0
 

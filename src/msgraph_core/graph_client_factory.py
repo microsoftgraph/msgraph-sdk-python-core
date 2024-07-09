@@ -24,7 +24,7 @@ class GraphClientFactory(KiotaClientFactory):
     @staticmethod
     def create_with_default_middleware(
         api_version: APIVersion = APIVersion.v1,
-        client: httpx.AsyncClient = KiotaClientFactory.get_default_client(),
+        client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
         options: Optional[Dict[str, RequestOption]] = None
     ) -> httpx.AsyncClient:
@@ -44,6 +44,8 @@ class GraphClientFactory(KiotaClientFactory):
         Returns:
             httpx.AsyncClient: An instance of the AsyncClient object
         """
+        if client is None:
+            client = KiotaClientFactory.get_default_client()
         client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
         middleware = KiotaClientFactory.get_default_middleware(options)
         telemetry_handler = GraphClientFactory._get_telemetry_handler(options)
@@ -54,7 +56,7 @@ class GraphClientFactory(KiotaClientFactory):
     def create_with_custom_middleware(
         middleware: Optional[List[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
-        client: httpx.AsyncClient = KiotaClientFactory.get_default_client(),
+        client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
     ) -> httpx.AsyncClient:
         """Applies a custom middleware chain to the HTTP Client
@@ -70,6 +72,8 @@ class GraphClientFactory(KiotaClientFactory):
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
         """
+        if client is None:
+            client = KiotaClientFactory.get_default_client()
         client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 

@@ -7,6 +7,7 @@ from kiota_abstractions.serialization import (
     SerializationWriterFactoryRegistry,
 )
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from typing import Optional
 
 from .graph_client_factory import GraphClientFactory
 
@@ -16,11 +17,16 @@ class BaseGraphRequestAdapter(HttpxRequestAdapter):
     def __init__(
         self,
         authentication_provider: AuthenticationProvider,
-        parse_node_factory: ParseNodeFactory = ParseNodeFactoryRegistry(),
-        serialization_writer_factory:
-        SerializationWriterFactory = SerializationWriterFactoryRegistry(),
-        http_client: httpx.AsyncClient = GraphClientFactory.create_with_default_middleware()
+        parse_node_factory: Optional[ParseNodeFactory] = None,
+        serialization_writer_factory: Optional[SerializationWriterFactory] = None,
+        http_client: Optional[httpx.AsyncClient] = None
     ) -> None:
+        if parse_node_factory is None:
+            parse_node_factory = ParseNodeFactoryRegistry()
+        if serialization_writer_factory is None:
+            serialization_writer_factory = SerializationWriterFactoryRegistry()
+        if http_client is None:
+            http_client = GraphClientFactory.create_with_default_middleware()
         super().__init__(
             authentication_provider=authentication_provider,
             parse_node_factory=parse_node_factory,

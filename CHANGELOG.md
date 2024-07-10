@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.0...v1.1.1) (2024-07-10)
+
+
+### Bug Fixes
+
+* avoid using default mutable parameters ([9fa773a](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/9fa773a7ca92f916a6eb593f033322d5a1918a10))
+* fixes constants path for release please config ([2ff4440](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/2ff4440a18347feb173a40010ab4d9910717c6b6))
+
 ## [1.1.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.0.1...v1.1.0) (2024-06-19)
 
 

@@ -15,7 +15,7 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         "pyproject.toml",
-        "msgraph-core/_constants.py"
+        "src/msgraph_core/_constants.py"
       ]
     }
   },

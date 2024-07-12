@@ -14,9 +14,10 @@ from kiota_abstractions.serialization.parsable_factory import ParsableFactory
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
-from msgraph_core.models import LargeFileUploadSession, UploadResult, UploadSessionDataHolder  # check imports
+from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
 
 
+# pylint: disable=too-many-instance-attributes
 class LargeFileUploadTask:
 
     def __init__(
@@ -128,7 +129,7 @@ class LargeFileUploadTask:
                 self.next_range = next_range[0] + "-"
                 process_next = await self.next_chunk(self.stream)
 
-            except Exception as error:
+            except Exception as error:  #pylint: disable=broad-except
                 logging.error("Error uploading chunk  %s", error)
             finally:
                 self.chunks -= 1

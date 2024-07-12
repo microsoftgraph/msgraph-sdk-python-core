@@ -14,7 +14,7 @@ from kiota_abstractions.serialization.parsable_factory import ParsableFactory
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
-from msgraph_core.models import LargeFileUploadSession, UploadResult, UploadSessionDataHolder  # check imports
+from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
 
 
 class LargeFileUploadTask:

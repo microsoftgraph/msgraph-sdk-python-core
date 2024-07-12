@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.1...v1.1.2) (2024-07-12)
+
+
+### Bug Fixes
+
+* adds missing whitespace for suppressions ([7ad013e](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/7ad013e52190ab607dfe82c86ae68c87e7abe4cc))
+* fixes exception configuration in pylint ([857ad99](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/857ad9950a0200dbe69d4b96052725624fbe8833))
+* linting fix import ordering ([b56cc8d](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/b56cc8d11221166fbd4c8002dfdf9eb027968b5e))
+* linting missing line ([f39f0b9](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/f39f0b9b68f94b91c6b179f5f65db960922ecc77))
+* moves attributes suppression to class definition ([b6c1d29](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/b6c1d29777829aedf50cadf994e9b8ea68d8ed4a))
+* suppressed linting error message that fails dependencies ([d7c0e1b](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/d7c0e1b901ffb0970eb6b94dd623dda41995a772))
+
 ## [1.1.1](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.0...v1.1.1) (2024-07-10)
 
 

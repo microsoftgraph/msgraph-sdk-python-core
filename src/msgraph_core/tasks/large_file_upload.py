@@ -16,11 +16,11 @@ from kiota_abstractions.request_adapter import RequestAdapter
 
 from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
 
-
+# pylint: disable=too-many-instance-attributes
 class LargeFileUploadTask:
 
     def __init__(
-        self,  # pylint: disable=too-many-instance-attributes
+        self,
         upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,

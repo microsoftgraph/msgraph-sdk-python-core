@@ -104,7 +104,7 @@ toml==0.10.2
 
 tomli==2.0.1 ; python_version < '3.11'
 
-tomlkit==0.13.1 ; python_version >= '3.7'
+tomlkit==0.13.2 ; python_version >= '3.7'
 
 trio==0.26.2
 

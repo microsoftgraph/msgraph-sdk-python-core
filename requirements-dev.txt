@@ -32,7 +32,7 @@ dill==0.3.6 ; python_version < '3.11'
 
 exceptiongroup==1.1.1 ; python_version < '3.11'
 
-idna==3.7 ; python_version >= '3.5'
+idna==3.8 ; python_version >= '3.5'
 
 importlib-metadata==7.1.0 ; python_version >= '3.7'
 

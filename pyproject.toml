@@ -68,3 +68,6 @@ push = false
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "src/msgraph_core/_constants.py" = ["{version}"]
+
+[tool.poetry.packages]
+include = ["src/msgraph_core"]

@@ -52,7 +52,7 @@ class UploadSessionDataHolder(AdditionalDataHolder, Parsable):
 
 class UploadResult:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.upload_session: Optional[UploadSessionDataHolder] = None
         self.item_response: Optional[T] = None
         self.location: Optional[str] = None

@@ -133,7 +133,7 @@ class LargeFileUploadTask:
                 logging.error("Error uploading chunk  %s", error)
             finally:
                 self.chunks -= 1
-        upload_result = UploadResult()
+        upload_result: UploadResult[Any] = UploadResult()
         upload_result.item_response = response
         upload_result.location = self.upload_session.upload_url
         return upload_result

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Generic
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -50,9 +50,9 @@ class UploadSessionDataHolder(AdditionalDataHolder, Parsable):
         writer.write_additional_data_value(self.additional_data)
 
 
-class UploadResult:
+class UploadResult(Generic[T]):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.upload_session: Optional[UploadSessionDataHolder] = None
         self.item_response: Optional[T] = None
         self.location: Optional[str] = None

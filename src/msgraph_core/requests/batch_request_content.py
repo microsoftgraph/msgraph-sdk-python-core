@@ -20,6 +20,7 @@ class BatchRequestContent(Parsable):
         Initializes a new instance of the BatchRequestContent class.
         """
         self._requests: List[Union[BatchRequestItem, 'RequestInformation']] = requests or []
+        self.is_finalized = False
 
     @property
     def requests(self) -> List:
@@ -60,6 +61,10 @@ class BatchRequestContent(Parsable):
 
     def remove_batch_request_item(self, item: BatchRequestItem) -> None:
         self.remove(item.id)
+
+    def finalize(self):
+        self.is_finalized = True
+        return self._requests
 
     def get_field_deserializers(self, ) -> Dict:
         """

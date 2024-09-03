@@ -46,7 +46,9 @@ class BatchRequestItem(Parsable):
         request_info = RequestInformation()
         request_info.http_method = request.get_method()
         request_info.url = request.full_url
-        request_info.headers = dict(request.header_items())
+        request_info.headers = RequestHeaders()
+        for key, value in request.headers.items():
+            request_info.headers.try_add(header_name=key, header_value=value)
         request_info.content = request.data
         return BatchRequestItem(request_info, id, depends_on)
 

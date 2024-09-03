@@ -13,11 +13,10 @@ from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import SerializationWriter
 
 
-class StreamInterface(BytesIO):
+class StreamInterface(BytesIO):  # move to helpers or implement in abstractions
     pass
 
 
-# request headers and request information are imported, streaIterfac and serialization writer too
 class BatchRequestItem(Parsable):
     API_VERSION_REGEX = re.compile(r'/\/(v1.0|beta)/')
     ME_TOKEN_REGEX = re.compile(r'/\/users\/me-token-to-replace/')

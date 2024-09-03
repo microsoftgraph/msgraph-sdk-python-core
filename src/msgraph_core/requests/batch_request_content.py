@@ -5,6 +5,8 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import SerializationWriter
 
+from .batch_request_item import BatchRequestItem
+
 
 class BatchRequestContent(Parsable):
     """

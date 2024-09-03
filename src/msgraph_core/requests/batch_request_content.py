@@ -1,4 +1,5 @@
-from typing import List, Optional, Dict, Callable
+import uuid
+from typing import List, Optional, Dict, Callable, Union
 
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
 from kiota_abstractions.request_information import RequestInformation
@@ -16,11 +17,12 @@ class BatchRequestContent(Parsable):
     MAX_REQUESTS = 20
     requests: List = []
 
-    def __init__(self, requests: Optional[List] = None) -> None:
+    def __init__(self, requests: List[Union['BatchRequestItem', 'RequestInformation']] = []):
         """
         Initializes a new instance of the BatchRequestContent class.
         """
-        pass
+        self.requests: Dict[str, BatchRequestItem] = {}
+        self.set_requests(requests)
 
     @property
     def requests(self) -> List:

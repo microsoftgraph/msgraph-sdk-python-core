@@ -188,13 +188,23 @@ class BatchRequestItem(Parsable):
         """
         return self._depends_on
 
+    def to_dict(self):
+        return {"id": self.id, "status_code": self.status_code}
+
     def get_field_deserializers(self) -> Dict[str, Any]:
         """ 
         Gets the deserialization information for this object.
         Returns:
             Dict[str, Any]: The deserialization information for this object where each entry is a property key with its deserialization callback.
         """
-        return {}
+        return {
+            "id": self._id,
+            "method": self.method,
+            "url": self.url,
+            "headers": self._headers,
+            "body": self._body,
+            "depends_on": self._depends_on
+        }
 
     def serialize(self, writer: SerializationWriter) -> None:
         """ 

@@ -153,11 +153,11 @@ class BatchRequestItem(Parsable):
         return self._body
 
     @body.setter
-    def body(self, body: Optional[StreamInterface]) -> None:
+    def body(self, body: BytesIO) -> None:
         """
         Sets the body of the request item.
         Args:
-            body (Optional[StreamInterface]): The body of the request item.
+            body : (BytesIO): The body of the request item.
         """
         self._body = body
 
@@ -217,12 +217,13 @@ class BatchRequestItem(Parsable):
         writer.write_str_value('url', self.url)
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
         headers = {key: ", ".join(val) for key, val in self._headers.items()}
-        writer.write_additional_data_value('headers', headers)
+        writer.write_collection_of_object_values('headers', headers)
         if self._body:
-            json_object = json.loads(self._body.read())
+            print(f"Body: {self._body}")
+            json_object = json.loads(self._body)
             is_json_string = json_object and isinstance(json_object, dict)
-            self.body.seek(0)
-            writer.write_additional_data_value(
-                'body', json_object
-                if is_json_string else base64.b64encode(self._body.read()).decode('utf-8')
+            # self.body.seek(0)
+            writer.write_collection_of_object_values(
+                'body',
+                json_object if is_json_string else base64.b64encode(self._body).decode('utf-8')
             )

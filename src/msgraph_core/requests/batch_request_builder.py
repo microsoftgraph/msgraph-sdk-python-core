@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Type, TypeVar, Dict, Optional, Any
 import asyncio
 import json
 
@@ -8,11 +8,14 @@ from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.api_error import APIError
 
 from .batch_request_content import BatchRequestContent
 from .batch_request_content_collection import BatchRequestContentCollection
 from .batch_response_content import BatchResponseContent
 from .batch_response_content_collection import BatchResponseContentCollection
+
+T = TypeVar('T', bound='Parsable')
 
 
 class BatchRequestBuilder:
@@ -44,20 +47,24 @@ class BatchRequestBuilder:
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
         request_info = await self.to_post_request_information(batch_request_content)
-        # print(f"Request Info: {request_info}")
-        print(f"Request Info Content: {request_info.content}")
-        # print(f"Request Info Headers: {request_info.headers}")
-        # print(f"Request Info Method: {request_info.http_method}")
-        # print(f"Request Info URL: {request_info.url}")
-        # could we use a native response handler here?
+        request_body = request_info.content.decode("utf-8")
+        json_body = json.loads(request_body)
+        request_info.content = json_body
+        print(f"Request Info Content: {request_body}")
+        print(f"Request Info Content: {type(request_info.content)}")
         parsable_factory = BatchResponseContent()
         error_map: Dict[str, int] = {}
-        response = await self._request_adapter.send_async(request_info, parsable_factory, error_map)
+        try:
+            response = await self._request_adapter.send_async(
+                request_info, parsable_factory, error_map
+            )
+        except APIError as e:
+            print(f"API Error: {e}")
         return response
 
     async def to_post_request_information(
         self,
-        batch_request_content: 'BatchRequestContent',
+        batch_request_content: BatchRequestContent,
     ) -> RequestInformation:
         """
         Creates request information for a batch POST request.
@@ -73,11 +80,11 @@ class BatchRequestBuilder:
         request_info = RequestInformation()
         request_info.http_method = Method.POST
         request_info.url_template = self.url_template
-        # serialized_content = [
-        #     item.get_field_deserializers() for item in batch_request_content.requests
-        # ]
-        # print(f"Serialized Content: {type(serialized_content)}")
-        # request_info.content = json.dumps(serialized_content).encode("utf-8")
         request_info.headers = HeadersCollection()
         request_info.headers.try_add("Content-Type", "application/json")
+        request_info.headers.try_add("Accept", "application/json")
+        request_info.set_content_from_parsable(
+            self._request_adapter, "application/json", batch_request_content
+        )
+
         return request_info

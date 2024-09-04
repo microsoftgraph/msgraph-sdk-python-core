@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable
@@ -82,6 +82,10 @@ class BatchRequestContent(Parsable):
         """
         self.is_finalized = True
         return self._requests
+
+    @classmethod
+    def create_from_discriminator_value(cls, data: Dict[str, Any]) -> 'BatchResponseContent':
+        pass
 
     def get_field_deserializers(self, ) -> Dict:
         """

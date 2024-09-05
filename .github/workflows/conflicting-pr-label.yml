@@ -6,10 +6,10 @@ name: PullRequestConflicting
 # events but only for the master branch
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   pull_request:
     types: [synchronize]
-    branches: [main, dev]
+    branches: [main]
 
 permissions:
   pull-requests: write

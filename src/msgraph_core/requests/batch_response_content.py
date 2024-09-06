@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, Type, TypeVar
+from typing import Optional, Dict, Any, Type, TypeVar, Callable
 from io import BytesIO
 import base64
 
@@ -16,7 +16,7 @@ T = TypeVar('T', bound='Parsable')
 class BatchResponseContent(Parsable):
 
     def __init__(self) -> None:
-        self._responses: Optional[Dict[str, 'BatchResponseItem']] = {}
+        self._responses: Optional[List['BatchResponseItem']] = []
 
     @property
     def responses(self) -> Optional[Dict[str, 'BatchResponseItem']]:
@@ -66,10 +66,12 @@ class BatchResponseContent(Parsable):
                 f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
 
-    def get_field_deserializers(self) -> Dict[str, Any]:
+    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
         return {
             'responses':
-            lambda n: self.responses(n.get_collection_of_object_values(BatchResponseItem.create))
+            lambda n: setattr(
+                self, "_responses", n.get_collection_of_object_values(BatchResponseItem.create)
+            )
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

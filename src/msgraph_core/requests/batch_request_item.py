@@ -27,6 +27,13 @@ class BatchRequestItem(Parsable):
         id: str = "",
         depends_on: Optional[List[Union[str, 'BatchRequestItem']]] = None
     ):
+        """ 
+        Initializes a new instance of the BatchRequestItem class.
+        Args:
+            request_information (RequestInformation): The request information.
+            id (str, optional): The ID of the request item. Defaults to "".
+            depends_on (Optional[List[Union[str, BatchRequestItem]], optional): The IDs of the requests that this request depends on. Defaults to None.
+        """
         if not request_information.http_method:
             raise ValueError("HTTP method cannot be Null/Empty")
         self._id = id or str(uuid4())
@@ -43,6 +50,15 @@ class BatchRequestItem(Parsable):
         id: str = "",
         depends_on: Optional[List[str]] = None
     ) -> 'BatchRequestItem':
+        """ 
+        Creates a new instance of the BatchRequestItem class from a urllib request.
+        Args:
+            request (urllib.request.Request): The urllib request.
+            id (str, optional): The ID of the request item. Defaults to "".
+            depends_on (Optional[List[str]], optional): The IDs of the requests that this request depends on. Defaults to None.
+        Returns:    
+            BatchRequestItem: A new instance of the BatchRequestItem class.
+        """
         request_info = RequestInformation()
         request_info.http_method = request.get_method()
         request_info.url = request.full_url
@@ -53,11 +69,21 @@ class BatchRequestItem(Parsable):
         return BatchRequestItem(request_info, id, depends_on)
 
     def set_depends_on(self, requests: Optional[List[Union[str, 'BatchRequestItem']]]) -> None:
+        """
+        Sets the IDs of the requests that this request depends on.
+        Args:
+            requests (Optional[List[Union[str, BatchRequestItem]]): The IDs of the requests that this request depends on.
+        """
         if requests:
             for request in requests:
                 self._depends_on.append(request if isinstance(request, str) else request.id)
 
     def set_url(self, url: str) -> None:
+        """
+        Sets the URL of the request.
+        Args:
+            url (str): The URL of the request.
+        """
         url_parts = urlparse(url)
         if not url_parts.path:
             raise ValueError(f"Invalid URL {url}")
@@ -82,45 +108,100 @@ class BatchRequestItem(Parsable):
 
     @property
     def id(self) -> str:
+        """ 
+        Gets the ID of the request item.
+        Returns:
+            str: The ID of the request item.
+        """
         return self._id
 
     @id.setter
     def id(self, value: str) -> None:
+        """
+        Sets the ID of the request item.
+        Args:
+            value (str): The ID of the request item.
+        """
         self._id = value
 
     @property
     def headers(self) -> List[RequestHeaders]:
+        """
+        Gets the headers of the request item.
+        Returns:
+            List[RequestHeaders]: The headers of the request item.
+        """
         return self._headers
 
     @headers.setter
     def headers(self, headers: Dict[str, Union[List[str], str]]) -> None:
+        """
+        Sets the headers of the request item.
+        Args:
+            headers (Dict[str, Union[List[str], str]]): The headers of the request item.
+        """
         self._headers.clear()
         self._headers.update(headers)
 
     @property
     def body(self) -> None:
+        """
+        Gets the body of the request item.
+        Returns:
+            None: The body of the request item.
+        """
         return self._body
 
     @body.setter
     def body(self, body: Optional[StreamInterface]) -> None:
+        """
+        Sets the body of the request item.
+        Args:
+            body (Optional[StreamInterface]): The body of the request item.
+        """
         self._body = body
 
     @property
     def method(self) -> str:
+        """
+        Gets the HTTP method of the request item.
+        Returns:
+            str: The HTTP method of the request item.
+        """
         return self._method
 
     @method.setter
     def method(self, value: str) -> None:
+        """
+        Sets the HTTP method of the request item.
+        Args:
+            value (str): The HTTP method of the request item.
+        """
         self._method = value
 
     @property
     def depends_on(self) -> Optional[List[str]]:
+        """
+        Gets the IDs of the requests that this request depends on.
+        Returns:
+            Optional[List[str]]: The IDs of the requests that this request depends on.
+        """
         return self._depends_on
 
     def get_field_deserializers(self) -> Dict[str, Any]:
+        """ 
+        Gets the deserialization information for this object.
+        Returns:
+            Dict[str, Any]: The deserialization information for this object where each entry is a property key with its deserialization callback.
+        """
         return {}
 
     def serialize(self, writer: SerializationWriter) -> None:
+        """ 
+        Writes the objects properties to the current writer.
+        Args:
+            writer (SerializationWriter): The writer to write to.
+        """
         writer.write_str_value('id', self.id)
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)

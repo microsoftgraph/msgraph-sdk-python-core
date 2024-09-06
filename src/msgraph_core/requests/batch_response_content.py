@@ -16,25 +16,55 @@ T = TypeVar('T', bound='Parsable')
 class BatchResponseContent(Parsable):
 
     def __init__(self) -> None:
+        """
+        Initializes a new instance of the BatchResponseContent class.
+        BatchResponseContent is a collection of BatchResponseItem items, each with a unique request ID.
+        """
         self._responses: Optional[List['BatchResponseItem']] = []
 
     @property
     def responses(self) -> Optional[Dict[str, 'BatchResponseItem']]:
+        """
+        Get the responses in the collection
+        :return: A dictionary of response IDs and their BatchResponseItem objects
+        :rtype: Optional[Dict[str, BatchResponseItem]]
+        """
         return None if self._responses is None else self._responses
 
     @responses.setter
     def responses(self, responses: Optional[Dict[str, 'BatchResponseItem']]) -> None:
+        """
+        Set the responses in the collection
+        :param responses: The responses to set in the collection
+        :type responses: Optional[Dict[str, BatchResponseItem]]
+        """
         if isinstance(responses, dict):
             self._responses = {response.id: response for response in responses.values()}
         else:
             self._responses = responses
 
     def response(self, request_id: str) -> 'BatchResponseItem':
+        """
+        Get a response by its request ID from the collection
+        :param request_id: The request ID of the response to get
+        :type request_id: str
+        :return: The response with the specified request ID as a BatchResponseItem
+        :rtype: BatchResponseItem
+        """
         if not self._responses or request_id not in self._responses:
             raise ValueError(f"No response found for id: {request_id}")
         return self._responses[request_id]
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
+        """ 
+        Get the body of a response by its request ID from the collection
+        :param request_id: The request ID of the response to get
+        :type request_id: str
+        :param type: The type to deserialize the response body to
+        :type type: Type[T]
+        :return: The deserialized response body
+        :rtype: Optional[T]
+        """
         if not self._responses or request_id not in self._responses:
             raise ValueError(f"No response found for id: {request_id}")
 
@@ -67,6 +97,11 @@ class BatchResponseContent(Parsable):
             )
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+        """ 
+        Gets the deserialization information for this object.
+        :return: The deserialization information for this object
+        :rtype: Dict[str, Callable[[ParseNode], None]]
+        """
         return {
             'responses':
             lambda n: setattr(
@@ -75,8 +110,19 @@ class BatchResponseContent(Parsable):
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
+        """
+        Writes the objects properties to the current writer.
+        :param writer: The writer to write to
+        """
         writer.write_collection_of_object_values('responses', self._responses.values())
 
     @staticmethod
     def create_from_discriminator_value(parse_node: ParseNode) -> 'BatchResponseContent':
+        """
+        Creates a new instance of the appropriate class based on discriminator value
+        :param parse_node: The parse node to use to read the discriminator value and create the object
+        :type parse_node: ParseNode
+        :return: BatchResponseContent
+        :rtype: BatchResponseContent
+        """
         return BatchResponseContent()

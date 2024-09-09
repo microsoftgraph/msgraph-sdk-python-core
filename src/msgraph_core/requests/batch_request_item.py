@@ -14,7 +14,7 @@ from kiota_abstractions.serialization import SerializationWriter
 from kiota_abstractions.serialization import ParseNode
 
 
-class StreamInterface(BytesIO):  # move to helpers or implement in abstractions
+class StreamInterface(BytesIO):
     pass
 
 

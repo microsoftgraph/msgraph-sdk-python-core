@@ -1,12 +1,14 @@
 from typing import Optional, Dict, Any
 from io import BytesIO
 
-from kiota_abstractions.serialization import Parsable
+from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
+from kiota_serialization_json.json_parse_node import JsonParseNode
 from kiota_abstractions.serialization import SerializationWriter
+from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
 
 
-class StreamInterface(BytesIO):  # move to helpers
+class StreamInterface(BytesIO):
     pass
 
 
@@ -18,16 +20,9 @@ class BatchResponseItem(Parsable):
         """
         self._id: Optional[str] = None
         self._atomicity_group: Optional[str] = None
-        self._status_code: Optional[int] = None
+        self._status: Optional[int] = None
         self._headers: Optional[Dict[str, str]] = {}
         self._body: Optional[StreamInterface] = None
-
-    @staticmethod
-    def create(parse_node: ParseNode) -> 'BatchResponseItem':
-        """
-        Creates a new instance of the BatchResponseItem class.
-        """
-        return BatchResponseItem()
 
     @property
     def id(self) -> Optional[str]:
@@ -66,7 +61,7 @@ class BatchResponseItem(Parsable):
         self._atomicity_group = atomicity_group
 
     @property
-    def status_code(self) -> Optional[int]:
+    def status(self) -> Optional[int]:
         """
         Get the status code of the response
         :return: The status code of the response
@@ -74,8 +69,8 @@ class BatchResponseItem(Parsable):
         """
         return self._status_code
 
-    @status_code.setter
-    def status_code(self, status_code: Optional[int]) -> None:
+    @status.setter
+    def status(self, status_code: Optional[int]) -> None:
         """ 
         Set the status code of the response
         :param status_code: The status code of the response
@@ -135,14 +130,15 @@ class BatchResponseItem(Parsable):
     def create_from_discriminator_value(
         parse_node: Optional[ParseNode] = None
     ) -> 'BatchResponseItem':
-        # if parse_node is None:
-        #     raise ValueError("parse_node cannot be None")
-        return BatchResponseItem(
-            id=parse_node.get_str_value("id"),
-            status=parse_node.get_int_value("status"),
-            headers=parse_node.get_object_value(lambda n: n.get_str_value()),
-            body=parse_node.get_object_value(lambda n: n.get_object_value(lambda x: x))
-        )
+        """
+        Creates a new instance of the appropriate class based on discriminator value
+        Args:
+            parse_node: The parse node to use to read the discriminator value and create the object
+        Returns: BatchResponseItem
+        """
+        if not parse_node:
+            raise TypeError("parse_node cannot be null")
+        return BatchResponseItem()
 
     def get_field_deserializers(self) -> Dict[str, Any]:
         """
@@ -150,11 +146,11 @@ class BatchResponseItem(Parsable):
 
         """
         return {
-            "id": lambda n: setattr(self, "id", n.get_str_value()),
-            'atomicity_group': lambda n: setattr(self, "atomicity_group", n.get_str_value()),
-            'status_code': lambda n: setattr(self, "status_code", n.get_int_value()),
-            'headers': lambda n: setattr(self, "headers", n.get_collection_of_primitive_values()),
-            'body': lambda n: setattr(self, "body", n.get_bytes_value()),
+            "id": lambda x: setattr(self, "id", x.get_str_value()),
+            "status": lambda x: setattr(self, "status", x.get_int_value()),
+            "headers":
+            lambda x: setattr(self, "headers", x.get_collection_of_primitive_values(str)),
+            "body": lambda x: setattr(self, "body", x.get_collection_of_primitive_values(str)),
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

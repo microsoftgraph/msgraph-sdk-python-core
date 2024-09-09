@@ -113,7 +113,8 @@ class BatchResponseContent(Parsable):
         """
         return {
             'responses':
-            lambda n: self.responses(n.get_collection_of_object_values(BatchResponseItem.create))
+            lambda n:
+            setattr(self, 'responses', n.get_collection_of_object_values(BatchResponseItem))
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

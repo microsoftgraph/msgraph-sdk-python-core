@@ -1,7 +1,7 @@
 import re
 import json
 from uuid import uuid4
-from typing import List, Optional, Dict, Callable, Union, Any
+from typing import List, Optional, Dict, Union, Any
 from io import BytesIO
 import base64
 import urllib.request
@@ -33,7 +33,8 @@ class BatchRequestItem(Parsable):
         Args:
             request_information (RequestInformation): The request information.
             id (str, optional): The ID of the request item. Defaults to "".
-            depends_on (Optional[List[Union[str, BatchRequestItem]], optional): The IDs of the requests that this request depends on. Defaults to None.
+            depends_on (Optional[List[Union[str, BatchRequestItem]], optional):
+            The IDs of the requests that this request depends on. Defaults to None.
         """
         if request_information is None or not request_information.http_method:
             raise ValueError("HTTP method cannot be Null/Empty")
@@ -57,7 +58,8 @@ class BatchRequestItem(Parsable):
         Args:
             request (urllib.request.Request): The urllib request.
             id (str, optional): The ID of the request item. Defaults to "".
-            depends_on (Optional[List[str]], optional): The IDs of the requests that this request depends on. Defaults to None.
+            depends_on (Optional[List[str]], optional): The IDs of
+                 the requests that this request depends on. Defaults to None.
         Returns:    
             BatchRequestItem: A new instance of the BatchRequestItem class.
         """
@@ -74,7 +76,8 @@ class BatchRequestItem(Parsable):
         """
         Sets the IDs of the requests that this request depends on.
         Args:
-            requests (Optional[List[Union[str, BatchRequestItem]]): The IDs of the requests that this request depends on.
+            requests (Optional[List[Union[str, BatchRequestItem]]): The 
+                IDs of the requests that this request depends on.
         """
         if requests:
             for request in requests:
@@ -101,7 +104,8 @@ class BatchRequestItem(Parsable):
         relative_url = re.sub(self.ME_TOKEN_REGEX, '/me', relative_url, 1)
         if not relative_url:
             raise ValueError(
-                f"Error occurred during regex replacement of '/users/me-token-to-replace' in URL string: {url}"
+                f"""Error occurred during regex replacement 
+                of '/users/me-token-to-replace' in URL string: {url}"""
             )
 
         self.url = relative_url
@@ -210,7 +214,9 @@ class BatchRequestItem(Parsable):
         """ 
         Gets the deserialization information for this object.
         Returns:
-            Dict[str, Any]: The deserialization information for this object where each entry is a property key with its deserialization callback.
+            Dict[str, Any]: The deserialization information for 
+            this object where each entry is a property key with its
+             deserialization callback.
         """
         return {
             "id": self._id,

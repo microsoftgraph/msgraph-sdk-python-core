@@ -65,7 +65,7 @@ class BatchResponseItem(Parsable):
         :return: The status code of the response
         :rtype: Optional[int]
         """
-        return self._status_code
+        return self._status
 
     @status.setter
     def status(self, status_code: Optional[int]) -> None:
@@ -74,7 +74,7 @@ class BatchResponseItem(Parsable):
         :param status_code: The status code of the response
         :type status_code: Optional[int]
         """
-        self._status_code = status_code
+        self._status = status_code
 
     @property
     def headers(self) -> Optional[Dict[str, str]]:
@@ -157,6 +157,6 @@ class BatchResponseItem(Parsable):
         """
         writer.write_str_value('id', self._id)
         writer.write_str_value('atomicity_group', self._atomicity_group)
-        writer.write_int_value('status_code', self._status_code)
+        writer.write_int_value('status', self._status)
         writer.write_collection_of_primitive_values('headers', self._headers)
         writer.write_bytes_value('body', self._body)

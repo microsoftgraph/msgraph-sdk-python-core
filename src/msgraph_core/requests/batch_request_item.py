@@ -104,10 +104,9 @@ class BatchRequestItem(Parsable):
         relative_url = re.sub(self.ME_TOKEN_REGEX, '/me', relative_url, 1)
         if not relative_url:
             raise ValueError(
-                f"""Error occurred during regex replacement 
+                f"""Error occurred during regex replacement
                 of '/users/me-token-to-replace' in URL string: {url}"""
             )
-
         self.url = relative_url
         if url_parts.query:
             self.url += f"?{url_parts.query}"

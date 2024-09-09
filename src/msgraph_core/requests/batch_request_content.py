@@ -67,8 +67,11 @@ class BatchRequestContent(Parsable):
         """
         Removes a request from the batch request content.
         """
-        if request_id in self.requests:
-            del self.requests[request_id]
+        for request in self.requests:
+            if request.id == request_id:
+                self.requests.remove(request)
+                return
+        raise ValueError(f"Request ID {request_id} not found in requests.")
 
     def remove_batch_request_item(self, item: BatchRequestItem) -> None:
         """

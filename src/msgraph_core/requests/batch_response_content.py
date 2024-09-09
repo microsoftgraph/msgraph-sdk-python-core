@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, Type, TypeVar, Callable
+from typing import Optional, Dict, List, Any, Type, TypeVar, Callable
 from io import BytesIO
 import base64
 
@@ -24,16 +24,16 @@ class BatchResponseContent(Parsable):
         self._responses: Optional[List['BatchResponseItem']] = []
 
     @property
-    def responses(self) -> Optional[Dict[str, 'BatchResponseItem']]:
+    def responses(self) -> Optional[List['BatchResponseItem']]:
         """
         Get the responses in the collection
         :return: A dictionary of response IDs and their BatchResponseItem objects
         :rtype: Optional[Dict[str, BatchResponseItem]]
         """
-        return self._responses or None
+        return self._responses
 
     @responses.setter
-    def responses(self, responses: Optional[Dict[str, 'BatchResponseItem']]) -> None:
+    def responses(self, responses: Optional[List['BatchResponseItem']]) -> None:
         """
         Set the responses in the collection
         :param responses: The responses to set in the collection
@@ -52,9 +52,20 @@ class BatchResponseContent(Parsable):
         :return: The response with the specified request ID as a BatchResponseItem
         :rtype: BatchResponseItem
         """
-        if not self._responses or request_id not in self._responses:
-            raise ValueError(f"No response found for id: {request_id}")
-        return self._responses[request_id]
+        if self._responses is None:
+            raise ValueError("Responses list is not initialized.")
+        for response in self._responses:
+            if response.request_id == request_id:
+                return response
+        raise KeyError(f"Response with request ID {request_id} not found.")
+
+    def get_response_by_id(self, request_id: str) -> 'BatchResponseItem':
+        if self._responses is None:
+            raise ValueError("Responses list is not initialized.")
+        for response in self._responses:
+            if response.request_id == request_id:
+                return response
+        raise KeyError(f"Response with request ID {request_id} not found.")
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 
@@ -72,7 +83,7 @@ class BatchResponseContent(Parsable):
         if not issubclass(type, Parsable):
             raise ValueError("Type passed must implement the Parsable interface")
 
-        response = self._responses[request_id]
+        response = self.get_response_by_id(request_id)
         content_type = response.content_type
         if not content_type:
             raise RuntimeError("Unable to get content-type header in response item")
@@ -91,19 +102,10 @@ class BatchResponseContent(Parsable):
                 )
                 response.body = base64_decoded_body
             return parse_node.get_object_value(type.create_from_discriminator_value)
-            # tests this
         except Exception:
             raise ValueError(
                 f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
-
-    @staticmethod
-    def create_from_discriminator_value(
-        parse_node: Optional[ParseNode] = None
-    ) -> 'BatchResponseContent':
-        # if parse_node is None:
-        #     raise ValueError("parse_node cannot be None")
-        return BatchResponseContent()
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
         """ 

@@ -24,9 +24,9 @@ class BatchRequestItem(Parsable):
 
     def __init__(
         self,
-        request_information: RequestInformation,
+        request_information: Optional[RequestInformation] = None,
         id: str = "",
-        depends_on: Optional[List[Union[str, 'BatchRequestItem']]] = None
+        depends_on: Optional[List[Union[str, 'BatchRequestItem']]] = []
     ):
         """ 
         Initializes a new instance of the BatchRequestItem class.
@@ -35,7 +35,7 @@ class BatchRequestItem(Parsable):
             id (str, optional): The ID of the request item. Defaults to "".
             depends_on (Optional[List[Union[str, BatchRequestItem]], optional): The IDs of the requests that this request depends on. Defaults to None.
         """
-        if not request_information.http_method:
+        if request_information is None or not request_information.http_method:
             raise ValueError("HTTP method cannot be Null/Empty")
         self._id = id or str(uuid4())
         self.method = request_information.http_method
@@ -43,7 +43,8 @@ class BatchRequestItem(Parsable):
         self._body = request_information.content
         self.url = request_information.url
         self._depends_on: Optional[List[str]] = []
-        self.set_depends_on(depends_on)
+        if depends_on is not None:
+            self.set_depends_on(depends_on)
 
     @staticmethod
     def create_with_urllib_request(
@@ -77,6 +78,8 @@ class BatchRequestItem(Parsable):
         """
         if requests:
             for request in requests:
+                if self._depends_on is None:
+                    self._depends_on = []
                 self._depends_on.append(request if isinstance(request, str) else request.id)
 
     def set_url(self, url: str) -> None:

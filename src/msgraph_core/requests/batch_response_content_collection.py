@@ -30,7 +30,10 @@ class BatchResponseContentCollection(Parsable):
         :param content: The response to add to the collection
         :type content: Optional[BatchResponseItem]
         """
-        self._responses.responses = [item for item in content]
+        if content is None:
+            return
+        for item in content:
+            self._responses.add_response(item)
 
     async def get_response_by_id(self, request_id: str) -> Optional[BatchResponseItem]:
         """
@@ -42,7 +45,9 @@ class BatchResponseContentCollection(Parsable):
         """
         if not self._responses:
             raise ValueError("No responses found in the collection")
-        if (isinstance(self._responses, BatchResponseContent)):
+        if isinstance(self._responses, BatchResponseContent):
+            if self._responses.responses is None:
+                raise ValueError("No responses found in the collection")
             for response in self._responses.responses:
                 if isinstance(response, BatchResponseItem) and response.id == request_id:
                     return response
@@ -57,9 +62,13 @@ class BatchResponseContentCollection(Parsable):
         """
         status_codes: Dict[str, int] = {}
         for response in self._responses:
-            if (isinstance(response, BatchResponseItem)):
-                status_codes[response.id] = response.status_code
-            raise TypeError("Invalid type: Collection must be of type BatchResponseContent")
+            if isinstance(response, BatchResponseItem):
+                if response.id is not None:
+                    status_codes[response.id] = response.status_code
+                else:
+                    raise ValueError("Response ID cannot be None")
+            else:
+                raise TypeError("Invalid type: Collection must be of type BatchResponseContent")
         return status_codes
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:

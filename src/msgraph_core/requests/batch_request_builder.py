@@ -59,6 +59,8 @@ class BatchRequestBuilder:
             )
         except APIError as e:
             print(f"API Error: {e}")
+        if response is None:
+            raise ValueError("Failed to get a valid response from the API.")
         print(f"Response before processing: {response}")
         return response
 

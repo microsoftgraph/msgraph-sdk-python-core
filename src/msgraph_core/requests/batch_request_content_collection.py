@@ -17,7 +17,7 @@ class BatchRequestContentCollection:
         
         """
         self.batch_request_limit = batch_request_limit or BatchRequestContent.MAX_REQUESTS
-        self.batches: [List[BatchRequestContent]] = []
+        self.batches: List[BatchRequestContent] = []
         self.current_batch: BatchRequestContent = BatchRequestContent()
 
     def add_batch_request_item(self, request: BatchRequestItem) -> None:
@@ -63,7 +63,10 @@ class BatchRequestContentCollection:
         for batch in self.batches:
             for request in batch.requests:
                 if request.status_code != 200:
-                    return batch_with_failed_responses.add_request(request)
+                    if batch_with_failed_responses is not None:
+                        batch_with_failed_responses.add_request(request)
+                    else:
+                        raise ValueError("batch_with_failed_responses is None")
         return batch_with_failed_responses
 
     def get_batch_requests_for_execution(self) -> List[BatchRequestContent]:

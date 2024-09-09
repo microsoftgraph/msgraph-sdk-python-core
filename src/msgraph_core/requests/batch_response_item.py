@@ -22,7 +22,7 @@ class BatchResponseItem(Parsable):
         self._atomicity_group: Optional[str] = None
         self._status: Optional[int] = None
         self._headers: Optional[Dict[str, str]] = {}
-        self._body: Optional[StreamInterface] = None
+        self._body: Optional[BytesIO] = None
 
     @property
     def id(self) -> Optional[str]:
@@ -97,11 +97,11 @@ class BatchResponseItem(Parsable):
         self._headers = headers
 
     @property
-    def body(self) -> Optional[StreamInterface]:
+    def body(self) -> Optional[BytesIO]:
         """
         Get the body of the response
         :return: The body of the response
-        :rtype: Optional[StreamInterface]
+        :rtype: Optional[BytesIO]
         """
         return self._body
 

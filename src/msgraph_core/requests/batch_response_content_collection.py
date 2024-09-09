@@ -31,7 +31,7 @@ class BatchResponseContentCollection(Parsable):
         if content is None:
             return
         for item in content:
-            self._responses.response = item
+            self._responses.responses = content
 
     async def get_response_by_id(self, request_id: str) -> Optional[BatchResponseItem]:
         """

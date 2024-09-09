@@ -3,9 +3,7 @@ from io import BytesIO
 
 from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
-from kiota_serialization_json.json_parse_node import JsonParseNode
 from kiota_abstractions.serialization import SerializationWriter
-from kiota_serialization_json.json_parse_node_factory import JsonParseNodeFactory
 
 
 class StreamInterface(BytesIO):

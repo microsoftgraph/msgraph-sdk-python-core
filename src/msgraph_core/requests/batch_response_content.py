@@ -8,6 +8,7 @@ from kiota_abstractions.serialization import ParseNodeFactory
 from kiota_abstractions.serialization import ParseNodeFactoryRegistry
 from kiota_abstractions.serialization import SerializationWriter
 
+from kiota_serialization_json.json_parse_node import JsonParseNode
 from .batch_response_item import BatchResponseItem
 
 T = TypeVar('T', bound='Parsable')
@@ -29,7 +30,7 @@ class BatchResponseContent(Parsable):
         :return: A dictionary of response IDs and their BatchResponseItem objects
         :rtype: Optional[Dict[str, BatchResponseItem]]
         """
-        return None if self._responses is None else self._responses
+        return self._responses or None
 
     @responses.setter
     def responses(self, responses: Optional[Dict[str, 'BatchResponseItem']]) -> None:
@@ -100,8 +101,8 @@ class BatchResponseContent(Parsable):
     def create_from_discriminator_value(
         parse_node: Optional[ParseNode] = None
     ) -> 'BatchResponseContent':
-        if parse_node is None:
-            raise ValueError("parse_node cannot be None")
+        # if parse_node is None:
+        #     raise ValueError("parse_node cannot be None")
         return BatchResponseContent()
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
@@ -111,13 +112,8 @@ class BatchResponseContent(Parsable):
         :rtype: Dict[str, Callable[[ParseNode], None]]
         """
         return {
-            # 'responses':
-            # lambda n: setattr(
-            #     self, "_responses",
-            #     n.get_collection_of_object_values(
-            #         BatchResponseItem.create_from_discriminator_value(parse_node=JsonParseNode())
-            #     )
-            # )
+            'responses':
+            lambda n: self.responses(n.get_collection_of_object_values(BatchResponseItem.create))
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
@@ -125,7 +121,7 @@ class BatchResponseContent(Parsable):
         Writes the objects properties to the current writer.
         :param writer: The writer to write to
         """
-        writer.write_collection_of_object_values('responses', self._responses.values())
+        writer.write_collection_of_object_values('responses', self._responses)
 
     @staticmethod
     def create_from_discriminator_value(

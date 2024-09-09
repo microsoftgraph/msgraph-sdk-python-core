@@ -135,10 +135,13 @@ class BatchResponseItem(Parsable):
     def create_from_discriminator_value(
         parse_node: Optional[ParseNode] = None
     ) -> 'BatchResponseItem':
-        if parse_node is None:
-            raise ValueError("parse_node cannot be None")
+        # if parse_node is None:
+        #     raise ValueError("parse_node cannot be None")
         return BatchResponseItem(
-            id=parse_node.get_str_value("id"), status=parse_node.get_int_value("status")
+            id=parse_node.get_str_value("id"),
+            status=parse_node.get_int_value("status"),
+            headers=parse_node.get_object_value(lambda n: n.get_str_value()),
+            body=parse_node.get_object_value(lambda n: n.get_object_value(lambda x: x))
         )
 
     def get_field_deserializers(self) -> Dict[str, Any]:

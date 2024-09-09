@@ -9,6 +9,7 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
+from kiota_serialization_json.json_parse_node import JsonParseNode
 
 from .batch_request_content import BatchRequestContent
 from .batch_request_content_collection import BatchRequestContentCollection
@@ -54,10 +55,11 @@ class BatchRequestBuilder:
         response = None
         try:
             response = await self._request_adapter.send_async(
-                request_info, parsable_factory, error_map
+                request_info, BatchResponseContent, error_map
             )
         except APIError as e:
             print(f"API Error: {e}")
+        print(f"Response before processing: {response}")
         return response
 
     async def to_post_request_information(

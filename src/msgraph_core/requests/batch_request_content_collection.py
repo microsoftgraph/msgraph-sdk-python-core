@@ -13,7 +13,8 @@ class BatchRequestContentCollection:
         """
         Initializes a new instance of the BatchRequestContentCollection class.
         Args:
-            batch_request_limit (int, optional): The maximum number of requests in a batch. Defaults to 20.
+            batch_request_limit (int, optional): The maximum 
+            number of requests in a batch. Defaults to 20.
         
         """
         self.batch_request_limit = batch_request_limit or BatchRequestContent.MAX_REQUESTS

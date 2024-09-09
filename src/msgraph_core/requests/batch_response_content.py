@@ -96,6 +96,14 @@ class BatchResponseContent(Parsable):
                 f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
 
+    @staticmethod
+    def create_from_discriminator_value(
+        parse_node: Optional[ParseNode] = None
+    ) -> 'BatchResponseContent':
+        if parse_node is None:
+            raise ValueError("parse_node cannot be None")
+        return BatchResponseContent()
+
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
         """ 
         Gets the deserialization information for this object.
@@ -103,10 +111,13 @@ class BatchResponseContent(Parsable):
         :rtype: Dict[str, Callable[[ParseNode], None]]
         """
         return {
-            'responses':
-            lambda n: setattr(
-                self, "_responses", n.get_collection_of_object_values(BatchResponseItem.create)
-            )
+            # 'responses':
+            # lambda n: setattr(
+            #     self, "_responses",
+            #     n.get_collection_of_object_values(
+            #         BatchResponseItem.create_from_discriminator_value(parse_node=JsonParseNode())
+            #     )
+            # )
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
@@ -117,12 +128,9 @@ class BatchResponseContent(Parsable):
         writer.write_collection_of_object_values('responses', self._responses.values())
 
     @staticmethod
-    def create_from_discriminator_value(parse_node: ParseNode) -> 'BatchResponseContent':
-        """
-        Creates a new instance of the appropriate class based on discriminator value
-        :param parse_node: The parse node to use to read the discriminator value and create the object
-        :type parse_node: ParseNode
-        :return: BatchResponseContent
-        :rtype: BatchResponseContent
-        """
+    def create_from_discriminator_value(
+        parse_node: Optional[ParseNode] = None
+    ) -> 'BatchResponseContent':
+        if parse_node is None:
+            raise ValueError("parse_node cannot be None")
         return BatchResponseContent()

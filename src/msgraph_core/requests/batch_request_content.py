@@ -1,8 +1,8 @@
 import uuid
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union, Any, Optional
 
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization import Parsable
+from kiota_abstractions.serialization import Parsable, ParseNode
 from kiota_abstractions.serialization import SerializationWriter
 
 from .batch_request_item import BatchRequestItem
@@ -83,9 +83,13 @@ class BatchRequestContent(Parsable):
         self.is_finalized = True
         return self._requests
 
-    @classmethod
-    def create_from_discriminator_value(cls, data: Dict[str, Any]) -> 'BatchResponseContent':
-        pass
+    @staticmethod
+    def create_from_discriminator_value(
+        parse_node: Optional[ParseNode] = None
+    ) -> 'BatchRequestContent':
+        if parse_node is None:
+            raise ValueError("parse_node cannot be None")
+        return BatchRequestContent()
 
     def get_field_deserializers(self, ) -> Dict:
         """

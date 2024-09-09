@@ -11,6 +11,7 @@ from kiota_abstractions.headers_collection import HeadersCollection as RequestHe
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import SerializationWriter
+from kiota_abstractions.serialization import ParseNode
 
 
 class StreamInterface(BytesIO):  # move to helpers or implement in abstractions
@@ -188,8 +189,19 @@ class BatchRequestItem(Parsable):
         """
         return self._depends_on
 
-    def to_dict(self):
-        return {"id": self.id, "status_code": self.status_code}
+    @staticmethod
+    def create_from_discriminator_value(
+        parse_node: Optional[ParseNode] = None
+    ) -> 'BatchRequestItem':
+        """
+        Creates a new instance of the appropriate class based
+        on discriminator value param parse_node: The parse node    
+        to use to read the discriminator value and create the object
+        Returns: BatchRequestItem
+        """
+        if not parse_node:
+            raise TypeError("parse_node cannot be null.")
+        return BatchRequestItem()
 
     def get_field_deserializers(self) -> Dict[str, Any]:
         """ 

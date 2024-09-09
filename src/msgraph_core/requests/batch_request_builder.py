@@ -32,7 +32,6 @@ class BatchRequestBuilder:
     async def post_content(
         self,
         batch_request_content: BatchRequestContent,
-        # error_map: Dict[str, int] = {}
     ) -> BatchResponseContent:
         """
         Sends a batch request and returns the batch response content.
@@ -47,13 +46,12 @@ class BatchRequestBuilder:
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
         request_info = await self.to_post_request_information(batch_request_content)
-        request_body = request_info.content.decode("utf-8")
-        json_body = json.loads(request_body)
+        content = json.loads(request_info.content.decode("utf-8"))
+        json_body = json.dumps(content)
         request_info.content = json_body
-        print(f"Request Info Content: {request_body}")
-        print(f"Request Info Content: {type(request_info.content)}")
         parsable_factory = BatchResponseContent()
         error_map: Dict[str, int] = {}
+        response = None
         try:
             response = await self._request_adapter.send_async(
                 request_info, parsable_factory, error_map
@@ -80,9 +78,11 @@ class BatchRequestBuilder:
         request_info = RequestInformation()
         request_info.http_method = Method.POST
         request_info.url_template = self.url_template
+        requests_dict = [item.get_field_deserializers() for item in batch_request_content.requests]
+        request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
+
         request_info.headers = HeadersCollection()
         request_info.headers.try_add("Content-Type", "application/json")
-        request_info.headers.try_add("Accept", "application/json")
         request_info.set_content_from_parsable(
             self._request_adapter, "application/json", batch_request_content
         )

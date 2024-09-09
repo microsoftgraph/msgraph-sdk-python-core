@@ -131,6 +131,16 @@ class BatchResponseItem(Parsable):
             return headers.get('content-type')
         return None
 
+    @staticmethod
+    def create_from_discriminator_value(
+        parse_node: Optional[ParseNode] = None
+    ) -> 'BatchResponseItem':
+        if parse_node is None:
+            raise ValueError("parse_node cannot be None")
+        return BatchResponseItem(
+            id=parse_node.get_str_value("id"), status=parse_node.get_int_value("status")
+        )
+
     def get_field_deserializers(self) -> Dict[str, Any]:
         """
         Gets the deserialization information for this object.

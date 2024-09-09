@@ -9,7 +9,6 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
-from kiota_serialization_json.json_parse_node import JsonParseNode
 
 from .batch_request_content import BatchRequestContent
 from .batch_request_content_collection import BatchRequestContentCollection

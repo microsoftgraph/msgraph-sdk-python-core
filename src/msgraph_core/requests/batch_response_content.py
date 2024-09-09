@@ -8,7 +8,6 @@ from kiota_abstractions.serialization import ParseNodeFactory
 from kiota_abstractions.serialization import ParseNodeFactoryRegistry
 from kiota_abstractions.serialization import SerializationWriter
 
-from kiota_serialization_json.json_parse_node import JsonParseNode
 from .batch_response_item import BatchResponseItem
 
 T = TypeVar('T', bound='Parsable')

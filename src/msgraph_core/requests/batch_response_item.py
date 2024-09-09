@@ -146,9 +146,8 @@ class BatchResponseItem(Parsable):
         return {
             "id": lambda x: setattr(self, "id", x.get_str_value()),
             "status": lambda x: setattr(self, "status", x.get_int_value()),
-            "headers":
-            lambda x: setattr(self, "headers", x.get_collection_of_primitive_values(str)),
-            "body": lambda x: setattr(self, "body", x.get_collection_of_primitive_values(str)),
+            "headers": lambda x: setattr(self, "headers", x.try_get_anything(x._json_node)),
+            "body": lambda x: setattr(self, "body", x.get_bytes_value()),
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

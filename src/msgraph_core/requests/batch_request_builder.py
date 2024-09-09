@@ -23,7 +23,7 @@ class BatchRequestBuilder:
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
         self._request_adapter = request_adapter
-        self.url_template = "f{self._request_adapter.base_url}/$batch"
+        self.url_template = "{}/$batch".format(self._request_adapter.base_url)
 
     async def post_content(
         self,

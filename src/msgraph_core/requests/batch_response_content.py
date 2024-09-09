@@ -1,10 +1,9 @@
-from typing import Optional, Dict, List, Any, Type, TypeVar, Callable
+from typing import Optional, Dict, List, Type, TypeVar, Callable
 from io import BytesIO
 import base64
 
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import ParseNode
-from kiota_abstractions.serialization import ParseNodeFactory
 from kiota_abstractions.serialization import ParseNodeFactoryRegistry
 from kiota_abstractions.serialization import SerializationWriter
 
@@ -18,7 +17,8 @@ class BatchResponseContent(Parsable):
     def __init__(self) -> None:
         """
         Initializes a new instance of the BatchResponseContent class.
-        BatchResponseContent is a collection of BatchResponseItem items, each with a unique request ID.
+        BatchResponseContent is a collection of BatchResponseItem items,
+         each with a unique request ID.
         """
         self._responses: Optional[List['BatchResponseItem']] = []
 

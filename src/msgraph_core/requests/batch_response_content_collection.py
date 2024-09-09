@@ -1,9 +1,7 @@
-from typing import List, Optional, Dict, Callable
+from typing import Optional, Dict, Callable
 
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import ParseNode
-from kiota_abstractions.serialization import ParseNodeFactory
-from kiota_abstractions.serialization import ParseNodeFactoryRegistry
 from kiota_abstractions.serialization import SerializationWriter
 
 from .batch_response_content import BatchResponseContent
@@ -33,7 +31,7 @@ class BatchResponseContentCollection(Parsable):
         if content is None:
             return
         for item in content:
-            self._responses.add_response(item)
+            self._responses.response = item
 
     async def get_response_by_id(self, request_id: str) -> Optional[BatchResponseItem]:
         """
@@ -81,7 +79,9 @@ class BatchResponseContentCollection(Parsable):
         return {
             'responses':
             lambda n: setattr(
-                self, "_responses", n.get_collection_of_object_values(BatchResponseItem.create)
+                self, "_responses",
+                n.
+                get_collection_of_object_values(BatchResponseItem.create_from_discriminator_value)
             )
         }
 
@@ -91,4 +91,4 @@ class BatchResponseContentCollection(Parsable):
         :param writer: The writer to write to.
         :type writer: SerializationWriter
         """
-        writer.write_collection_of_object_values('responses', self._responses.values())
+        writer.write_collection_of_object_values('responses', self._responses)

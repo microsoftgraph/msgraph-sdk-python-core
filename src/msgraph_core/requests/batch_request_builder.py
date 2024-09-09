@@ -31,7 +31,6 @@ class BatchRequestBuilder:
     async def post_content(
         self,
         batch_request_content: BatchRequestContent,
-        error_map: Dict[str, int] = {}
     ) -> BatchResponseContent:
         """
         Sends a batch request and returns the batch response content.

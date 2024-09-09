@@ -4,6 +4,7 @@ import json
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
+from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
 

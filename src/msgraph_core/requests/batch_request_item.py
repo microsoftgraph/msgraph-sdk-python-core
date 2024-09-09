@@ -239,10 +239,8 @@ class BatchRequestItem(Parsable):
         headers = {key: ", ".join(val) for key, val in self._headers.items()}
         writer.write_collection_of_object_values('headers', headers)
         if self._body:
-            print(f"Body: {self._body}")
             json_object = json.loads(self._body)
             is_json_string = json_object and isinstance(json_object, dict)
-            # self.body.seek(0)
             writer.write_collection_of_object_values(
                 'body',
                 json_object if is_json_string else base64.b64encode(self._body).decode('utf-8')

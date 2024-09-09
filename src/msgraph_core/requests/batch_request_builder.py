@@ -1,5 +1,6 @@
 from typing import TypeVar, Dict
 import json
+import logging
 
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
@@ -12,6 +13,8 @@ from .batch_request_content import BatchRequestContent
 from .batch_response_content import BatchResponseContent
 
 T = TypeVar('T', bound='Parsable')
+
+APPLICATION_JSON = "application/json"
 
 
 class BatchRequestBuilder:
@@ -28,13 +31,14 @@ class BatchRequestBuilder:
     async def post_content(
         self,
         batch_request_content: BatchRequestContent,
+        error_map: Dict[str, int] = {}
     ) -> BatchResponseContent:
         """
         Sends a batch request and returns the batch response content.
         
         Args:
             batch_request_content (BatchRequestContent): The batch request content.
-            error_map (Optional[Dict[str, ParsableFactory[Parsable]]]): 
+            error_map: Dict[str, int] = {}: 
                 Error mappings for response handling.
 
         Returns:
@@ -53,10 +57,10 @@ class BatchRequestBuilder:
                 request_info, BatchResponseContent, error_map
             )
         except APIError as e:
-            print(f"API Error: {e}")
+            logging.error(f"API Error: {e}")
+            raise e
         if response is None:
             raise ValueError("Failed to get a valid response from the API.")
-        print(f"Response before processing: {response}")
         return response
 
     async def to_post_request_information(
@@ -77,13 +81,14 @@ class BatchRequestBuilder:
         request_info = RequestInformation()
         request_info.http_method = Method.POST
         request_info.url_template = self.url_template
+
         requests_dict = [item.get_field_deserializers() for item in batch_request_content.requests]
         request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
 
         request_info.headers = HeadersCollection()
-        request_info.headers.try_add("Content-Type", "application/json")
+        request_info.headers.try_add("Content-Type", APPLICATION_JSON)
         request_info.set_content_from_parsable(
-            self._request_adapter, "application/json", batch_request_content
+            self._request_adapter, APPLICATION_JSON, batch_request_content
         )
 
         return request_info

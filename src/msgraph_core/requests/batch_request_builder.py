@@ -1,19 +1,14 @@
-from typing import Type, TypeVar, Dict, Optional, Any
-import asyncio
+from typing import TypeVar, Dict
 import json
 
 from kiota_abstractions.request_adapter import RequestAdapter
-from kiota_abstractions.serialization import ParsableFactory
-from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
 
 from .batch_request_content import BatchRequestContent
-from .batch_request_content_collection import BatchRequestContentCollection
 from .batch_response_content import BatchResponseContent
-from .batch_response_content_collection import BatchResponseContentCollection
 
 T = TypeVar('T', bound='Parsable')
 
@@ -27,7 +22,7 @@ class BatchRequestBuilder:
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
         self._request_adapter = request_adapter
-        self.url_template = "{}/$batch".format(self._request_adapter.base_url)
+        self.url_template = "f{self._request_adapter.base_url}/$batch"
 
     async def post_content(
         self,
@@ -38,7 +33,8 @@ class BatchRequestBuilder:
         
         Args:
             batch_request_content (BatchRequestContent): The batch request content.
-            error_map (Optional[Dict[str, ParsableFactory[Parsable]]]): Error mappings for response handling.
+            error_map (Optional[Dict[str, ParsableFactory[Parsable]]]): 
+                Error mappings for response handling.
 
         Returns:
             BatchResponseContent: The batch response content.
@@ -49,7 +45,6 @@ class BatchRequestBuilder:
         content = json.loads(request_info.content.decode("utf-8"))
         json_body = json.dumps(content)
         request_info.content = json_body
-        parsable_factory = BatchResponseContent()
         error_map: Dict[str, int] = {}
         response = None
         try:

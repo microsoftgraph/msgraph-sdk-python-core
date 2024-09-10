@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Optional
 import json
 import logging
 
@@ -22,15 +22,17 @@ class BatchRequestBuilder:
     Provides operations to call the batch method.
     """
 
-    def __init__(self, request_adapter: RequestAdapter):
+    def __init__(self, request_adapter: RequestAdapter, error_map: Optional[Dict[str, int]] = None):
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
         self._request_adapter = request_adapter
         self.url_template = f"{self._request_adapter.base_url}/$batch"
+        self.error_map = error_map or {}
 
     async def post_content(
         self,
         batch_request_content: BatchRequestContent,
+        error_map: Optional[Dict[str, int]] = None,
     ) -> BatchResponseContent:
         """
         Sends a batch request and returns the batch response content.
@@ -49,7 +51,7 @@ class BatchRequestBuilder:
         content = json.loads(request_info.content.decode("utf-8"))
         json_body = json.dumps(content)
         request_info.content = json_body
-        error_map: Dict[str, int] = {}
+        error_map = error_map or self.error_map
         response = None
         try:
             response = await self._request_adapter.send_async(

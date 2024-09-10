@@ -20,36 +20,24 @@ class BatchResponseContentCollection(Parsable):
         body: Optional[StreamInterface] = None
 
         """
-        self._responses: BatchResponseContent = BatchResponseContent()
+        self._responses = []
 
-    def add_response(self, content: Optional[BatchResponseItem] = None) -> None:
+    def add_response(self, keys, response) -> None:
         """ 
-        Add a response to the collection
-        :param content: The response to add to the collection
-        :type content: Optional[BatchResponseItem]
+        Adds a response to the collection.
+        Args:
+            keys: The keys of the response to add.
+            response: The response to add.
         """
-        if content is None:
-            return
-        for item in content:
-            self._responses.responses = content
+        self._responses.append((keys, response))
 
-    async def get_response_by_id(self, request_id: str) -> Optional[BatchResponseItem]:
+    def get_responses(self):
+        """ 
+        Gets the responses in the collection.
+        Returns:
+            List[Tuple[str, BatchResponseContent]]: The responses in the collection.
         """
-        Get a response by its request ID from the collection        
-        :param request_id: The request ID of the response to get
-        :type request_id: str
-        :return: The response with the specified request ID as a BatchResponseItem
-        :rtype: Optional[BatchResponseItem]
-        """
-        if not self._responses:
-            raise ValueError("No responses found in the collection")
-        if isinstance(self._responses, BatchResponseContent):
-            if self._responses.responses is None:
-                raise ValueError("No responses found in the collection")
-            for response in self._responses.responses:
-                if isinstance(response, BatchResponseItem) and response.id == request_id:
-                    return response
-        raise TypeError("Invalid type: Collection must be of type BatchResponseContent")
+        return self._responses
 
     @property
     async def responses_status_codes(self) -> Dict[str, int]:

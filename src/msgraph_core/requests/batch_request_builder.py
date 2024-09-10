@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict, Optional
+from typing import TypeVar, Dict, Optional, Union, List
 import json
 import logging
 
@@ -10,7 +10,9 @@ from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
 
 from .batch_request_content import BatchRequestContent
+from .batch_request_content_collection import BatchRequestContentCollection
 from .batch_response_content import BatchResponseContent
+from .batch_response_content_collection import BatchResponseContentCollection
 
 T = TypeVar('T', bound='Parsable')
 
@@ -31,7 +33,7 @@ class BatchRequestBuilder:
 
     async def post(
         self,
-        batch_request_content: BatchRequestContent,
+        batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
         error_map: Optional[Dict[str, int]] = None,
     ) -> BatchResponseContent:
         """
@@ -47,12 +49,74 @@ class BatchRequestBuilder:
         """
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
-        request_info = await self.to_post_request_information(batch_request_content)
+        if isinstance(batch_request_content, BatchRequestContent):
+            request_info = await self.to_post_request_information(batch_request_content)
+            content = json.loads(request_info.content.decode("utf-8"))
+            json_body = json.dumps(content)
+            request_info.content = json_body
+            error_map = error_map or self.error_map
+            response = None
+            try:
+                response = await self._request_adapter.send_async(
+                    request_info, BatchResponseContent, error_map
+                )
+            except APIError as e:
+                logging.error(f"API Error: {e}")
+                raise e
+            if response is None:
+                raise ValueError("Failed to get a valid response from the API.")
+            return response
+        if isinstance(batch_request_content, BatchRequestContentCollection):
+            request_info = await self.to_post_request_information_from_collection(
+                batch_request_content
+            )
+
+            content = json.loads(request_info.content.decode("utf-8"))
+            json_body = json.dumps(content)
+            request_info.content = json_body
+            error_map = error_map or self.error_map
+            response = None
+            try:
+                response = await self._request_adapter.send_async(
+                    request_info, BatchResponseContent, error_map
+                )
+            except APIError as e:
+                logging.error(f"API Error: {e}")
+                raise e
+            if response is None:
+                raise ValueError("Failed to get a valid response from the API.")
+            return response
+
+    async def post_content(
+        self,
+        batch_request_content: BatchRequestContentCollection,
+        error_map: Optional[Dict[str, int]] = None,
+    ) -> BatchResponseContentCollection:
+        if batch_request_content is None:
+            raise ValueError("batch_request_content cannot be Null.")
+
+        # Determine the type of batch_request_content and call the appropriate method
+        if isinstance(batch_request_content, BatchRequestContent):
+            request_info = await self.to_post_request_information(batch_request_content)
+        elif isinstance(batch_request_content, BatchRequestContentCollection):
+            request_info = await self.to_post_request_information_from_collection(
+                batch_request_content
+            )
+            batch_responses = await self.post_batch_collection(batch_request_content)
+            return batch_responses
+        else:
+            raise ValueError("Invalid type for batch_request_content.")
+
+        print(f"request info to be posted {request_info}")
+
+        # Decode and re-encode the content to ensure it is in the correct format
         content = json.loads(request_info.content.decode("utf-8"))
         json_body = json.dumps(content)
-        request_info.content = json_body
+        request_info.content = json_body.encode("utf-8")
+
         error_map = error_map or self.error_map
         response = None
+
         try:
             response = await self._request_adapter.send_async(
                 request_info, BatchResponseContent, error_map
@@ -60,13 +124,46 @@ class BatchRequestBuilder:
         except APIError as e:
             logging.error(f"API Error: {e}")
             raise e
+
         if response is None:
             raise ValueError("Failed to get a valid response from the API.")
+
         return response
 
-    async def to_post_request_information(
+    async def post_batch_collection(
         self,
-        batch_request_content: BatchRequestContent,
+        batch_request_content_collection: BatchRequestContentCollection,
+        error_map: Optional[Dict[str, int]] = None,
+    ) -> BatchResponseContentCollection:
+        """
+        Sends a collection of batch requests and returns a collection of batch response contents.
+        
+        Args:
+            batch_request_content_collection (BatchRequestContentCollection): The collection of batch request contents.
+            error_map: Dict[str, int] = {}: 
+                Error mappings for response handling.
+
+        Returns:
+            BatchResponseContentCollection: The collection of batch response contents.
+        """
+        if batch_request_content_collection is None:
+            raise ValueError("batch_request_content_collection cannot be Null.")
+
+        batch_responses = BatchResponseContentCollection()
+
+        for batch_request_content in batch_request_content_collection.batches:
+            request_info = await self.to_post_request_information(batch_request_content)
+            print(f"request_info content before call {request_info.content}")
+            # response = await self._request_adapter.send_async(
+            #     request_info, BatchResponseContent, error_map
+            # )
+            #  = await self.post_content(batch_request_content, error_map)
+            # batch_responses.add_response(batch_request_content.requests.keys(), response)
+
+        return batch_responses
+
+    async def to_post_request_information(
+        self, batch_request_content: BatchRequestContent
     ) -> RequestInformation:
         """
         Creates request information for a batch POST request.
@@ -79,12 +176,51 @@ class BatchRequestBuilder:
         """
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
+        if isinstance(batch_request_content, BatchRequestContent):
+            request_info = RequestInformation()
+            request_info.http_method = Method.POST
+            request_info.url_template = self.url_template
+
+            requests_dict = [
+                item.get_field_deserializers() for item in batch_request_content.requests
+            ]
+            request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
+
+            request_info.headers = HeadersCollection()
+            request_info.headers.try_add("Content-Type", APPLICATION_JSON)
+            request_info.set_content_from_parsable(
+                self._request_adapter, APPLICATION_JSON, batch_request_content
+            )
+
+            return request_info
+
+    async def to_post_request_information_from_collection(
+        self, batch_request_content: BatchRequestContentCollection
+    ) -> RequestInformation:
+        """
+        Creates request information for a batch POST request from a collection.
+        
+        Args:
+            batch_request_content (BatchRequestContentCollection): The batch request content collection.
+
+        Returns:
+            RequestInformation: The request information.
+        """
+        if batch_request_content is None:
+            raise ValueError("batch_request_content cannot be Null.")
+
         request_info = RequestInformation()
         request_info.http_method = Method.POST
         request_info.url_template = self.url_template
 
-        requests_dict = [item.get_field_deserializers() for item in batch_request_content.requests]
-        request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
+        all_requests = []
+        for batch_content in batch_request_content.batches:
+            print(f"batch_content {batch_content}")
+            requests_dict = [item.get_field_deserializers() for item in batch_content.requests]
+            all_requests.extend(requests_dict)
+
+        request_info.content = json.dumps({"requests": all_requests}).encode("utf-8")
+        print(f"All requests {request_info.content}")
 
         request_info.headers = HeadersCollection()
         request_info.headers.try_add("Content-Type", APPLICATION_JSON)

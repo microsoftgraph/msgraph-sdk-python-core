@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization import SerializationWriter
 
 from .batch_request_content import BatchRequestContent
 from .batch_request_item import BatchRequestItem
@@ -9,15 +10,13 @@ from .batch_request_item import BatchRequestItem
 class BatchRequestContentCollection:
     """A collection of request content objects."""
 
-    def __init__(self, batch_request_limit: int = 20):
+    def __init__(self) -> None:
         """
         Initializes a new instance of the BatchRequestContentCollection class.
         Args:
-            batch_request_limit (int, optional): The maximum 
             number of requests in a batch. Defaults to 20.
         
         """
-        self.batch_request_limit = batch_request_limit or BatchRequestContent.MAX_REQUESTS
         self.batches: List[BatchRequestContent] = []
         self.current_batch: BatchRequestContent = BatchRequestContent()
 
@@ -76,7 +75,17 @@ class BatchRequestContentCollection:
         Returns:
             List[BatchRequestContent]: The batch requests for execution.
         """
-        if not self.current_batch.is_finalized:
-            self.current_batch.finalize()
-            self.batches.append(self.current_batch)
+        # if not self.current_batch.is_finalized:
+        #     self.current_batch.finalize()
+        #     self.batches.append(self.current_batch)
         return self.batches
+
+    def serialize(self, writer: SerializationWriter) -> None:
+        """
+        Serializes information the current object
+        Args:
+            writer: Serialization writer to use to serialize this model
+        """
+        pass
+        # print(f"serializing {self.batches}")
+        # writer.write_collection_of_object_values("requests", self.batches)

@@ -29,7 +29,7 @@ class BatchRequestBuilder:
         self.url_template = f"{self._request_adapter.base_url}/$batch"
         self.error_map = error_map or {}
 
-    async def post_content(
+    async def post(
         self,
         batch_request_content: BatchRequestContent,
         error_map: Optional[Dict[str, int]] = None,

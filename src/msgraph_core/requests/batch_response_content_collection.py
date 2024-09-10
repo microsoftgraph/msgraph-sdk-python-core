@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Callable
+from typing import Optional, Dict, Callable, List
 
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import ParseNode
@@ -20,16 +20,16 @@ class BatchResponseContentCollection(Parsable):
         body: Optional[StreamInterface] = None
 
         """
-        self._responses = []
+        self._responses: List[BatchResponseContent] = []
 
-    def add_response(self, keys, response) -> None:
+    def add_response(self, response: BatchResponseContent) -> None:
         """ 
         Adds a response to the collection.
         Args:
             keys: The keys of the response to add.
             response: The response to add.
         """
-        self._responses.append((keys, response))
+        self._responses.append(response)
 
     def get_responses(self):
         """ 

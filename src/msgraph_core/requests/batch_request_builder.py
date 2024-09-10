@@ -107,8 +107,6 @@ class BatchRequestBuilder:
         else:
             raise ValueError("Invalid type for batch_request_content.")
 
-        print(f"request info to be posted {request_info}")
-
         # Decode and re-encode the content to ensure it is in the correct format
         content = json.loads(request_info.content.decode("utf-8"))
         json_body = json.dumps(content)
@@ -153,12 +151,10 @@ class BatchRequestBuilder:
 
         for batch_request_content in batch_request_content_collection.batches:
             request_info = await self.to_post_request_information(batch_request_content)
-            print(f"request_info content before call {request_info.content}")
-            # response = await self._request_adapter.send_async(
-            #     request_info, BatchResponseContent, error_map
-            # )
-            #  = await self.post_content(batch_request_content, error_map)
-            # batch_responses.add_response(batch_request_content.requests.keys(), response)
+            response = await self._request_adapter.send_async(
+                request_info, BatchResponseContent, error_map
+            )
+            batch_responses.add_response(response)
 
         return batch_responses
 
@@ -215,12 +211,10 @@ class BatchRequestBuilder:
 
         all_requests = []
         for batch_content in batch_request_content.batches:
-            print(f"batch_content {batch_content}")
             requests_dict = [item.get_field_deserializers() for item in batch_content.requests]
             all_requests.extend(requests_dict)
 
         request_info.content = json.dumps({"requests": all_requests}).encode("utf-8")
-        print(f"All requests {request_info.content}")
 
         request_info.headers = HeadersCollection()
         request_info.headers.try_add("Content-Type", APPLICATION_JSON)

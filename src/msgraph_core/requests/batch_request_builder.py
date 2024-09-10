@@ -61,72 +61,17 @@ class BatchRequestBuilder:
                     request_info, BatchResponseContent, error_map
                 )
             except APIError as e:
-                logging.error(f"API Error: {e}")
+                logging.error("API Error: %s", e)
                 raise e
             if response is None:
                 raise ValueError("Failed to get a valid response from the API.")
             return response
-        if isinstance(batch_request_content, BatchRequestContentCollection):
-            request_info = await self.to_post_request_information_from_collection(
-                batch_request_content
-            )
-
-            content = json.loads(request_info.content.decode("utf-8"))
-            json_body = json.dumps(content)
-            request_info.content = json_body
-            error_map = error_map or self.error_map
-            response = None
-            try:
-                response = await self._request_adapter.send_async(
-                    request_info, BatchResponseContent, error_map
-                )
-            except APIError as e:
-                logging.error(f"API Error: {e}")
-                raise e
-            if response is None:
-                raise ValueError("Failed to get a valid response from the API.")
-            return response
-
-    async def post_content(
-        self,
-        batch_request_content: BatchRequestContentCollection,
-        error_map: Optional[Dict[str, int]] = None,
-    ) -> BatchResponseContentCollection:
-        if batch_request_content is None:
-            raise ValueError("batch_request_content cannot be Null.")
-
-        # Determine the type of batch_request_content and call the appropriate method
-        if isinstance(batch_request_content, BatchRequestContent):
-            request_info = await self.to_post_request_information(batch_request_content)
         elif isinstance(batch_request_content, BatchRequestContentCollection):
-            request_info = await self.to_post_request_information_from_collection(
-                batch_request_content
-            )
-            batch_responses = await self.post_batch_collection(batch_request_content)
+            batch_responses = await self.post_batch_collection(batch_request_content, error_map)
             return batch_responses
+
         else:
             raise ValueError("Invalid type for batch_request_content.")
-
-        # Decode and re-encode the content to ensure it is in the correct format
-        content = json.loads(request_info.content.decode("utf-8"))
-        json_body = json.dumps(content)
-        request_info.content = json_body.encode("utf-8")
-
-        error_map = error_map or self.error_map
-        response = None
-
-        try:
-            response = await self._request_adapter.send_async(
-                request_info, BatchResponseContent, error_map
-            )
-        except APIError as e:
-            logging.error(f"API Error: {e}")
-            raise e
-
-        if response is None:
-            raise ValueError("Failed to get a valid response from the API.")
-
-        return response
 
     async def post_batch_collection(
         self,
@@ -137,7 +82,8 @@ class BatchRequestBuilder:
         Sends a collection of batch requests and returns a collection of batch response contents.
         
         Args:
-            batch_request_content_collection (BatchRequestContentCollection): The collection of batch request contents.
+            batch_request_content_collection (BatchRequestContentCollection): The 
+            collection of batch request contents.
             error_map: Dict[str, int] = {}: 
                 Error mappings for response handling.
 
@@ -189,37 +135,3 @@ class BatchRequestBuilder:
             )
 
             return request_info
-
-    async def to_post_request_information_from_collection(
-        self, batch_request_content: BatchRequestContentCollection
-    ) -> RequestInformation:
-        """
-        Creates request information for a batch POST request from a collection.
-        
-        Args:
-            batch_request_content (BatchRequestContentCollection): The batch request content collection.
-
-        Returns:
-            RequestInformation: The request information.
-        """
-        if batch_request_content is None:
-            raise ValueError("batch_request_content cannot be Null.")
-
-        request_info = RequestInformation()
-        request_info.http_method = Method.POST
-        request_info.url_template = self.url_template
-
-        all_requests = []
-        for batch_content in batch_request_content.batches:
-            requests_dict = [item.get_field_deserializers() for item in batch_content.requests]
-            all_requests.extend(requests_dict)
-
-        request_info.content = json.dumps({"requests": all_requests}).encode("utf-8")
-
-        request_info.headers = HeadersCollection()
-        request_info.headers.try_add("Content-Type", APPLICATION_JSON)
-        request_info.set_content_from_parsable(
-            self._request_adapter, APPLICATION_JSON, batch_request_content
-        )
-
-        return request_info

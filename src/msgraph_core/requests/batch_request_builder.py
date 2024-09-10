@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict, Optional, Union, List
+from typing import TypeVar, Dict, Optional, Union
 import json
 import logging
 
@@ -70,8 +70,7 @@ class BatchRequestBuilder:
             batch_responses = await self.post_batch_collection(batch_request_content, error_map)
             return batch_responses
 
-        else:
-            raise ValueError("Invalid type for batch_request_content.")
+        raise ValueError("Invalid type for batch_request_content.")
 
     async def post_batch_collection(
         self,

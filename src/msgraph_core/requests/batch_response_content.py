@@ -58,13 +58,13 @@ class BatchResponseContent(Parsable):
                 return response
         raise KeyError(f"Response with request ID {request_id} not found.")
 
-    def get_response_by_id(self, request_id: str) -> 'BatchResponseItem':
-        if self._responses is None:
-            raise ValueError("Responses list is not initialized.")
-        for response in self._responses:
-            if response.request_id == request_id:
-                return response
-        raise KeyError(f"Response with request ID {request_id} not found.")
+    # def get_response_by_id(self, request_id: str) -> 'BatchResponseItem':
+    #     if self._responses is None:
+    #         raise ValueError("Responses list is not initialized.")
+    #     for response in self._responses:
+    #         if response.request_id == request_id:
+    #             return response
+    #     raise KeyError(f"Response with request ID {request_id} not found.")
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 
@@ -82,7 +82,7 @@ class BatchResponseContent(Parsable):
         if not issubclass(type, Parsable):
             raise ValueError("Type passed must implement the Parsable interface")
 
-        response = self.get_response_by_id(request_id)
+        response = self.response(request_id)
         content_type = response.content_type
         if not content_type:
             raise RuntimeError("Unable to get content-type header in response item")

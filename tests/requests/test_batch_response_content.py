@@ -28,13 +28,6 @@ def test_response_method(batch_response_content):
     assert batch_response_content.response("12345") == response_item
 
 
-def test_get_response_by_id_method(batch_response_content):
-    response_item = Mock(spec=BatchResponseItem)
-    response_item.request_id = "12345"
-    batch_response_content.responses = [response_item]
-    assert batch_response_content.get_response_by_id("12345") == response_item
-
-
 def test_response_body_method(batch_response_content):
     response_item = Mock(spec=BatchResponseItem)
     response_item.request_id = "12345"

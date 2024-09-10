@@ -63,7 +63,7 @@ class BatchRequestContentCollection:
         batch_with_failed_responses: Optional[BatchRequestContent] = BatchRequestContent()
         for batch in self.batches:
             for request in batch.requests:
-                if request.status_code != 200:
+                if request.status_code not in [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]:
                     if batch_with_failed_responses is not None:
                         batch_with_failed_responses.add_request(request)
                     else:

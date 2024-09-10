@@ -66,7 +66,7 @@ class BatchRequestBuilder:
             if response is None:
                 raise ValueError("Failed to get a valid response from the API.")
             return response
-        elif isinstance(batch_request_content, BatchRequestContentCollection):
+        if isinstance(batch_request_content, BatchRequestContentCollection):
             batch_responses = await self.post_batch_collection(batch_request_content, error_map)
             return batch_responses
 

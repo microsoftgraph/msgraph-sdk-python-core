@@ -24,7 +24,11 @@ class BatchRequestBuilder:
     Provides operations to call the batch method.
     """
 
-    def __init__(self, request_adapter: RequestAdapter, error_map: Optional[Dict[str, int]] = None):
+    def __init__(
+        self,
+        request_adapter: RequestAdapter,
+        error_map: Optional[Dict[str, Type[Parsable]]] = None
+    ):
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
         self._request_adapter = request_adapter
@@ -35,7 +39,7 @@ class BatchRequestBuilder:
         self,
         batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
         response_type: Optional[Type[T]] = None,
-        error_map: Optional[Dict[str, int]] = None,
+        error_map: Optional[Dict[str, Type[Parsable]]] = None,
     ) -> Union[T, BatchResponseContentCollection]:
         """
         Sends a batch request and returns the batch response content.
@@ -44,7 +48,7 @@ class BatchRequestBuilder:
             batch_request_content (Union[BatchRequestContent, 
             BatchRequestContentCollection]): The batch request content.
             response_type: Optional[Type[T]] : The type to deserialize the response into.
-            error_map: Dict[str, int] = {}: 
+            Optional[Dict[str, Type[Parsable]]] = None: 
                 Error mappings for response handling.
 
         Returns:
@@ -83,7 +87,7 @@ class BatchRequestBuilder:
     async def post_batch_collection(
         self,
         batch_request_content_collection: BatchRequestContentCollection,
-        error_map: Optional[Dict[str, int]] = None,
+        error_map: Optional[Dict[str, Type[Parsable]]] = None,
     ) -> BatchResponseContentCollection:
         """
         Sends a collection of batch requests and returns a collection of batch response contents.
@@ -91,7 +95,7 @@ class BatchRequestBuilder:
         Args:
             batch_request_content_collection (BatchRequestContentCollection): The 
             collection of batch request contents.
-            error_map: Dict[str, int] = {}: 
+            Optional[Dict[str, Type[Parsable]]] = None: 
                 Error mappings for response handling.
 
         Returns:
@@ -105,7 +109,7 @@ class BatchRequestBuilder:
         for batch_request_content in batch_request_content_collection.batches:
             request_info = await self.to_post_request_information(batch_request_content)
             response = await self._request_adapter.send_async(
-                request_info, BatchResponseContent, error_map
+                request_info, BatchResponseContent, error_map or self.error_map
             )
             batch_responses.add_response(response)
 

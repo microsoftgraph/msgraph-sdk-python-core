@@ -63,9 +63,9 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
-            content = json.loads(request_info.content.decode("utf-8"))
-            json_body = json.dumps(content)
-            request_info.content = json_body
+            # content = json.loads(request_info.content.decode("utf-8"))
+            # json_body = json.dumps(content)
+            # request_info.content = json_body
             error_map = error_map or self.error_map
             response = None
             try:
@@ -138,7 +138,6 @@ class BatchRequestBuilder:
                 item.get_field_deserializers() for item in batch_request_content.requests
             ]
             request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
-
             request_info.headers = HeadersCollection()
             request_info.headers.try_add("Content-Type", APPLICATION_JSON)
             request_info.set_content_from_parsable(

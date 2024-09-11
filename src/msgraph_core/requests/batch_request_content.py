@@ -13,7 +13,7 @@ class BatchRequestContent(Parsable):
     Provides operations to call the batch method.
     """
 
-    MAX_REQUESTS = 5
+    MAX_REQUESTS = 20
 
     def __init__(self, requests: List[Union['BatchRequestItem', 'RequestInformation']] = []):
         """

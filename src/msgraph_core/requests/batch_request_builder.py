@@ -34,21 +34,29 @@ class BatchRequestBuilder:
     async def post(
         self,
         batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
+        response_type: Optional[T] = None,
         error_map: Optional[Dict[str, int]] = None,
-    ) -> BatchResponseContent:
+    ) -> Union[T, BatchResponseContentCollection]:
         """
         Sends a batch request and returns the batch response content.
         
         Args:
-            batch_request_content (BatchRequestContent): The batch request content.
+            batch_request_content (Union[BatchRequestContent, 
+            BatchRequestContentCollection]): The batch request content.
+            response_type (Optional[T]): The type to deserialize the response into.
             error_map: Dict[str, int] = {}: 
                 Error mappings for response handling.
 
         Returns:
-            BatchResponseContent: The batch response content.
+            Union[T, BatchResponseContentCollection]: The batch response content
+             or the specified response type.
+
         """
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
+        if response_type is None:
+            response_type = BatchResponseContent
+
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
             content = json.loads(request_info.content.decode("utf-8"))
@@ -58,7 +66,7 @@ class BatchRequestBuilder:
             response = None
             try:
                 response = await self._request_adapter.send_async(
-                    request_info, BatchResponseContent, error_map
+                    request_info, response_type, error_map
                 )
             except APIError as e:
                 logging.error("API Error: %s", e)

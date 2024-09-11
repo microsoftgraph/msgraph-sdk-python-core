@@ -133,11 +133,6 @@ class BatchRequestBuilder:
             request_info = RequestInformation()
             request_info.http_method = Method.POST
             request_info.url_template = self.url_template
-
-            requests_dict = [
-                item.get_field_deserializers() for item in batch_request_content.requests
-            ]
-            request_info.content = json.dumps({"requests": requests_dict}).encode("utf-8")
             request_info.headers = HeadersCollection()
             request_info.headers.try_add("Content-Type", APPLICATION_JSON)
             request_info.set_content_from_parsable(

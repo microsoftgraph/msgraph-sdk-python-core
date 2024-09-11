@@ -1,4 +1,4 @@
-from typing import TypeVar, Dict, Optional, Union
+from typing import TypeVar, Type, Dict, Optional, Union
 import json
 import logging
 
@@ -34,7 +34,7 @@ class BatchRequestBuilder:
     async def post(
         self,
         batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
-        response_type: Optional[T] = None,
+        response_type: Optional[Type[T]] = None,
         error_map: Optional[Dict[str, int]] = None,
     ) -> Union[T, BatchResponseContentCollection]:
         """
@@ -43,7 +43,7 @@ class BatchRequestBuilder:
         Args:
             batch_request_content (Union[BatchRequestContent, 
             BatchRequestContentCollection]): The batch request content.
-            response_type (Optional[T]): The type to deserialize the response into.
+            response_type: Optional[Type[T]] : The type to deserialize the response into.
             error_map: Dict[str, int] = {}: 
                 Error mappings for response handling.
 

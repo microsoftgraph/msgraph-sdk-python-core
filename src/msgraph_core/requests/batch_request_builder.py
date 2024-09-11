@@ -79,12 +79,12 @@ class BatchRequestBuilder:
                 raise ValueError("Failed to get a valid response from the API.")
             return response
         if isinstance(batch_request_content, BatchRequestContentCollection):
-            batch_responses = await self.post_batch_collection(batch_request_content, error_map)
+            batch_responses = await self._post_batch_collection(batch_request_content, error_map)
             return batch_responses
 
         raise ValueError("Invalid type for batch_request_content.")
 
-    async def post_batch_collection(
+    async def _post_batch_collection(
         self,
         batch_request_content_collection: BatchRequestContentCollection,
         error_map: Optional[Dict[str, Type[Parsable]]] = None,

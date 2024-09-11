@@ -13,8 +13,7 @@ class BatchRequestContentCollection:
     def __init__(self) -> None:
         """
         Initializes a new instance of the BatchRequestContentCollection class.
-        Args:
-            number of requests in a batch. Defaults to 20.
+         
         
         """
         self.batches: List[BatchRequestContent] = []

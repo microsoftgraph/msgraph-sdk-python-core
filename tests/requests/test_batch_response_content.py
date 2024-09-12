@@ -12,7 +12,8 @@ def batch_response_content():
 
 
 def test_initialization(batch_response_content):
-    assert batch_response_content.responses == []
+    assert batch_response_content.responses == {}
+    assert isinstance(batch_response_content._responses, dict)
 
 
 def test_responses_property(batch_response_content):
@@ -24,7 +25,7 @@ def test_responses_property(batch_response_content):
 def test_response_method(batch_response_content):
     response_item = Mock(spec=BatchResponseItem)
     response_item.request_id = "12345"
-    batch_response_content.responses = [response_item]
+    batch_response_content.responses = {"12345": response_item}
     assert batch_response_content.response("12345") == response_item
 
 
@@ -53,7 +54,7 @@ def test_get_field_deserializers(batch_response_content):
 def test_serialize(batch_response_content):
     writer = Mock(spec=SerializationWriter)
     response_item = Mock(spec=BatchResponseItem)
-    batch_response_content.responses = [response_item]
+    batch_response_content.responses = {"12345": response_item}
     batch_response_content.serialize(writer)
     writer.write_collection_of_object_values.assert_called_once_with('responses', [response_item])
 

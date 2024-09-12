@@ -47,6 +47,12 @@ class BatchRequestContent(Parsable):
             raise RuntimeError(f"Maximum number of requests is {BatchRequestContent.MAX_REQUESTS}")
         if not request.id:
             request.id = str(uuid.uuid4())
+        if hasattr(request, 'depends_on') and request.depends_on:
+            for dependent_id in request.depends_on:
+                if dependent_id not in [req.id for req in self.requests]:
+                    dependent_request = self.requests.request(dependent_id)
+                    if dependent_request:
+                        self._requests.append(dependent_request)
         self._requests.append(request)
 
     def add_request_information(self, request_information: RequestInformation) -> None:

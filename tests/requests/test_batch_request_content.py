@@ -55,8 +55,8 @@ def test_initialization(batch_request_content, batch_request_item1, batch_reques
 def test_requests_property(batch_request_content, batch_request_item1, batch_request_item2):
     new_request_item = batch_request_item1
     batch_request_content.requests = [batch_request_item1, batch_request_item2, new_request_item]
-    assert len(batch_request_content.requests) == 5
-    assert batch_request_content.requests[2] == new_request_item
+    assert len(batch_request_content.requests) == 2
+    assert batch_request_content.requests[0] == new_request_item
 
 
 def test_add_request(batch_request_content, batch_request_item1):

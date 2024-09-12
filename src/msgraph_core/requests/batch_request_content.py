@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Dict, Union, Any, Optional
+from typing import List, Dict, Union, Optional
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable, ParseNode
@@ -19,15 +19,18 @@ class BatchRequestContent(Parsable):
         """
         Initializes a new instance of the BatchRequestContent class.
         """
-        self._requests: List[Union[BatchRequestItem, 'RequestInformation']] = requests or []
+        self._requests: Dict[str, Union[BatchRequestItem, 'RequestInformation']] = {}
+
         self.is_finalized = False
+        for request in requests:
+            self.add_request(request)
 
     @property
     def requests(self) -> List:
         """
         Gets  the requests.
         """
-        return self._requests
+        return list(self._requests.values())
 
     @requests.setter
     def requests(self, requests: List[BatchRequestItem]) -> None:
@@ -52,8 +55,8 @@ class BatchRequestContent(Parsable):
                 if dependent_id not in [req.id for req in self.requests]:
                     dependent_request = self._request_by_id(dependent_id)
                     if dependent_request:
-                        self._requests.append(dependent_request)
-        self._requests.append(request)
+                        self._requests[dependent_id] = dependent_request
+        self._requests[request.id] = request
 
     def add_request_information(self, request_information: RequestInformation) -> None:
         """ 
@@ -83,7 +86,7 @@ class BatchRequestContent(Parsable):
                 if request_id in request.depends_on:
                     request.depends_on.remove(request_id)
         if request_to_remove:
-            self._requests.remove(request_to_remove)
+            del self._requests[request_to_remove.id]
         else:
             raise ValueError(f"Request ID {request_id} not found in requests.")
 
@@ -98,7 +101,7 @@ class BatchRequestContent(Parsable):
         Finalizes the batch request content.
         """
         self.is_finalized = True
-        return self._requests
+        return list(self._requests.values())
 
     def _request_by_id(self, request_id: str) -> Optional[BatchRequestItem]:
         """
@@ -110,10 +113,7 @@ class BatchRequestContent(Parsable):
         Returns:
             The request with the given ID, or None if not found.
         """
-        for req in self.requests:
-            if req.id == request_id:
-                return req
-        return None
+        return self._requests.get(request_id)
 
     @staticmethod
     def create_from_discriminator_value(

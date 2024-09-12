@@ -16,6 +16,7 @@ class BatchRequestContentCollection:
          
         
         """
+        self.max_requests_per_batch = BatchRequestContent.MAX_REQUESTS
         self.batches: List[BatchRequestContent] = []
         self.current_batch: BatchRequestContent = BatchRequestContent()
 
@@ -25,14 +26,10 @@ class BatchRequestContentCollection:
         Args:
             request (BatchRequestItem): The request item to add.
         """
-        try:
-            self.current_batch.add_request(request)
-        except ValueError as e:
-            if "Maximum number of requests is" in str(e):
-                self.batches.append(self.current_batch.finalize())
-
-                self.current_batch = BatchRequestContent()
-                self.current_batch.add_request(request)
+        if len(self.current_batch.requests) >= self.max_requests_per_batch:
+            self.batches.append(self.current_batch.finalize())
+            self.current_batch = BatchRequestContent()
+        self.current_batch.add_request(request)
         self.batches.append(self.current_batch)
 
     def remove_batch_request_item(self, request_id: str) -> None:

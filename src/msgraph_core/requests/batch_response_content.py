@@ -23,7 +23,7 @@ class BatchResponseContent(Parsable):
         self._responses: Optional[Dict[str, 'BatchResponseItem']] = {}
 
     @property
-    def responses(self) -> Optional[List['BatchResponseItem']]:
+    def responses(self) -> Optional[Dict[str, 'BatchResponseItem']]:
         """
         Get the responses in the collection
         :return: A dictionary of response IDs and their BatchResponseItem objects
@@ -32,7 +32,7 @@ class BatchResponseContent(Parsable):
         return self._responses
 
     @responses.setter
-    def responses(self, responses: Optional[List['BatchResponseItem']]) -> None:
+    def responses(self, responses: Optional[Dict[str, 'BatchResponseItem']]) -> None:
         """
         Set the responses in the collection
         :param responses: The responses to set in the collection

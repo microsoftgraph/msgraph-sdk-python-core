@@ -50,7 +50,7 @@ class BatchRequestContent(Parsable):
         if hasattr(request, 'depends_on') and request.depends_on:
             for dependent_id in request.depends_on:
                 if dependent_id not in [req.id for req in self.requests]:
-                    dependent_request = self.requests.request(dependent_id)
+                    dependent_request = self._request_by_id(dependent_id)
                     if dependent_request:
                         self._requests.append(dependent_request)
         self._requests.append(request)
@@ -72,12 +72,20 @@ class BatchRequestContent(Parsable):
     def remove(self, request_id: str) -> None:
         """
         Removes a request from the batch request content.
+        Also removes the request from the depends_on list of 
+            other requests.
         """
+        request_to_remove = None
         for request in self.requests:
             if request.id == request_id:
-                self.requests.remove(request)
-                return
-        raise ValueError(f"Request ID {request_id} not found in requests.")
+                request_to_remove = request
+            if hasattr(request, 'depends_on') and request.depends_on:
+                if request_id in request.depends_on:
+                    request.depends_on.remove(request_id)
+        if request_to_remove:
+            self._requests.remove(request_to_remove)
+        else:
+            raise ValueError(f"Request ID {request_id} not found in requests.")
 
     def remove_batch_request_item(self, item: BatchRequestItem) -> None:
         """
@@ -91,6 +99,21 @@ class BatchRequestContent(Parsable):
         """
         self.is_finalized = True
         return self._requests
+
+    def _request_by_id(self, request_id: str) -> Optional[BatchRequestItem]:
+        """
+        Finds a request by its ID.
+        
+        Args:
+            request_id (str): The ID of the request to find.
+
+        Returns:
+            The request with the given ID, or None if not found.
+        """
+        for req in self.requests:
+            if req.id == request_id:
+                return req
+        return None
 
     @staticmethod
     def create_from_discriminator_value(

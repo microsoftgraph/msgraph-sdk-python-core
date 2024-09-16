@@ -61,6 +61,8 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
+            request_info.content = request_info.content.strip(b'[]')
+            print(f"Request info: {request_info.content}")
             error_map = error_map or self.error_map
             response = None
             try:
@@ -69,9 +71,9 @@ class BatchRequestBuilder:
                 )
                 print(f"Response type returned for content : {type(response)}")
                 print(f"Batch response responses returned for content : {response.responses}")
-                for key in response.responses:
-                    print(f"Response key -id: {key}")
-                    print(f"Response value: {response.response(key).body}")
+                # for key in response.responses:
+                #     print(f"Response key -id: {key}")
+                #     print(f"Response value: {response.response(key).body}")
             except APIError as e:
                 logging.error("API Error: %s", e)
                 raise e
@@ -129,16 +131,18 @@ class BatchRequestBuilder:
         Returns:
             RequestInformation: The request information.
         """
+
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
-        if isinstance(batch_request_content, BatchRequestContent):
-            request_info = RequestInformation()
-            request_info.http_method = Method.POST
-            request_info.url_template = self.url_template
-            request_info.headers = HeadersCollection()
-            request_info.headers.try_add("Content-Type", APPLICATION_JSON)
-            request_info.set_content_from_parsable(
-                self._request_adapter, APPLICATION_JSON, batch_request_content
-            )
+        batch_request_items = list(batch_request_content.requests.values())
 
-            return request_info
+        request_info = RequestInformation()
+        request_info.http_method = Method.POST
+        request_info.url_template = self.url_template
+        request_info.headers = HeadersCollection()
+        request_info.headers.try_add("Content-Type", APPLICATION_JSON)
+        request_info.set_content_from_parsable(
+            self._request_adapter, APPLICATION_JSON, batch_request_items
+        )
+
+        return request_info

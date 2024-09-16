@@ -19,18 +19,18 @@ class BatchRequestContent(Parsable):
         """
         Initializes a new instance of the BatchRequestContent class.
         """
-        self._requests: Dict[str, Union[BatchRequestItem, 'RequestInformation']] = {}
+        self._requests: Dict[str, Union[BatchRequestItem, 'RequestInformation']] = requests or {}
 
         self.is_finalized = False
         for request_id, request in requests.items():
             self.add_request(request_id, request)
 
     @property
-    def requests(self) -> List:
+    def requests(self) -> Dict:
         """
         Gets  the requests.
         """
-        return list(self._requests.values())
+        return self._requests
 
     @requests.setter
     def requests(self, requests: List[BatchRequestItem]) -> None:
@@ -104,7 +104,7 @@ class BatchRequestContent(Parsable):
         Finalizes the batch request content.
         """
         self.is_finalized = True
-        return list(self._requests.values())
+        return self._requests
 
     def _request_by_id(self, request_id: str) -> Optional[BatchRequestItem]:
         """

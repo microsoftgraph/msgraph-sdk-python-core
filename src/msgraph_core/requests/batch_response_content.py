@@ -40,6 +40,20 @@ class BatchResponseContent(Parsable):
         """
         self._responses = responses
 
+    def get_response_by_id(
+        self,
+        request_id: str,
+        response_type: Optional[Type[T]] = None,
+    ) -> 'BatchResponseItem':
+        """
+        Get a response by its request ID from the collection
+        :param request_id: The request ID of the response to get
+        :type request_id: str
+        :return: The response with the specified request ID as a BatchResponseItem
+        :rtype: BatchResponseItem
+        """
+        return self._responses.get(request_id)
+
     def response(
         self,
         request_id: str,
@@ -105,22 +119,27 @@ class BatchResponseContent(Parsable):
         :return: The deserialization information for this object
         :rtype: Dict[str, Callable[[ParseNode], None]]
         """
-        return {
-            'responses':
-            lambda n: setattr(
-                self, 'responses',
-                {item.id: item
-                 for item in n.get_collection_of_object_values(BatchResponseItem)}
-            )
+        fields = {
+            "responses":
+            lambda n:
+            setattr(self, 'responses', n.get_collection_of_object_values(BatchResponseItem))
         }
+        return fields
+        # return {
+        #     'responses':
+        #     lambda n: setattr(
+        #         self, '_responses',
+        #         {item.id: item
+        #          for item in n.get_collection_of_object_values(BatchResponseItem)}
+        #     )
+        # }
 
     def serialize(self, writer: SerializationWriter) -> None:
         """
         Writes the objects properties to the current writer.
         :param writer: The writer to write to
         """
-        if self._responses:
-            writer.write_collection_of_object_values('responses', self.responses())
+        writer.write_collection_of_object_values('responses', self._responses)
 
     @staticmethod
     def create_from_discriminator_value(

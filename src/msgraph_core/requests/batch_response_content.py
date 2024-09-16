@@ -40,7 +40,11 @@ class BatchResponseContent(Parsable):
         """
         self._responses = responses
 
-    def response(self, request_id: str) -> 'BatchResponseItem':
+    def response(
+        self,
+        request_id: str,
+        response_type: Optional[Type[T]] = None,
+    ) -> 'BatchResponseItem':
         """
         Get a response by its request ID from the collection
         :param request_id: The request ID of the response to get
@@ -48,11 +52,12 @@ class BatchResponseContent(Parsable):
         :return: The response with the specified request ID as a BatchResponseItem
         :rtype: BatchResponseItem
         """
-        if self._responses is None:
-            raise ValueError("Responses list is not initialized.")
-        if request_id in self._responses:
-            return self._responses[request_id]
-        raise KeyError(f"Response with request ID {request_id} not found.")
+        return self._responses.get(request_id)
+        # if self._responses is None:
+        #     raise ValueError("Responses list is not initialized.")
+        # if request_id in self._responses:
+        #     return self._responses[request_id]
+        # raise KeyError(f"Response with request ID {request_id} not found.")
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 
@@ -115,7 +120,7 @@ class BatchResponseContent(Parsable):
         :param writer: The writer to write to
         """
         if self._responses:
-            writer.write_collection_of_object_values('responses', list(self._responses.values()))
+            writer.write_collection_of_object_values('responses', self.responses())
 
     @staticmethod
     def create_from_discriminator_value(

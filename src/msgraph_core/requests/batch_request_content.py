@@ -15,15 +15,15 @@ class BatchRequestContent(Parsable):
 
     MAX_REQUESTS = 20
 
-    def __init__(self, requests: List[Union['BatchRequestItem', 'RequestInformation']] = []):
+    def __init__(self, requests: Dict[str, Union['BatchRequestItem', 'RequestInformation']] = {}):
         """
         Initializes a new instance of the BatchRequestContent class.
         """
         self._requests: Dict[str, Union[BatchRequestItem, 'RequestInformation']] = {}
 
         self.is_finalized = False
-        for request in requests:
-            self.add_request(request)
+        for request_id, request in requests.items():
+            self.add_request(request_id, request)
 
     @property
     def requests(self) -> List:
@@ -42,10 +42,13 @@ class BatchRequestContent(Parsable):
         for request in requests:
             self.add_request(request)
 
-    def add_request(self, request: BatchRequestItem) -> None:
+    def add_request(self, request_id: Optional[str], request: BatchRequestItem) -> None:
         """
         Adds a request to the batch request content.
         """
+        print(f"Request: {request}")
+        print(f"Request type: {type(request)}")
+
         if len(self.requests) >= BatchRequestContent.MAX_REQUESTS:
             raise RuntimeError(f"Maximum number of requests is {BatchRequestContent.MAX_REQUESTS}")
         if not request.id:

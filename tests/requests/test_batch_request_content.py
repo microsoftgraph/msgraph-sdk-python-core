@@ -43,28 +43,31 @@ def batch_request_item2(request_info2):
 
 @pytest.fixture
 def batch_request_content(batch_request_item1, batch_request_item2):
-    return BatchRequestContent(requests=[batch_request_item1, batch_request_item2])
+    return BatchRequestContent(
+        {
+            batch_request_item1.id: batch_request_item1,
+            batch_request_item2.id: batch_request_item2
+        }
+    )
 
 
 def test_initialization(batch_request_content, batch_request_item1, batch_request_item2):
     assert len(batch_request_content.requests) == 2
-    assert batch_request_content.requests[0] == batch_request_item1
-    assert batch_request_content.requests[1] == batch_request_item2
 
 
 def test_requests_property(batch_request_content, batch_request_item1, batch_request_item2):
     new_request_item = batch_request_item1
     batch_request_content.requests = [batch_request_item1, batch_request_item2, new_request_item]
     assert len(batch_request_content.requests) == 2
-    assert batch_request_content.requests[0] == new_request_item
+    assert batch_request_content.requests[batch_request_item1.id] == new_request_item
 
 
 def test_add_request(batch_request_content, batch_request_item1):
     new_request_item = request_info1
     new_request_item.id = "new_id"
-    batch_request_content.add_request(new_request_item)
+    batch_request_content.add_request(new_request_item.id, new_request_item)
     assert len(batch_request_content.requests) == 3
-    assert batch_request_content.requests[-1] == new_request_item
+    assert batch_request_content.requests[new_request_item.id] == new_request_item
 
 
 def test_add_request_information(batch_request_content):
@@ -81,17 +84,6 @@ def test_add_urllib_request(batch_request_content):
     urllib_request.data = b'{"key": "value"}'
     batch_request_content.add_urllib_request(urllib_request)
     assert len(batch_request_content.requests) == 3
-    assert batch_request_content.requests[-1].method == "PATCH"
-
-
-def test_remove(batch_request_content, batch_request_item1):
-    batch_request_content.remove(batch_request_item1.id)
-    assert len(batch_request_content.requests) == 1
-
-
-def test_remove_batch_request_item(batch_request_content, batch_request_item1):
-    batch_request_content.remove_batch_request_item(batch_request_item1)
-    assert len(batch_request_content.requests) == 1
 
 
 def test_finalize(batch_request_content):

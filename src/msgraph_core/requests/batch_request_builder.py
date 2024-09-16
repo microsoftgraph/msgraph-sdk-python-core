@@ -1,5 +1,4 @@
 from typing import TypeVar, Type, Dict, Optional, Union
-import json
 import logging
 
 from kiota_abstractions.request_adapter import RequestAdapter
@@ -61,19 +60,18 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
-            request_info.content = request_info.content.strip(b'[]')
-            print(f"Request info: {request_info.content}")
+            bytes_content = request_info.content
+            json_content = bytes_content.decode("utf-8")
+            updated_str = '{"requests":' + json_content + '}'
+            updated_bytes = updated_str.encode("utf-8")
+            request_info.content = updated_bytes
             error_map = error_map or self.error_map
             response = None
             try:
                 response = await self._request_adapter.send_async(
                     request_info, response_type, error_map
                 )
-                print(f"Response type returned for content : {type(response)}")
-                print(f"Batch response responses returned for content : {response.responses}")
-                # for key in response.responses:
-                #     print(f"Response key -id: {key}")
-                #     print(f"Response value: {response.response(key).body}")
+
             except APIError as e:
                 logging.error("API Error: %s", e)
                 raise e
@@ -82,7 +80,6 @@ class BatchRequestBuilder:
             return response
         if isinstance(batch_request_content, BatchRequestContentCollection):
             batch_responses = await self._post_batch_collection(batch_request_content, error_map)
-            print(f"Response type returned for collection: {type(response)}")
             return batch_responses
 
         raise ValueError("Invalid type for batch_request_content.")
@@ -114,7 +111,6 @@ class BatchRequestBuilder:
             response = await self._request_adapter.send_async(
                 request_info, BatchResponseContent, error_map or self.error_map
             )
-            print(f"Response type for batch item: {type(response)}")
             batch_responses.add_response(response)
 
         return batch_responses

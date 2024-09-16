@@ -40,15 +40,12 @@ class BatchRequestContent(Parsable):
         if len(requests) >= BatchRequestContent.MAX_REQUESTS:
             raise ValueError(f"Maximum number of requests is {BatchRequestContent.MAX_REQUESTS}")
         for request in requests:
-            self.add_request(request)
+            self.add_request(request.id, request)
 
     def add_request(self, request_id: Optional[str], request: BatchRequestItem) -> None:
         """
         Adds a request to the batch request content.
         """
-        print(f"Request: {request}")
-        print(f"Request type: {type(request)}")
-
         if len(self.requests) >= BatchRequestContent.MAX_REQUESTS:
             raise RuntimeError(f"Maximum number of requests is {BatchRequestContent.MAX_REQUESTS}")
         if not request.id:
@@ -67,13 +64,15 @@ class BatchRequestContent(Parsable):
         Args:
             request_information (RequestInformation): The request information to add.
         """
-        self.add_request(BatchRequestItem(request_information))
+        request_id = str(uuid.uuid4())
+        self.add_request(request_id, BatchRequestItem(request_information))
 
     def add_urllib_request(self, request) -> None:
         """
         Adds a request to the batch request content.
         """
-        self.add_request(BatchRequestItem.create_with_urllib_request(request))
+        request_id = str(uuid.uuid4())
+        self.add_request(request_id, BatchRequestItem.create_with_urllib_request(request))
 
     def remove(self, request_id: str) -> None:
         """

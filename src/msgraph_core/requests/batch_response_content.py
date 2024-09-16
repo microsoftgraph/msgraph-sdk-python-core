@@ -44,7 +44,7 @@ class BatchResponseContent(Parsable):
         self,
         request_id: str,
         response_type: Optional[Type[T]] = None,
-    ) -> 'BatchResponseItem':
+    ) -> Optional['BatchResponseItem']:
         """
         Get a response by its request ID from the collection
         :param request_id: The request ID of the response to get
@@ -52,13 +52,17 @@ class BatchResponseContent(Parsable):
         :return: The response with the specified request ID as a BatchResponseItem
         :rtype: BatchResponseItem
         """
+        if self._responses is None:
+            return None
+        if response_type is not None:
+            return response_type.create_from_discriminator_value(self._responses.get(request_id))
         return self._responses.get(request_id)
 
     def response(
         self,
         request_id: str,
         response_type: Optional[Type[T]] = None,
-    ) -> 'BatchResponseItem':
+    ) -> Optional['BatchResponseItem']:
         """
         Get a response by its request ID from the collection
         :param request_id: The request ID of the response to get
@@ -66,12 +70,9 @@ class BatchResponseContent(Parsable):
         :return: The response with the specified request ID as a BatchResponseItem
         :rtype: BatchResponseItem
         """
+        if self._responses is None:
+            return None
         return self._responses.get(request_id)
-        # if self._responses is None:
-        #     raise ValueError("Responses list is not initialized.")
-        # if request_id in self._responses:
-        #     return self._responses[request_id]
-        # raise KeyError(f"Response with request ID {request_id} not found.")
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 
@@ -90,7 +91,12 @@ class BatchResponseContent(Parsable):
             raise ValueError("Type passed must implement the Parsable interface")
 
         response = self.response(request_id)
-        content_type = response.content_type
+        if response is not None:
+            content_type = response.content_type
+        else:
+            raise ValueError(
+                f"Unable to get content-type header in response item for request Id: {request_id}"
+            )
         if not content_type:
             raise RuntimeError("Unable to get content-type header in response item")
 
@@ -119,27 +125,25 @@ class BatchResponseContent(Parsable):
         :return: The deserialization information for this object
         :rtype: Dict[str, Callable[[ParseNode], None]]
         """
-        fields = {
-            "responses":
-            lambda n:
-            setattr(self, 'responses', n.get_collection_of_object_values(BatchResponseItem))
+
+        return {
+            'responses':
+            lambda n: setattr(
+                self, '_responses',
+                {item.id: item
+                 for item in n.get_collection_of_object_values(BatchResponseItem)}
+            )
         }
-        return fields
-        # return {
-        #     'responses':
-        #     lambda n: setattr(
-        #         self, '_responses',
-        #         {item.id: item
-        #          for item in n.get_collection_of_object_values(BatchResponseItem)}
-        #     )
-        # }
 
     def serialize(self, writer: SerializationWriter) -> None:
         """
         Writes the objects properties to the current writer.
         :param writer: The writer to write to
         """
-        writer.write_collection_of_object_values('responses', self._responses)
+        if self._responses is not None:
+            writer.write_collection_of_object_values('responses', list(self._responses.values()))
+        else:
+            writer.write_collection_of_object_values('responses', [])  # type: ignore
 
     @staticmethod
     def create_from_discriminator_value(

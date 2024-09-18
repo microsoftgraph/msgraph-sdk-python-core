@@ -105,12 +105,9 @@ class LargeFileUploadTask:
 
         while self.chunks >= 0:
             session = process_next
-            print(f"Chunks for upload  : {self.chunks}")
             if self.chunks == 0:
                 # last chunk
-                print(f"Last chunk: {self.chunks} upload stated")
                 response = await self.last_chunk(self.stream)
-                print("Last chunk response: received")
 
             try:
                 lfu_session: LargeFileUploadSession = session  # type: ignore

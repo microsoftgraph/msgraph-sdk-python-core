@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.2...v1.1.3) (2024-09-03)
+
+
+### Bug Fixes
+
+* remove print statements from upload code. ([353d72d](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/353d72da513e0c5b809d31a8d921de0a0bde10be))
+
 ## [1.1.2](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.1...v1.1.2) (2024-07-12)
 
 

@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, Type, TypeVar, Callable
+from typing import Optional, Dict, Type, TypeVar, Callable
 from io import BytesIO
 import base64
 
@@ -70,23 +70,9 @@ class BatchResponseContent(Parsable):
         if response_item is None or response_item.body is None:
             return None
 
+        if isinstance(response_item.body, BytesIO):
+            return response_item.body
         return BytesIO(response_item.body)
-
-    def response(
-        self,
-        request_id: str,
-        response_type: Optional[Type[T]] = None,
-    ) -> Optional['BatchResponseItem']:
-        """
-        Get a response by its request ID from the collection
-        :param request_id: The request ID of the response to get
-        :type request_id: str
-        :return: The response with the specified request ID as a BatchResponseItem
-        :rtype: BatchResponseItem
-        """
-        if self._responses is None:
-            return None
-        return self._responses.get(request_id)
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 
@@ -104,7 +90,7 @@ class BatchResponseContent(Parsable):
         if not issubclass(type, Parsable):
             raise ValueError("Type passed must implement the Parsable interface")
 
-        response = self.response(request_id)
+        response = self.get_response_by_id(request_id)
         if response is not None:
             content_type = response.content_type
         else:

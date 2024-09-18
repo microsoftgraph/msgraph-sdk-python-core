@@ -53,14 +53,18 @@ batch_request_content = [batch_request_item1, batch_request_item2]
 batch_content = BatchRequestContent(batch_request_content)
 
 
+# Function to demonstrate the usage of BatchRequestBuilder
 async def main():
-    # Send the batch request and get the response content
-    batch_response_content = await batch_request_builder.post(
-        batch_request_content=batch_content, response_type=User
-    )
+    batch_response_content = await batch_request_builder.post(batch_request_content=batch_content)
+    # response_type=User
 
-    # Print the batch response content - User model type
-    print(f"Batch Response Content: {batch_response_content}")
+    try:
+        individual_response = batch_response_content.get_response_by_id(
+            batch_request_item1.id, User
+        )
+        print(f"Individual Response: {individual_response}")
+    except AttributeError as e:
+        print(f"Error getting response by ID: {e}")
 
 
 asyncio.run(main())

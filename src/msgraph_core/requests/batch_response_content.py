@@ -58,6 +58,20 @@ class BatchResponseContent(Parsable):
             return response_type.create_from_discriminator_value(self._responses.get(request_id))
         return self._responses.get(request_id)
 
+    def get_response_stream_by_id(self, request_id: str) -> Optional[BytesIO]:
+        """
+        Get a response by its request ID and return the body as a stream
+        :param request_id: The request ID of the response to get
+        :type request_id: str
+        :return: The response Body as a stream
+        :rtype: io.BytesIO
+        """
+        response_item = self.get_response_by_id(request_id)
+        if response_item is None or response_item.body is None:
+            return None
+
+        return BytesIO(response_item.body)
+
     def response(
         self,
         request_id: str,

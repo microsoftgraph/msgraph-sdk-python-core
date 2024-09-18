@@ -29,6 +29,55 @@ def test_response_method(batch_response_content):
     assert batch_response_content.get_response_by_id("12345") == response_item
 
 
+def test_get_response_stream_by_id_none(batch_response_content):
+    batch_response_content.get_response_by_id = Mock(return_value=None)
+    result = batch_response_content.get_response_stream_by_id('1')
+    assert result is None
+
+
+def test_get_response_stream_by_id_body_none(batch_response_content):
+    batch_response_content.get_response_by_id = Mock(return_value=Mock(body=None))
+    result = batch_response_content.get_response_stream_by_id('1')
+    assert result is None
+
+
+def test_get_response_stream_by_id_bytesio(batch_response_content):
+    batch_response_content.get_response_by_id = Mock(
+        return_value=Mock(body=BytesIO(b'Hello, world!'))
+    )
+    result = batch_response_content.get_response_stream_by_id('2')
+    assert isinstance(result, BytesIO)
+    assert result.read() == b'Hello, world!'
+
+
+def test_get_response_stream_by_id_bytes(batch_response_content):
+    batch_response_content.get_response_by_id = Mock(return_value=Mock(body=b'Hello, world!'))
+    result = batch_response_content.get_response_stream_by_id('1')
+    assert isinstance(result, BytesIO)
+    assert result.read() == b'Hello, world!'
+
+
+def test_get_response_status_codes_none(batch_response_content):
+    batch_response_content._responses = None
+    result = batch_response_content.get_response_status_codes()
+    assert result == {}
+
+
+def test_get_response_status_codes(batch_response_content):
+    batch_response_content._responses = {
+        '1': Mock(status=200),
+        '2': Mock(status=404),
+        '3': Mock(status=500),
+    }
+    result = batch_response_content.get_response_status_codes()
+    expected = {
+        '1': 200,
+        '2': 404,
+        '3': 500,
+    }
+    assert result == expected
+
+
 def test_response_body_method(batch_response_content):
     response_item = Mock(spec=BatchResponseItem)
     response_item.request_id = "12345"

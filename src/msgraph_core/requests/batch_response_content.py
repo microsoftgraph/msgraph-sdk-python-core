@@ -64,7 +64,7 @@ class BatchResponseContent(Parsable):
         :param request_id: The request ID of the response to get
         :type request_id: str
         :return: The response Body as a stream
-        :rtype: io.BytesIO
+        :rtype: BytesIO
         """
         response_item = self.get_response_by_id(request_id)
         if response_item is None or response_item.body is None:
@@ -73,6 +73,22 @@ class BatchResponseContent(Parsable):
         if isinstance(response_item.body, BytesIO):
             return response_item.body
         return BytesIO(response_item.body)
+
+    def get_response_status_codes(self) -> Dict[str, int]:
+        """
+        Go through responses and for each, append {'request-id': status_code} to a dictionary.
+        :return: A dictionary with request_id as keys and status_code as values.
+        :rtype: dict
+        """
+        status_codes: Dict[str, int] = {}
+        if self._responses is None:
+            return status_codes
+
+        for request_id, response_item in self._responses.items():
+            if response_item is not None and response_item.status is not None:
+                status_codes[request_id] = response_item.status
+
+        return status_codes
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
         """ 

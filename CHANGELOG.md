@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.3...v1.1.4) (2024-09-24)
+
+
+### Bug Fixes
+
+* Use abstractions request adapter in tasks ([6d390a2](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/6d390a2a5dea74d137f907cabf8b520100c5b1a8))
+
 ## [1.1.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.2...v1.1.3) (2024-09-03)
 
 

@@ -1,18 +1,18 @@
 """
-This module contains the PageIterator class which is used to 
+This module contains the PageIterator class which is used to
 iterate over paged responses from a server.
 
-The PageIterator class provides methods to iterate over the items 
+The PageIterator class provides methods to iterate over the items
 in the pages, fetch the next page, convert a response to a page, and
  fetch the next page from the server.
 
 The PageIterator class uses the Parsable interface to parse the responses
- from the server, the HttpxRequestAdapter class to send requests to the 
+ from the server, the RequestAdapter class to send requests to the
  server, and the PageResult class to represent the pages.
 
-This module also imports the necessary types and exceptions from the 
+This module also imports the necessary types and exceptions from the
 typing, requests.exceptions, kiota_http.httpx_request_adapter,
- kiota_abstractions.method, kiota_abstractions.headers_collection, 
+ kiota_abstractions.method, kiota_abstractions.headers_collection,
 kiota_abstractions.request_information, kiota_abstractions.serialization.parsable,
 and models modules.
 """
@@ -22,7 +22,7 @@ from typing import Callable, Optional, Union, Dict, List
 from typing import TypeVar
 from requests.exceptions import InvalidURL
 
-from kiota_http.httpx_request_adapter import HttpxRequestAdapter
+from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
@@ -41,7 +41,7 @@ The PageIterator class provides methods to iterate over the items in the pages,
 fetch the next page, and convert a response to a page.
 
 Attributes:
-    request_adapter (HttpxRequestAdapter): The adapter used to send HTTP requests.
+    request_adapter (RequestAdapter): The adapter used to send HTTP requests.
     pause_index (int): The index at which to pause iteration.
     headers (HeadersCollection): The headers to include in the HTTP requests.
     request_options (list): The options for the HTTP requests.
@@ -50,15 +50,15 @@ Attributes:
     has_next (bool): Whether there are more pages to fetch.
 
 Methods:
-    __init__(response: Union[T, list, object], request_adapter: HttpxRequestAdapter,
-     constructor_callable: Optional[Callable] = None): Initializes a new instance of 
+    __init__(response: Union[T, list, object], request_adapter: RequestAdapter,
+     constructor_callable: Optional[Callable] = None): Initializes a new instance of
      the PageIterator class.
     """
 
     def __init__(
         self,
         response: Union[T, list, object],
-        request_adapter: HttpxRequestAdapter,
+        request_adapter: RequestAdapter,
         constructor_callable: Optional[Callable] = None
     ):
         self.request_adapter = request_adapter
@@ -96,7 +96,7 @@ Methods:
         This method takes a dictionary of headers and adds them to the
         existing headers.
         Args:
-            headers (dict): A dictionary of headers to add. The keys are the 
+            headers (dict): A dictionary of headers to add. The keys are the
             header names and the values are the header values.
         """
         self.headers.add_all(**headers)
@@ -123,7 +123,7 @@ Methods:
         The iteration stops when there are no more pages or the callback
          function returns False.
         Args:
-            callback (Callable): The function to apply to each item. 
+            callback (Callable): The function to apply to each item.
             It should take one argument (the item) and return a boolean.
         """
         while True:
@@ -152,7 +152,7 @@ Methods:
     def convert_to_page(response: Union[T, list, object]) -> PageResult:
         """
         Converts a response to a PageResult.
-        This method extracts the 'value' and 'odata_next_link' from the 
+        This method extracts the 'value' and 'odata_next_link' from the
         response and uses them to create a PageResult.
         Args:
             response (Union[T, list, object]): The response to convert. It can

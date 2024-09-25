@@ -49,7 +49,11 @@ batch_request_item1 = BatchRequestItem(request_information=request_info1)
 batch_request_item2 = BatchRequestItem(request_information=request_info2)
 
 # Create a batch request content
-batch_request_content = [batch_request_item1, batch_request_item2]
+batch_request_content = {
+    batch_request_item1.id: batch_request_item1,
+    batch_request_item2.id: batch_request_item2
+}
+
 batch_content = BatchRequestContent(batch_request_content)
 
 

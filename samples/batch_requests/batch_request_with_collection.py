@@ -52,13 +52,6 @@ request_info3.headers.add("Content-Type", "application/json")
 batch_request_item1 = BatchRequestItem(request_information=request_info1)
 batch_request_item2 = BatchRequestItem(request_information=request_info2)
 
-# Create batch request content
-# Create a BatchRequestContent instance and add requests
-batch_request_content_items = [batch_request_item1, batch_request_item2]
-batch_request_content = BatchRequestContent(requests=batch_request_content_items)
-batch_request_content.add_request(batch_request_item1)
-batch_request_content.add_request(batch_request_item2)
-
 # Add a request using RequestInformation directly
 batch_request_content.add_request_information(request_info1)
 print(

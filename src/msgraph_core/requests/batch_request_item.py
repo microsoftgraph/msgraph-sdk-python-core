@@ -42,7 +42,7 @@ class BatchRequestItem(Parsable):
         self.method = request_information.http_method
         self._headers = request_information.request_headers
         self._body = request_information.content
-        self.url = request_information.url
+        self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
         self._depends_on: Optional[List[str]] = []
         if depends_on is not None:
             self.set_depends_on(depends_on)
@@ -101,7 +101,7 @@ class BatchRequestItem(Parsable):
                 f"Error occurred during regex replacement of API version in URL string: {url}"
             )
 
-        relative_url = re.sub(self.ME_TOKEN_REGEX, '/me', relative_url, 1)
+        relative_url = relative_url.replace('/users/me-token-to-replace', '/me', 1)
         if not relative_url:
             raise ValueError(
                 f"""Error occurred during regex replacement

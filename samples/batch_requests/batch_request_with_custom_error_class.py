@@ -86,7 +86,7 @@ batch_content = BatchRequestContent(batch_request_content)
 async def main():
     error_map = {"400": CustomError, "404": CustomError.not_found}
 
-    batch_response_content = await batch_request_builder.post(
+    batch_response_content = await client.batch.post(
         batch_request_content=batch_content, error_map=error_map
     )
 

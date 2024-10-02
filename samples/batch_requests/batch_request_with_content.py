@@ -55,7 +55,7 @@ batch_content = BatchRequestContent(batch_request_content)
 
 
 async def main():
-    batch_response_content = await batch_request_builder.post(batch_request_content=batch_content)
+    batch_response_content = await client.batch.post(batch_request_content=batch_content)
 
     # Print the batch response content
     print(f"Batch Response Content: {batch_response_content.responses}")

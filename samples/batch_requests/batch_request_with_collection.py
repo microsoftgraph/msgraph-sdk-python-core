@@ -86,7 +86,7 @@ print(f"Items left in the batch after removal: {len(collection.current_batch.req
 # post a collection
 async def main():
 
-    batch_response_content = await batch_request_builder.post(batch_request_content=collection)
+    batch_response_content = await client.batch.post(batch_request_content=collection)
     responses = batch_response_content.get_responses()
     for item in responses:
         for item_body in item.responses:

@@ -59,7 +59,7 @@ batch_content = BatchRequestContent(batch_request_content)
 
 # Function to demonstrate the usage of BatchRequestBuilder
 async def main():
-    batch_response_content = await batch_request_builder.post(batch_request_content=batch_content)
+    batch_response_content = await client.batch.post(batch_request_content=batch_content)
     # response_type=User
 
     try:

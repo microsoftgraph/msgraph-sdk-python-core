@@ -50,6 +50,43 @@ def test_set_url(batch_request_item):
     assert batch_request_item.url == "/v1.0/me"
 
 
+def test_constructor_url_replacement():
+    request_info = RequestInformation()
+    request_info.http_method = "GET"
+    request_info.url = "https://graph.microsoft.com/v1.0/users/me-token-to-replace"
+    request_info.headers = RequestHeaders()
+    request_info.content = None
+
+    batch_request_item = BatchRequestItem(request_info)
+
+    assert batch_request_item.url == "https://graph.microsoft.com/v1.0/me"
+
+
+def test_set_url_replacement():
+    request_info = RequestInformation()
+    request_info.http_method = "GET"
+    request_info.url = "https://graph.microsoft.com/v1.0/users/me-token-to-replace"
+    request_info.headers = RequestHeaders()
+    request_info.content = None
+
+    batch_request_item = BatchRequestItem(request_info)
+    batch_request_item.set_url("https://graph.microsoft.com/v1.0/users/me-token-to-replace")
+
+    assert batch_request_item.url == "/v1.0/me"
+
+
+def test_constructor_url_replacement_with_query():
+    request_info = RequestInformation()
+    request_info.http_method = "GET"
+    request_info.url = "https://graph.microsoft.com/v1.0/users/me-token-to-replace?param=value"
+    request_info.headers = RequestHeaders()
+    request_info.content = None
+
+    batch_request_item = BatchRequestItem(request_info)
+
+    assert batch_request_item.url == "https://graph.microsoft.com/v1.0/me?param=value"
+
+
 def test_id_property(batch_request_item):
     batch_request_item.id = "new_id"
     assert batch_request_item.id == "new_id"

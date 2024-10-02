@@ -19,10 +19,9 @@ from msgraph_core.requests.batch_request_item import BatchRequestItem
 from msgraph_core.requests.batch_request_content import BatchRequestContent
 
 from msgraph_core.requests.batch_response_content import BatchResponseContent
-from msgraph_core.requests.batch_request_builder import BatchRequestBuilder
 # create client
 # code to create client
-user_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
+graph_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
 
 
 # Create an Error map Parsable or import it from wherever you have it
@@ -41,10 +40,7 @@ class CustomError(Parsable):
 
 
 # Create a request adapter from client
-request_adapter = user_client.request_adapter
-
-# Create an instance of BatchRequestBuilder
-batch_request_builder = BatchRequestBuilder(request_adapter)
+request_adapter = graph_client.request_adapter
 
 # Create batch Items
 request_info1 = RequestInformation()
@@ -86,7 +82,7 @@ batch_content = BatchRequestContent(batch_request_content)
 async def main():
     error_map = {"400": CustomError, "404": CustomError.not_found}
 
-    batch_response_content = await client.batch.post(
+    batch_response_content = await graph_client.batch.post(
         batch_request_content=batch_content, error_map=error_map
     )
 

@@ -16,17 +16,13 @@ from msgraph_core.requests.batch_request_content_collection import BatchRequestC
 
 from msgraph_core.requests.batch_response_content import BatchResponseContent
 from msgraph_core.requests.batch_response_content_collection import BatchResponseContentCollection
-from msgraph_core.requests.batch_request_builder import BatchRequestBuilder
 
 # Create a client
 # code to create a graph client
-user_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
+graph_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
 
 # Create a  request adapter from the clinet
-request_adapter = user_client.request_adapter
-
-# Create an instance of BatchRequestBuilder
-batch_request_builder = BatchRequestBuilder(request_adapter)
+request_adapter = graph_client.request_adapter
 
 # Create batch Items
 request_info1 = RequestInformation()
@@ -55,7 +51,7 @@ batch_content = BatchRequestContent(batch_request_content)
 
 
 async def main():
-    batch_response_content = await client.batch.post(batch_request_content=batch_content)
+    batch_response_content = await graph_client.batch.post(batch_request_content=batch_content)
 
     # Print the batch response content
     print(f"Batch Response Content: {batch_response_content.responses}")

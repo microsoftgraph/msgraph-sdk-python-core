@@ -16,17 +16,13 @@ from msgraph_core.requests.batch_request_item import BatchRequestItem
 
 from msgraph_core.requests.batch_request_content import BatchRequestContent
 from msgraph_core.requests.batch_request_content_collection import BatchRequestContentCollection
-from msgraph_core.requests.batch_request_builder import BatchRequestBuilder
 # Create a client
 # code to create graph client
 
-user_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
+graph_client = GraphServiceClient(credentials=token, scopes=graph_scopes)
 
 # Create a request adapter from the client
-request_adapter = user_client.request_adapter
-
-# Create an instance of BatchRequestBuilder
-batch_request_builder = BatchRequestBuilder(request_adapter)
+request_adapter = graph_client.request_adapter
 
 # Create some BatchRequestItems
 
@@ -86,7 +82,7 @@ print(f"Items left in the batch after removal: {len(collection.current_batch.req
 # post a collection
 async def main():
 
-    batch_response_content = await client.batch.post(batch_request_content=collection)
+    batch_response_content = await graph_client.batch.post(batch_request_content=collection)
     responses = batch_response_content.get_responses()
     for item in responses:
         for item_body in item.responses:

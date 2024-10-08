@@ -1,4 +1,5 @@
 import re
+import enum
 import json
 from uuid import uuid4
 from typing import List, Optional, Dict, Union, Any
@@ -39,7 +40,10 @@ class BatchRequestItem(Parsable):
         if request_information is None or not request_information.http_method:
             raise ValueError("HTTP method cannot be Null/Empty")
         self._id = id or str(uuid4())
-        self.method = request_information.http_method
+        if isinstance(request_information.http_method, enum.Enum):
+            self._method = request_information.http_method.name
+        else:
+            self._method = request_information.http_method
         self._headers = request_information.request_headers
         self._body = request_information.content
         self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
@@ -183,7 +187,9 @@ class BatchRequestItem(Parsable):
         Sets the HTTP method of the request item.
         Args:
             value (str): The HTTP method of the request item.
+
         """
+
         self._method = value
 
     @property

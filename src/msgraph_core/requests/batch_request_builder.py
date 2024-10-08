@@ -1,5 +1,6 @@
 from typing import TypeVar, Type, Dict, Optional, Union
 import logging
+import json
 
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
@@ -110,9 +111,34 @@ class BatchRequestBuilder:
             request_info = await self.to_post_request_information(batch_request_content)
             bytes_content = request_info.content
             json_content = bytes_content.decode("utf-8")
-            updated_str = '{"requests":' + json_content + '}'
+
+            requests_list = json.loads(json_content)
+            for request in requests_list:
+                if 'body' in request:
+                    request['headers'] = {"Content-Type": "application/json"}
+            updated_json_content = json.dumps(requests_list)
+
+            updated_str = '{"requests":' + updated_json_content + '}'
             updated_bytes = updated_str.encode("utf-8")
-            request_info.content = updated_bytes
+
+            # correct the data type
+            json_string = updated_bytes.decode('utf-8')
+
+            # Step 2: Parse the string into a Python dictionary
+            data = json.loads(json_string)
+
+            # Step 3: Convert the 'body' field from string to a dictionary in the first request
+            for request in data['requests']:
+                if 'body' in request and isinstance(request['body'], str):
+                    # Convert the 'body' string to a dictionary
+                    request['body'] = json.loads(request['body'])
+
+            # Now 'data' is a proper Python dictionary with valid JSON format
+            print(json.dumps(data, indent=2))
+            request_info.content = json.dumps(data, indent=2)
+            # request_info.content = updated_bytes
+            print(f"Request info headrrs: {request_info.headers.get_all()}")
+            print(f"Request info content: {request_info.content}")
             response = await self._request_adapter.send_async(
                 request_info, BatchResponseContent, error_map or self.error_map
             )

@@ -1,5 +1,6 @@
 import re
 import json
+import enum
 from uuid import uuid4
 from typing import List, Optional, Dict, Union, Any
 from io import BytesIO
@@ -39,8 +40,12 @@ class BatchRequestItem(Parsable):
         if request_information is None or not request_information.http_method:
             raise ValueError("HTTP method cannot be Null/Empty")
         self._id = id or str(uuid4())
-        self.method = request_information.http_method
+        if isinstance(request_information.http_method, enum.Enum):
+            self._method = request_information.http_method.name
+        else:
+            self._method = request_information.http_method
         self._headers = request_information.request_headers
+        print(f"Body from request_information: {request_information.content}")
         self._body = request_information.content
         self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
         self._depends_on: Optional[List[str]] = []
@@ -232,16 +237,41 @@ class BatchRequestItem(Parsable):
         Args:
             writer (SerializationWriter): The writer to write to.
         """
+        if not writer:
+            raise ValueError("writer cannot be None")
+
+        print(f"Serializing BatchRequestItem with id: {self.id}")
         writer.write_str_value('id', self.id)
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
+
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
-        headers = {key: ", ".join(val) for key, val in self._headers.items()}
+
+        headers = self._headers
+        print(f"Headers to serialize: {headers}")
         writer.write_collection_of_object_values('headers', headers)
+        print(self.body)
+
         if self._body:
-            json_object = json.loads(self._body)
-            is_json_string = json_object and isinstance(json_object, dict)
-            writer.write_collection_of_object_values(
-                'body',
-                json_object if is_json_string else base64.b64encode(self._body).decode('utf-8')
-            )
+            if isinstance(self._body, bytes):
+                # If the body is bytes, encode it as base64
+                # body_content = base64.b64encode(self._body).decode('utf-8')
+                body_content = self._body.decode('utf-8')
+                print(f"Body content to serialize: 1 {body_content}")
+            elif isinstance(self._body, str):
+                try:
+                    # Check if the body is a JSON string
+                    json.loads(self._body)
+                    body_content = self._body  # Use the original JSON string
+                    print(f"Body content to serialize: 2 {body_content}")
+                except json.JSONDecodeError:
+                    # If not, encode it as base64
+                    body_content = base64.b64encode(self._body.encode('utf-8')).decode('utf-8')
+                    print(f"Body content to serialize:3  {body_content}")
+            else:
+                raise ValueError("Unsupported body type")
+
+            print(f"Body to serialize: {body_content}")
+            writer.write_str_value('body', body_content)
+        else:
+            print("No body to serialize")

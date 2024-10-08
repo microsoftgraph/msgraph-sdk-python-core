@@ -137,4 +137,8 @@ class BatchRequestContent(Parsable):
         Args:
             writer: Serialization writer to use to serialize this model
         """
-        writer.write_collection_of_object_values("requests", self.requests)
+        if not writer:
+            raise ValueError("writer cannot be None")
+
+        # Ensure requests are serialized correctly
+        writer.write_collection_of_object_values("requests", list(self.requests.values()))

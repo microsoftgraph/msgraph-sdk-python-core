@@ -1,4 +1,5 @@
 import re
+import enum
 import json
 import enum
 from uuid import uuid4
@@ -188,7 +189,9 @@ class BatchRequestItem(Parsable):
         Sets the HTTP method of the request item.
         Args:
             value (str): The HTTP method of the request item.
+
         """
+
         self._method = value
 
     @property

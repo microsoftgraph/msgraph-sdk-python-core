@@ -46,7 +46,6 @@ class BatchRequestItem(Parsable):
         else:
             self._method = request_information.http_method
         self._headers = request_information.request_headers
-        print(f"Body from request_information: {request_information.content}")
         self._body = request_information.content
         self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
         self._depends_on: Optional[List[str]] = []
@@ -243,7 +242,6 @@ class BatchRequestItem(Parsable):
         if not writer:
             raise ValueError("writer cannot be None")
 
-        print(f"Serializing BatchRequestItem with id: {self.id}")
         writer.write_str_value('id', self.id)
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
@@ -251,30 +249,24 @@ class BatchRequestItem(Parsable):
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
 
         headers = self._headers
-        print(f"Headers to serialize: {headers}")
         writer.write_collection_of_object_values('headers', headers)
-        print(self.body)
 
         if self._body:
             if isinstance(self._body, bytes):
                 # If the body is bytes, encode it as base64
                 # body_content = base64.b64encode(self._body).decode('utf-8')
                 body_content = self._body.decode('utf-8')
-                print(f"Body content to serialize: 1 {body_content}")
             elif isinstance(self._body, str):
                 try:
                     # Check if the body is a JSON string
                     json.loads(self._body)
                     body_content = self._body  # Use the original JSON string
-                    print(f"Body content to serialize: 2 {body_content}")
                 except json.JSONDecodeError:
                     # If not, encode it as base64
                     body_content = base64.b64encode(self._body.encode('utf-8')).decode('utf-8')
-                    print(f"Body content to serialize:3  {body_content}")
             else:
                 raise ValueError("Unsupported body type")
 
-            print(f"Body to serialize: {body_content}")
             writer.write_str_value('body', body_content)
         else:
             print("No body to serialize")

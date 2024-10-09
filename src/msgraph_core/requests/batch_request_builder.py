@@ -61,11 +61,7 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
-            bytes_content = request_info.content
-            json_content = bytes_content.decode("utf-8")
-            updated_str = '{"requests":' + json_content + '}'
-            updated_bytes = updated_str.encode("utf-8")
-            request_info.content = updated_bytes
+            request_info.content = self._prepare_request_content(request_info.content)
             error_map = error_map or self.error_map
             response = None
             try:
@@ -109,42 +105,38 @@ class BatchRequestBuilder:
 
         for batch_request_content in batch_request_content_collection.batches:
             request_info = await self.to_post_request_information(batch_request_content)
-            bytes_content = request_info.content
-            json_content = bytes_content.decode("utf-8")
-
-            requests_list = json.loads(json_content)
-            for request in requests_list:
-                if 'body' in request:
-                    request['headers'] = {"Content-Type": "application/json"}
-            updated_json_content = json.dumps(requests_list)
-
-            updated_str = '{"requests":' + updated_json_content + '}'
-            updated_bytes = updated_str.encode("utf-8")
-
-            # correct the data type
-            json_string = updated_bytes.decode('utf-8')
-
-            # Step 2: Parse the string into a Python dictionary
-            data = json.loads(json_string)
-
-            # Step 3: Convert the 'body' field from string to a dictionary in the first request
-            for request in data['requests']:
-                if 'body' in request and isinstance(request['body'], str):
-                    # Convert the 'body' string to a dictionary
-                    request['body'] = json.loads(request['body'])
-
-            # Now 'data' is a proper Python dictionary with valid JSON format
-            print(json.dumps(data, indent=2))
-            request_info.content = json.dumps(data, indent=2)
-            # request_info.content = updated_bytes
-            print(f"Request info headrrs: {request_info.headers.get_all()}")
-            print(f"Request info content: {request_info.content}")
+            updated_bytes = self._prepare_request_content(request_info.content)
+            request_info.content = updated_bytes
             response = await self._request_adapter.send_async(
                 request_info, BatchResponseContent, error_map or self.error_map
             )
             batch_responses.add_response(response)
 
         return batch_responses
+
+    def _prepare_request_content(self, content: bytes) -> bytes:
+        """
+        Prepares the request content by updating the JSON structure and converting
+        the 'body' field from string to a dictionary if necessary.
+        
+        Args:
+            content (bytes): The original request content.
+
+        Returns:
+            bytes: The updated request content.
+        """
+        json_content = content.decode("utf-8")
+        requests_list = json.loads(json_content)
+
+        for request in requests_list:
+            if 'body' in request:
+                request['headers'] = {"Content-Type": "application/json"}
+                if isinstance(request['body'], str):
+                    request['body'] = json.loads(request['body'])
+
+        updated_json_content = json.dumps(requests_list)
+        updated_str = '{"requests":' + updated_json_content + '}'
+        return updated_str.encode("utf-8")
 
     async def to_post_request_information(
         self, batch_request_content: BatchRequestContent

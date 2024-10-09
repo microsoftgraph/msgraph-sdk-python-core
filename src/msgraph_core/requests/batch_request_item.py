@@ -6,6 +6,8 @@ from uuid import uuid4
 from typing import List, Optional, Dict, Union, Any
 from io import BytesIO
 import base64
+import logging
+
 import urllib.request
 from urllib.parse import urlparse
 
@@ -269,4 +271,4 @@ class BatchRequestItem(Parsable):
 
             writer.write_str_value('body', body_content)
         else:
-            print("No body to serialize")
+            logging.info("Content info: there is no body to serialize")

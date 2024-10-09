@@ -1,7 +1,6 @@
 import re
 import enum
 import json
-import enum
 from uuid import uuid4
 from typing import List, Optional, Dict, Union, Any
 from io import BytesIO
@@ -255,16 +254,12 @@ class BatchRequestItem(Parsable):
 
         if self._body:
             if isinstance(self._body, bytes):
-                # If the body is bytes, encode it as base64
-                # body_content = base64.b64encode(self._body).decode('utf-8')
                 body_content = self._body.decode('utf-8')
             elif isinstance(self._body, str):
                 try:
-                    # Check if the body is a JSON string
                     json.loads(self._body)
-                    body_content = self._body  # Use the original JSON string
+                    body_content = self._body
                 except json.JSONDecodeError:
-                    # If not, encode it as base64
                     body_content = base64.b64encode(self._body.encode('utf-8')).decode('utf-8')
             else:
                 raise ValueError("Unsupported body type")

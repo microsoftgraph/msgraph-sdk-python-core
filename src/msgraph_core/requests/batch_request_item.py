@@ -254,13 +254,13 @@ class BatchRequestItem(Parsable):
 
         if self._body:
             if isinstance(self._body, bytes):
-                body_content = self._body.decode('utf-8')
-            elif isinstance(self._body, str):
                 try:
-                    json.loads(self._body)
-                    body_content = self._body
-                except json.JSONDecodeError:
-                    body_content = base64.b64encode(self._body.encode('utf-8')).decode('utf-8')
+                    body_content = self._body.decode('utf-8')
+                    json.loads(body_content)
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    body_content = base64.b64encode(self._body).decode('utf-8')
+            elif isinstance(self._body, str):
+                body_content = self._body
             else:
                 raise ValueError("Unsupported body type")
 

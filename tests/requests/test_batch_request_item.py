@@ -1,5 +1,8 @@
 import pytest
 from unittest.mock import Mock
+import base64
+import json
+
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
@@ -23,6 +26,51 @@ def request_info():
 @pytest.fixture
 def batch_request_item(request_info):
     return BatchRequestItem(request_information=request_info)
+
+
+@pytest.fixture
+def request_info_json():
+    request_info = RequestInformation()
+    request_info.http_method = "POST"
+    request_info.url = "https://graph.microsoft.com/v1.0/me/events"
+    request_info.headers = RequestHeaders()
+    request_info.headers.add("Content-Type", "application/json")
+    request_info.content = json.dumps(
+        {
+            "@odata.type": "#microsoft.graph.event",
+            "end": {
+                "dateTime": "2024-10-14T17:30:00",
+                "timeZone": "Pacific Standard Time"
+            },
+            "start": {
+                "dateTime": "2024-10-14T17:00:00",
+                "timeZone": "Pacific Standard Time"
+            },
+            "subject": "File end-of-day report"
+        }
+    ).encode('utf-8')
+    return request_info
+
+
+@pytest.fixture
+def request_info_bytes():
+    request_info = RequestInformation()
+    request_info.http_method = "POST"
+    request_info.url = "https://graph.microsoft.com/v1.0/me/events"
+    request_info.headers = RequestHeaders()
+    request_info.headers.add("Content-Type", "application/json")
+    request_info.content = b'{"@odata.type": "#microsoft.graph.event", "end": {"dateTime": "2024-10-14T17:30:00", "timeZone": "Pacific Standard Time"}, "start": {"dateTime": "2024-10-14T17:00:00", "timeZone": "Pacific Standard Time"}, "subject": "File end-of-day report"}'
+    return request_info
+
+
+@pytest.fixture
+def batch_request_item_json(request_info_json):
+    return BatchRequestItem(request_information=request_info_json)
+
+
+@pytest.fixture
+def batch_request_item_bytes(request_info_bytes):
+    return BatchRequestItem(request_information=request_info_bytes)
 
 
 def test_initialization(batch_request_item, request_info):
@@ -124,3 +172,33 @@ def test_batch_request_item_method_enum():
 def test_depends_on_property(batch_request_item):
     batch_request_item.set_depends_on(["request1", "request2"])
     assert batch_request_item.depends_on == ["request1", "request2"]
+
+
+def test_serialize_with_json_body(batch_request_item_json):
+    writer = Mock(spec=SerializationWriter)
+
+    batch_request_item_json.serialize(writer)
+
+    writer.write_str_value.assert_any_call('id', batch_request_item_json.id)
+    writer.write_str_value.assert_any_call('method', batch_request_item_json.method)
+    writer.write_str_value.assert_any_call('url', batch_request_item_json.url)
+    writer.write_collection_of_primitive_values.assert_any_call(
+        'depends_on', batch_request_item_json.depends_on
+    )
+
+    writer.write_str_value.assert_any_call('body', batch_request_item_json._body.decode('utf-8'))
+
+
+def test_serialize_with_bytes_body(batch_request_item_bytes):
+    writer = Mock(spec=SerializationWriter)
+
+    batch_request_item_bytes.serialize(writer)
+
+    writer.write_str_value.assert_any_call('id', batch_request_item_bytes.id)
+    writer.write_str_value.assert_any_call('method', batch_request_item_bytes.method)
+    writer.write_str_value.assert_any_call('url', batch_request_item_bytes.url)
+    writer.write_collection_of_primitive_values.assert_any_call(
+        'depends_on', batch_request_item_bytes.depends_on
+    )
+
+    writer.write_str_value.assert_any_call('body', batch_request_item_bytes._body.decode('utf-8'))

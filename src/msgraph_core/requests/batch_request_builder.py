@@ -134,9 +134,11 @@ class BatchRequestBuilder:
                 if isinstance(request['body'], str):
                     request['body'] = json.loads(request['body'])
 
-        updated_json_content = json.dumps(requests_list)
-        updated_str = '{"requests":' + updated_json_content + '}'
-        return updated_str.encode("utf-8")
+        updated_json_content = json.dumps({"requests": requests_list})
+        # updated_json_content = json.dumps(requests_list)
+
+        # updated_str = '{"requests":' + updated_json_content + '}'
+        return updated_json_content.encode("utf-8")
 
     async def to_post_request_information(
         self, batch_request_content: BatchRequestContent

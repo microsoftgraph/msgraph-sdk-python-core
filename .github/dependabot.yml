@@ -6,6 +6,9 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
     groups:
+      open-telemetry:
+        patterns:
+          - "*opentelemetry*"
       kiota:
         patterns:
           - "*kiota*"

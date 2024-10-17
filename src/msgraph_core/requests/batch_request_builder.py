@@ -1,5 +1,7 @@
 from typing import TypeVar, Type, Dict, Optional, Union
 import logging
+import json
+import base64
 
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
@@ -60,11 +62,7 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
-            bytes_content = request_info.content
-            json_content = bytes_content.decode("utf-8")
-            updated_str = '{"requests":' + json_content + '}'
-            updated_bytes = updated_str.encode("utf-8")
-            request_info.content = updated_bytes
+            request_info.content = self._prepare_request_content(request_info.content)
             error_map = error_map or self.error_map
             response = None
             try:
@@ -108,12 +106,49 @@ class BatchRequestBuilder:
 
         for batch_request_content in batch_request_content_collection.batches:
             request_info = await self.to_post_request_information(batch_request_content)
+            updated_bytes = self._prepare_request_content(request_info.content)
+            request_info.content = updated_bytes
             response = await self._request_adapter.send_async(
                 request_info, BatchResponseContent, error_map or self.error_map
             )
             batch_responses.add_response(response)
 
         return batch_responses
+
+    def _prepare_request_content(self, content: bytes) -> bytes:
+        """
+        Prepares the request content by updating the JSON structure and converting
+        the 'body' field from string to a dictionary if necessary.
+        
+        Args:
+            content (bytes): The original request content.
+
+        Returns:
+            bytes: The updated request content.
+        """
+        json_content = content.decode("utf-8")
+        requests_list = json.loads(json_content)
+        for request in requests_list:
+            if 'body' in request:
+                if isinstance(request['body'], dict):
+                    pass
+                elif isinstance(request['body'], str):
+                    try:
+                        request['body'] = json.loads(request['body'])
+                    except json.JSONDecodeError:
+                        pass
+                elif isinstance(request['body'], bytes):
+                    request['body'] = base64.b64encode(request['body']).decode('utf-8')
+
+                if isinstance(request['body'], dict):
+                    request['headers'] = {"Content-Type": "application/json"}
+                else:
+                    request['headers'] = {"Content-Type": "application/octet-stream"}
+            else:
+                request['headers'] = {"Content-Type": "application/json"}
+
+        updated_json_content = json.dumps({"requests": requests_list})
+        return updated_json_content.encode("utf-8")
 
     async def to_post_request_information(
         self, batch_request_content: BatchRequestContent

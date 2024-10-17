@@ -5,6 +5,8 @@ from uuid import uuid4
 from typing import List, Optional, Dict, Union, Any
 from io import BytesIO
 import base64
+import logging
+
 import urllib.request
 from urllib.parse import urlparse
 
@@ -238,16 +240,25 @@ class BatchRequestItem(Parsable):
         Args:
             writer (SerializationWriter): The writer to write to.
         """
+        if not writer:
+            raise ValueError("writer cannot be None")
+
         writer.write_str_value('id', self.id)
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
+
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
-        headers = {key: ", ".join(val) for key, val in self._headers.items()}
+
+        headers = self._headers
         writer.write_collection_of_object_values('headers', headers)
+
         if self._body:
-            json_object = json.loads(self._body)
-            is_json_string = json_object and isinstance(json_object, dict)
-            writer.write_collection_of_object_values(
-                'body',
-                json_object if is_json_string else base64.b64encode(self._body).decode('utf-8')
-            )
+            if isinstance(self._body, bytes):
+                body_content = base64.b64encode(self._body).decode('utf-8')
+            elif isinstance(self._body, str):
+                body_content = self._body
+            else:
+                raise ValueError("Unsupported body type")
+            writer.write_str_value('body', body_content)
+        else:
+            logging.info("Content info: there is no body to serialize")

@@ -1,6 +1,7 @@
 from typing import TypeVar, Type, Dict, Optional, Union
 import logging
 import json
+import base64
 
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
@@ -127,17 +128,26 @@ class BatchRequestBuilder:
         """
         json_content = content.decode("utf-8")
         requests_list = json.loads(json_content)
-
         for request in requests_list:
             if 'body' in request:
+                if isinstance(request['body'], dict):
+                    pass
+                elif isinstance(request['body'], str):
+                    try:
+                        request['body'] = json.loads(request['body'])
+                    except json.JSONDecodeError:
+                        pass
+                elif isinstance(request['body'], bytes):
+                    request['body'] = base64.b64encode(request['body']).decode('utf-8')
+
+                if isinstance(request['body'], dict):
+                    request['headers'] = {"Content-Type": "application/json"}
+                else:
+                    request['headers'] = {"Content-Type": "application/octet-stream"}
+            else:
                 request['headers'] = {"Content-Type": "application/json"}
-                if isinstance(request['body'], str):
-                    request['body'] = json.loads(request['body'])
 
         updated_json_content = json.dumps({"requests": requests_list})
-        # updated_json_content = json.dumps(requests_list)
-
-        # updated_str = '{"requests":' + updated_json_content + '}'
         return updated_json_content.encode("utf-8")
 
     async def to_post_request_information(

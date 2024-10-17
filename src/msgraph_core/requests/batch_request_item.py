@@ -254,16 +254,11 @@ class BatchRequestItem(Parsable):
 
         if self._body:
             if isinstance(self._body, bytes):
-                try:
-                    body_content = self._body.decode('utf-8')
-                    json.loads(body_content)
-                except (UnicodeDecodeError, json.JSONDecodeError):
-                    body_content = base64.b64encode(self._body).decode('utf-8')
+                body_content = base64.b64encode(self._body).decode('utf-8')
             elif isinstance(self._body, str):
                 body_content = self._body
             else:
                 raise ValueError("Unsupported body type")
-
             writer.write_str_value('body', body_content)
         else:
             logging.info("Content info: there is no body to serialize")

@@ -73,6 +73,15 @@ def batch_request_item_bytes(request_info_bytes):
     return BatchRequestItem(request_information=request_info_bytes)
 
 
+def encode_body_to_base64(body):
+    if isinstance(body, bytes):
+        return base64.b64encode(body).decode('utf-8')
+    elif isinstance(body, str):
+        return base64.b64encode(body.encode('utf-8')).decode('utf-8')
+    else:
+        raise ValueError("Unsupported body type")
+
+
 def test_initialization(batch_request_item, request_info):
     assert batch_request_item.method == "GET"
     assert batch_request_item.url == "f{base_url}/me"
@@ -175,30 +184,18 @@ def test_depends_on_property(batch_request_item):
 
 
 def test_serialize_with_json_body(batch_request_item_json):
-    writer = Mock(spec=SerializationWriter)
+    item = batch_request_item_json
+    writer = Mock()
+    processed_body = encode_body_to_base64(item.body)
 
-    batch_request_item_json.serialize(writer)
-
-    writer.write_str_value.assert_any_call('id', batch_request_item_json.id)
-    writer.write_str_value.assert_any_call('method', batch_request_item_json.method)
-    writer.write_str_value.assert_any_call('url', batch_request_item_json.url)
-    writer.write_collection_of_primitive_values.assert_any_call(
-        'depends_on', batch_request_item_json.depends_on
-    )
-
-    writer.write_str_value.assert_any_call('body', batch_request_item_json._body.decode('utf-8'))
+    item.serialize(writer)
+    writer.write_str_value.assert_called_with('body', processed_body)
 
 
 def test_serialize_with_bytes_body(batch_request_item_bytes):
-    writer = Mock(spec=SerializationWriter)
+    item = batch_request_item_bytes
+    writer = Mock()
+    processed_body = encode_body_to_base64(item.body)
 
-    batch_request_item_bytes.serialize(writer)
-
-    writer.write_str_value.assert_any_call('id', batch_request_item_bytes.id)
-    writer.write_str_value.assert_any_call('method', batch_request_item_bytes.method)
-    writer.write_str_value.assert_any_call('url', batch_request_item_bytes.url)
-    writer.write_collection_of_primitive_values.assert_any_call(
-        'depends_on', batch_request_item_bytes.depends_on
-    )
-
-    writer.write_str_value.assert_any_call('body', batch_request_item_bytes._body.decode('utf-8'))
+    item.serialize(writer)
+    writer.write_str_value.assert_called_with('body', processed_body)

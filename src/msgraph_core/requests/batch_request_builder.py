@@ -61,6 +61,7 @@ class BatchRequestBuilder:
         response_type = BatchResponseContent
 
         if isinstance(batch_request_content, BatchRequestContent):
+            print(f"Batch request content: {batch_request_content.requests}")
             request_info = await self.to_post_request_information(batch_request_content)
             request_info.content = self._prepare_request_content(request_info.content)
             error_map = error_map or self.error_map
@@ -105,7 +106,10 @@ class BatchRequestBuilder:
         batch_responses = BatchResponseContentCollection()
 
         for batch_request_content in batch_request_content_collection.batches:
+            print(f"Batch request content: {batch_request_content.requests}")
+
             request_info = await self.to_post_request_information(batch_request_content)
+            print(f"content before processing {request_info.content}")
             updated_bytes = self._prepare_request_content(request_info.content)
             request_info.content = updated_bytes
             response = await self._request_adapter.send_async(
@@ -127,6 +131,7 @@ class BatchRequestBuilder:
             bytes: The updated request content.
         """
         json_content = content.decode("utf-8")
+        print(json_content)
         requests_list = json.loads(json_content)
         for request in requests_list:
             if 'body' in request:
@@ -149,6 +154,7 @@ class BatchRequestBuilder:
 
         updated_json_content = json.dumps({"requests": requests_list})
         return updated_json_content.encode("utf-8")
+        # return json.dumps(requests_list).encode("utf-8")
 
     async def to_post_request_information(
         self, batch_request_content: BatchRequestContent
@@ -166,6 +172,7 @@ class BatchRequestBuilder:
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
         batch_request_items = list(batch_request_content.requests.values())
+        print(f"Batch request items: {batch_request_items}")
 
         request_info = RequestInformation()
         request_info.http_method = Method.POST

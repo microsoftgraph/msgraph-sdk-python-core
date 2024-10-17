@@ -139,4 +139,6 @@ class BatchRequestContent(Parsable):
         """
         if not writer:
             raise ValueError("writer cannot be None")
-        writer.write_collection_of_object_values("requests", list(self.requests.values()))
+        writer.write_collection_of_object_values({"requests", list(self.requests.values())})
+        # requests_dict = {request_id: request for request_id, request in self.requests.items()}
+        # writer.write_object_value("requests", requests_dict)

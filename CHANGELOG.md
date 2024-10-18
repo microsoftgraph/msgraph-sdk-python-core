@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.6](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.5...v1.1.6) (2024-10-18)
+
+
+### Bug Fixes
+
+* removes the tests directory from the package ([3d919a7](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/3d919a7f88c82bcebcbe093d9606906b56e0b416))
+* removes the tests directory from the package ([ccbed8d](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/ccbed8df3a9d9165b81f2f8af80282eeb2814907))
+
 ## [1.1.5](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.4...v1.1.5) (2024-10-02)
 
 

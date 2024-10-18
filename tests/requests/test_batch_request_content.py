@@ -105,7 +105,9 @@ def test_get_field_deserializers(batch_request_content):
 
 def test_serialize(batch_request_content):
     writer = Mock(spec=SerializationWriter)
+
     batch_request_content.serialize(writer)
+
     writer.write_collection_of_object_values.assert_called_once_with(
-        "requests", batch_request_content.requests
+        "requests", list(batch_request_content.requests.values())
     )

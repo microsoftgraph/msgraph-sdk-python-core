@@ -52,7 +52,7 @@ class BatchRequestContent(Parsable):
             request.id = str(uuid.uuid4())
         if hasattr(request, 'depends_on') and request.depends_on:
             for dependent_id in request.depends_on:
-                if dependent_id not in [req.id for req in self.requests]:
+                if dependent_id not in self.requests:
                     dependent_request = self._request_by_id(dependent_id)
                     if dependent_request:
                         self._requests[dependent_id] = dependent_request
@@ -137,4 +137,8 @@ class BatchRequestContent(Parsable):
         Args:
             writer: Serialization writer to use to serialize this model
         """
-        writer.write_collection_of_object_values("requests", self.requests)
+        if not writer:
+            raise ValueError("writer cannot be None")
+        writer.write_collection_of_object_values({"requests", list(self.requests.values())})
+        # requests_dict = {request_id: request for request_id, request in self.requests.items()}
+        # writer.write_object_value("requests", requests_dict)

@@ -5,6 +5,17 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    groups:
+      open-telemetry:
+        patterns:
+          - "*opentelemetry*"
+      kiota:
+        patterns:
+          - "*kiota*"
+      pylint:
+        patterns:
+          - "*pylint*"
+          - "*astroid*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

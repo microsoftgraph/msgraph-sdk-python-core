@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
 from msgraph_core.requests.batch_request_item import BatchRequestItem, StreamInterface
 from kiota_abstractions.serialization import SerializationWriter
@@ -107,6 +108,17 @@ def test_body_property(batch_request_item):
 def test_method_property(batch_request_item):
     batch_request_item.method = "POST"
     assert batch_request_item.method == "POST"
+
+
+def test_batch_request_item_method_enum():
+    # Create a RequestInformation instance with an enum value for http_method
+    request_info = RequestInformation()
+    request_info.http_method = Method.GET
+    request_info.url = "https://graph.microsoft.com/v1.0/me"
+    request_info.headers = RequestHeaders()
+    request_info.content = None
+    batch_request_item = BatchRequestItem(request_information=request_info)
+    assert batch_request_item.method == "GET"
 
 
 def test_depends_on_property(batch_request_item):

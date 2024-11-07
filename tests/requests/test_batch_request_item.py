@@ -1,5 +1,8 @@
 import pytest
 from unittest.mock import Mock
+import base64
+import json
+
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
@@ -23,6 +26,60 @@ def request_info():
 @pytest.fixture
 def batch_request_item(request_info):
     return BatchRequestItem(request_information=request_info)
+
+
+@pytest.fixture
+def request_info_json():
+    request_info = RequestInformation()
+    request_info.http_method = "POST"
+    request_info.url = "https://graph.microsoft.com/v1.0/me/events"
+    request_info.headers = RequestHeaders()
+    request_info.headers.add("Content-Type", "application/json")
+    request_info.content = json.dumps(
+        {
+            "@odata.type": "#microsoft.graph.event",
+            "end": {
+                "dateTime": "2024-10-14T17:30:00",
+                "timeZone": "Pacific Standard Time"
+            },
+            "start": {
+                "dateTime": "2024-10-14T17:00:00",
+                "timeZone": "Pacific Standard Time"
+            },
+            "subject": "File end-of-day report"
+        }
+    ).encode('utf-8')
+    return request_info
+
+
+@pytest.fixture
+def request_info_bytes():
+    request_info = RequestInformation()
+    request_info.http_method = "POST"
+    request_info.url = "https://graph.microsoft.com/v1.0/me/events"
+    request_info.headers = RequestHeaders()
+    request_info.headers.add("Content-Type", "application/json")
+    request_info.content = b'{"@odata.type": "#microsoft.graph.event", "end": {"dateTime": "2024-10-14T17:30:00", "timeZone": "Pacific Standard Time"}, "start": {"dateTime": "2024-10-14T17:00:00", "timeZone": "Pacific Standard Time"}, "subject": "File end-of-day report"}'
+    return request_info
+
+
+@pytest.fixture
+def batch_request_item_json(request_info_json):
+    return BatchRequestItem(request_information=request_info_json)
+
+
+@pytest.fixture
+def batch_request_item_bytes(request_info_bytes):
+    return BatchRequestItem(request_information=request_info_bytes)
+
+
+def encode_body_to_base64(body):
+    if isinstance(body, bytes):
+        return base64.b64encode(body).decode('utf-8')
+    elif isinstance(body, str):
+        return base64.b64encode(body.encode('utf-8')).decode('utf-8')
+    else:
+        raise ValueError("Unsupported body type")
 
 
 def test_initialization(batch_request_item, request_info):
@@ -124,3 +181,21 @@ def test_batch_request_item_method_enum():
 def test_depends_on_property(batch_request_item):
     batch_request_item.set_depends_on(["request1", "request2"])
     assert batch_request_item.depends_on == ["request1", "request2"]
+
+
+def test_serialize_with_json_body(batch_request_item_json):
+    item = batch_request_item_json
+    writer = Mock()
+    processed_body = encode_body_to_base64(item.body)
+
+    item.serialize(writer)
+    writer.write_str_value.assert_called_with('body', processed_body)
+
+
+def test_serialize_with_bytes_body(batch_request_item_bytes):
+    item = batch_request_item_bytes
+    writer = Mock()
+    processed_body = encode_body_to_base64(item.body)
+
+    item.serialize(writer)
+    writer.write_str_value.assert_called_with('body', processed_body)

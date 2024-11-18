@@ -106,16 +106,8 @@ class BatchRequestBuilder:
 
         batch_responses = BatchResponseContentCollection()
 
-        for batch_request_content in batch_request_content_collection.batches:
-            request_info = await self.to_post_request_information(batch_request_content)
-            bytes_content = request_info.content
-            json_content = bytes_content.decode("utf-8")
-            updated_str = '{"requests":' + json_content + '}'
-            updated_bytes = updated_str.encode("utf-8")
-            request_info.content = updated_bytes
-            response = await self._request_adapter.send_async(
-                request_info, BatchResponseContent, error_map or self.error_map
-            )
+        for batch_request_content in batch_request_content_collection.get_batch_requests_for_execution():
+            response = await self.post(batch_request_content, error_map)
             batch_responses.add_response(response)
 
         return batch_responses

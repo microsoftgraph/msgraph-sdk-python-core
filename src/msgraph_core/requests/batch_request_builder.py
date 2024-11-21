@@ -105,12 +105,9 @@ class BatchRequestBuilder:
             raise ValueError("batch_request_content_collection cannot be Null.")
 
         batch_responses = BatchResponseContentCollection()
-
-        for batch_request_content in batch_request_content_collection.batches:
-            request_info = await self.to_post_request_information(batch_request_content)
-            response = await self._request_adapter.send_async(
-                request_info, BatchResponseContent, error_map or self.error_map
-            )
+        batch_requests = batch_request_content_collection.get_batch_requests_for_execution()
+        for batch_request_content in batch_requests:
+            response = await self.post(batch_request_content, error_map)
             batch_responses.add_response(response)
 
         return batch_responses

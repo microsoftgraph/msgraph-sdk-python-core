@@ -41,11 +41,11 @@ def test_create_with_default_middleware_custom_client():
 def test_create_with_default_middleware_custom_client_with_proxy():
     """Test creation of GraphClient using default middleware"""
     proxies = {
-        "http://": "http://localhost:8030",
-        "https://": "http://localhost:8031",
+        "http://": httpx.HTTPTransport(proxy="http://localhost:8030"),
+        "https://": httpx.HTTPTransport(proxy="http://localhost:8031"),
     }
     timeout = httpx.Timeout(20, connect=10)
-    custom_client = httpx.AsyncClient(timeout=timeout, http2=True, proxies=proxies)
+    custom_client = httpx.AsyncClient(timeout=timeout, http2=True, mounts=proxies)
     client = GraphClientFactory.create_with_default_middleware(client=custom_client)
 
     assert isinstance(client, httpx.AsyncClient)
@@ -98,11 +98,11 @@ def test_create_with_custom_middleware_custom_client():
 def test_create_with_custom_middleware_custom_client_with_proxy():
     """Test creation of HTTP Clients with custom middleware"""
     proxies = {
-        "http://": "http://localhost:8030",
-        "https://": "http://localhost:8031",
+        "http://": httpx.HTTPTransport(proxy="http://localhost:8030"),
+        "https://": httpx.HTTPTransport(proxy="http://localhost:8031"),
     }
     timeout = httpx.Timeout(20, connect=10)
-    custom_client = httpx.AsyncClient(timeout=timeout, http2=True, proxies=proxies)
+    custom_client = httpx.AsyncClient(timeout=timeout, http2=True, mounts=proxies)
     middleware = [
         GraphTelemetryHandler(),
     ]

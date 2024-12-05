@@ -127,7 +127,7 @@ aiosignal==1.3.1 ; python_version >= '3.7'
 
 anyio==4.5.2 ; python_version >= '3.7'
 
-async-timeout==4.0.3 ; python_version >= '3.6'
+async-timeout==5.0.1 ; python_version >= '3.6'
 
 frozenlist==1.5.0 ; python_version >= '3.7'
 

@@ -88,7 +88,7 @@ python-dotenv==1.0.1
 
 pytest-trio==0.8.0
 
-pywin32==306 ; platform_system == 'Windows'
+pywin32==308 ; platform_system == 'Windows'
 
 requests==2.32.3 ; python_version >= '3.7'
 

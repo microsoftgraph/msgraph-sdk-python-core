@@ -16,7 +16,7 @@ bumpver==2024.1130
 
 certifi==2024.7.4 ; python_version >= '3.6'
 
-cffi==1.17.0 ; os_name == 'nt' and implementation_name != 'pypy'
+cffi==1.17.1 ; os_name == 'nt' and implementation_name != 'pypy'
 
 charset-normalizer==3.3.2 ; python_full_version >= '3.7.0'
 

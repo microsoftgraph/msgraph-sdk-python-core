@@ -143,11 +143,11 @@ httpx[http2]==0.28.0
 
 hyperframe==6.0.1 ; python_full_version >= '3.6.1'
 
-microsoft-kiota-abstractions==1.3.3
+microsoft-kiota-abstractions==1.6.4
 
-microsoft-kiota-authentication-azure==1.1.0
+microsoft-kiota-authentication-azure==1.6.4
 
-microsoft-kiota-http==1.3.3
+microsoft-kiota-http==1.6.4
 
 multidict==6.1.0 ; python_version >= '3.7'
 

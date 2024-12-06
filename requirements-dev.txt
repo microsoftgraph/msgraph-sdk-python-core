@@ -76,7 +76,7 @@ pyjwt[crypto]==2.9.0 ; python_version >= '3.7'
 
 pylint==3.2.7
 
-pyproject-hooks==1.1.0 ; python_version >= '3.7'
+pyproject-hooks==1.2.0 ; python_version >= '3.7'
 
 pytest==8.3.4
 

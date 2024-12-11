@@ -1,15 +1,15 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Optional, Protocol, TypeVar, Generic
 import datetime
 from dataclasses import dataclass, field
 
 from kiota_abstractions.serialization import (
-    AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+    ParseNode, SerializationWriter, ParsableFactory
 )
 
 
 @dataclass
-class LargeFileUploadSession(AdditionalDataHolder, Parsable):
+class LargeFileUploadSession(Protocol, ParsableFactory):
 
     additional_data: Dict[str, Any] = field(default_factory=dict)
     expiration_date_time: Optional[datetime.datetime] = None
@@ -25,13 +25,13 @@ class LargeFileUploadSession(AdditionalDataHolder, Parsable):
     ) -> LargeFileUploadSession:
         """
         Creates a new instance of the appropriate class based
-        on discriminator value param parse_node: The parse node    
+        on discriminator value param parse_node: The parse node
         to use to read the discriminator value and create the object
         Returns: UploadSession
         """
         if not parse_node:
             raise TypeError("parse_node cannot be null.")
-        return LargeFileUploadSession()
+        return LargeFileUploadSession() # type: ignore # Breaking change to remove this method since a Protocol cannot instantiate itself
 
     def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
         """

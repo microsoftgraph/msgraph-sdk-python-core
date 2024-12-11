@@ -5,7 +5,6 @@ from asyncio import Future
 from datetime import datetime, timedelta, timezone
 import logging
 
-from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
@@ -22,7 +21,7 @@ class LargeFileUploadTask:
 
     def __init__(
         self,
-        upload_session: Parsable,
+        upload_session: LargeFileUploadSession,
         request_adapter: RequestAdapter,
         stream: BytesIO,
         parsable_factory: Optional[ParsableFactory] = None,
@@ -64,7 +63,7 @@ class LargeFileUploadTask:
     def chunks(self, value):
         self._chunks = value
 
-    def upload_session_expired(self, upload_session: Optional[Parsable] = None) -> bool:
+    def upload_session_expired(self, upload_session: Optional[LargeFileUploadSession] = None) -> bool:
         now = datetime.now(timezone.utc)
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
@@ -110,7 +109,7 @@ class LargeFileUploadTask:
                 response = await self.last_chunk(self.stream)
 
             try:
-                lfu_session: LargeFileUploadSession = session  # type: ignore
+                lfu_session = session
                 if lfu_session is None:
                     continue
                 next_range = lfu_session.next_expected_ranges
@@ -143,7 +142,7 @@ class LargeFileUploadTask:
     def next_range(self, value: Optional[str]) -> None:
         self._next_range = value
 
-    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> Future:
+    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> Optional[LargeFileUploadSession]:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
@@ -238,7 +237,7 @@ class LargeFileUploadTask:
 
         return self.upload_session
 
-    def additional_data_contains(self, parsable: Parsable,
+    def additional_data_contains(self, parsable: LargeFileUploadSession,
                                  property_candidates: List[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
@@ -253,7 +252,7 @@ class LargeFileUploadTask:
         return False, None
 
     def check_value_exists(
-        self, parsable: Parsable, attribute_name: str, property_names_in_additional_data: List[str]
+        self, parsable: LargeFileUploadSession, attribute_name: str, property_names_in_additional_data: List[str]
     ) -> Tuple[bool, Any]:
         checked_additional_data = self.additional_data_contains(
             parsable, property_names_in_additional_data
@@ -287,7 +286,7 @@ class LargeFileUploadTask:
         self.next_range = next_range
         return await self.upload()
 
-    def get_validated_upload_url(self, upload_session: Parsable) -> str:
+    def get_validated_upload_url(self, upload_session: LargeFileUploadSession) -> str:
         if not hasattr(upload_session, 'upload_url'):
             raise RuntimeError('The upload session does not contain a valid upload url')
         result = upload_session.upload_url

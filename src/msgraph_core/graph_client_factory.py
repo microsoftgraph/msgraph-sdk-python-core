@@ -22,7 +22,7 @@ class GraphClientFactory(KiotaClientFactory):
     """
 
     @staticmethod
-    def create_with_default_middleware(
+    def create_with_default_middleware( # type: ignore # Breaking change to remove KiotaClientFactory as base class
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
@@ -53,7 +53,7 @@ class GraphClientFactory(KiotaClientFactory):
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
-    def create_with_custom_middleware(
+    def create_with_custom_middleware( # type: ignore # Breaking change to remove Kiota client factory as base class
         middleware: Optional[List[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
@@ -91,7 +91,7 @@ class GraphClientFactory(KiotaClientFactory):
         options"""
 
         if options:
-            graph_telemetry_options = options.get(GraphTelemetryHandlerOption().get_key())
+            graph_telemetry_options: GraphTelemetryHandlerOption = options.get(GraphTelemetryHandlerOption().get_key()) # type: ignore # Unable to down cast type
             if graph_telemetry_options:
                 return GraphTelemetryHandler(options=graph_telemetry_options)
         return GraphTelemetryHandler()

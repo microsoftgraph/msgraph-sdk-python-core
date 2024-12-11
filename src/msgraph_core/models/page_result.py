@@ -47,7 +47,7 @@ class PageResult(Parsable):
         """
         return {
             "@odata.nextLink": lambda x: setattr(self, "odata_next_link", x.get_str_value()),
-            "value": lambda x: setattr(self, "value", x.get_collection_of_object_values(Parsable))
+            "value": lambda x: setattr(self, "value", x.get_collection_of_object_values(Parsable)) # type: ignore # Bug. Should get a collection of primitive dictionary objects
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

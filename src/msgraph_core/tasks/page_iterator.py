@@ -26,7 +26,7 @@ from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization.parsable import Parsable
+from kiota_abstractions.serialization import Parsable, ParsableFactory
 
 from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
 
@@ -59,12 +59,13 @@ Methods:
         self,
         response: Union[T, list, object],
         request_adapter: RequestAdapter,
-        constructor_callable: Optional[Callable] = None
+        constructor_callable: Optional[Callable] = None,
+        error_mapping: Optional[Dict[str, type[ParsableFactory]]] = None,
     ):
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            parsable_factory = type(response)
+            parsable_factory = type(response) # type: ignore
         elif constructor_callable is None:
             parsable_factory = PageResult
         else:
@@ -89,6 +90,7 @@ Methods:
         if page is not None:
             self.current_page = page
             self.has_next = bool(page.odata_next_link)
+        self.error_mapping = error_mapping if error_mapping else dict()
 
     def set_headers(self, headers: dict) -> HeadersCollection:
         """
@@ -100,6 +102,7 @@ Methods:
             header names and the values are the header values.
         """
         self.headers.add_all(**headers)
+        return self.headers
 
     @property
     def delta_link(self):
@@ -181,7 +184,7 @@ Methods:
         page: PageResult = PageResult(next_link, value)
         return page
 
-    async def fetch_next_page(self) -> List[Parsable]:
+    async def fetch_next_page(self) -> Optional[Union[T, PageResult]]:
         """
         Fetches the next page of items from the server.
         Returns:
@@ -202,9 +205,8 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        error_map: Dict[str, int] = {}
         response = await self.request_adapter.send_async(
-            request_info, self.parsable_factory, error_map
+            request_info, self.parsable_factory, self.error_mapping # type: ignore
         )
         return response
 

@@ -149,11 +149,7 @@ class BatchResponseContent(Parsable):
             else:
                 setattr(self, '_responses', {})
 
-
-        return {
-            'responses':
-            lambda n: set_responses(n)
-        }
+        return {'responses': lambda n: set_responses(n)}
 
     def serialize(self, writer: SerializationWriter) -> None:
         """

@@ -16,6 +16,7 @@ from msgraph_core.models import LargeFileUploadSession, UploadResult  # check im
 
 T = TypeVar('T', bound=Parsable)
 
+
 # pylint: disable=too-many-instance-attributes
 class LargeFileUploadTask:
 
@@ -145,7 +146,9 @@ class LargeFileUploadTask:
     def next_range(self, value: Optional[str]) -> None:
         self._next_range = value
 
-    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> LargeFileUploadSession:
+    async def next_chunk(
+        self, file: BytesIO, range_start: int = 0, range_end: int = 0
+    ) -> LargeFileUploadSession:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')

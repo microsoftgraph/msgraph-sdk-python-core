@@ -53,9 +53,14 @@ class BatchRequestContentCollection:
         batch_with_failed_responses: Optional[BatchRequestContent] = BatchRequestContent()
         for batch in self.batches:
             for request in batch.requests:
-                if request.status_code not in [200, 201, 202, 203, 204, 205, 206, 207, 208, 226]: # type: ignore # Method should be deprecated
+                if request.status_code not in [ # type: ignore # Method should be deprecated
+                    200, 201, 202, 203, 204, 205, 206, 207, 208, 226
+                ]:
                     if batch_with_failed_responses is not None:
-                        batch_with_failed_responses.add_request(request.id, request) # type: ignore # Bug. Method should be deprecated
+                        batch_with_failed_responses.add_request(
+                            request.id,  # type: ignore # Bug. Method should be deprecated
+                            request  # type: ignore
+                        )
                     else:
                         raise ValueError("batch_with_failed_responses is None")
         return batch_with_failed_responses

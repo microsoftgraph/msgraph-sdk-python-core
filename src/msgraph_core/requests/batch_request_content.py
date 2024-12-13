@@ -67,10 +67,14 @@ class BatchRequestContent(Parsable):
         if hasattr(request, 'depends_on') and request.depends_on:
             for dependent_id in request.depends_on:
                 if not self._request_by_id(dependent_id):
-                    raise ValueError(f"Request depends on request id: {dependent_id} which was not found in requests. Add request id: {dependent_id} first")
+                    raise ValueError(
+                        f"Request depends on request id: {dependent_id} which was not found in requests. Add request id: {dependent_id} first"
+                    )
         self._requests[request.id] = request
 
-    def add_request_information(self, request_information: RequestInformation, request_id: Optional[str] = None) -> None:
+    def add_request_information(
+        self, request_information: RequestInformation, request_id: Optional[str] = None
+    ) -> None:
         """
         Adds a request to the batch request content.
         Args:

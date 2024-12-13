@@ -91,7 +91,9 @@ class GraphClientFactory(KiotaClientFactory):
         options"""
 
         if options:
-            graph_telemetry_options: GraphTelemetryHandlerOption = options.get(GraphTelemetryHandlerOption().get_key()) # type: ignore # Unable to down cast type
+            graph_telemetry_options: GraphTelemetryHandlerOption = options.get(
+                GraphTelemetryHandlerOption().get_key()
+            )  # type: ignore # Unable to down cast type
             if graph_telemetry_options:
                 return GraphTelemetryHandler(options=graph_telemetry_options)
         return GraphTelemetryHandler()

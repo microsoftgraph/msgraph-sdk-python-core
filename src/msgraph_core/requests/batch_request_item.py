@@ -78,8 +78,12 @@ class BatchRequestItem(Parsable):
         request_info.headers = RequestHeaders()
         for key, value in request.headers.items():
             request_info.headers.try_add(header_name=key, header_value=value)
-        request_info.content = request.data # type: ignore
-        return BatchRequestItem(request_info, id, depends_on) # type: ignore # union types not analysed correctly
+        request_info.content = request.data  # type: ignore
+        return BatchRequestItem(
+            request_info,
+            id,
+            depends_on  # type: ignore # union types not analysed correctly
+        )
 
     def set_depends_on(self, requests: Optional[List[Union[str, 'BatchRequestItem']]]) -> None:
         """
@@ -254,7 +258,10 @@ class BatchRequestItem(Parsable):
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
-        writer.write_collection_of_object_values('headers', self._headers) # type: ignore # need method to serialize dicts
+        writer.write_collection_of_object_values(
+            'headers',
+            self._headers  # type: ignore # need method to serialize dicts
+        )
         if self._body:
             json_object = json.loads(self._body)
             is_json_string = json_object and isinstance(json_object, dict)

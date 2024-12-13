@@ -148,7 +148,9 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = await self.fetch_next_page()
-        next_link = response.odata_next_link if response and hasattr(response, 'odata_next_link') else None
+        next_link = response.odata_next_link if response and hasattr(
+            response, 'odata_next_link'
+        ) else None
         value = response.value if response and hasattr(response, 'value') else None
         return PageResult(next_link, value)
 
@@ -206,7 +208,9 @@ Methods:
         if self.request_options:
             request_info.add_request_options(*self.request_options)
         return await self.request_adapter.send_async(
-            request_info, self.parsable_factory, self.error_mapping # type: ignore
+            request_info,
+            self.parsable_factory,  # type: ignore
+            self.error_mapping
         )
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:

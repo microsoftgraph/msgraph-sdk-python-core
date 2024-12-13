@@ -142,7 +142,11 @@ class BatchResponseItem(Parsable):
         return {
             "id": lambda x: setattr(self, "id", x.get_str_value()),
             "status": lambda x: setattr(self, "status", x.get_int_value()),
-            "headers": lambda x: setattr(self, "headers", x.try_get_anything(x._json_node)), # type: ignore # need interface to return a dictionary
+            "headers": lambda x: setattr(
+                self,
+                "headers",
+                x.try_get_anything(x._json_node)  # type: ignore
+            ),  # need interface to return a dictionary
             "body": lambda x: setattr(self, "body", x.get_bytes_value()),
         }
 
@@ -153,7 +157,10 @@ class BatchResponseItem(Parsable):
         writer.write_str_value('id', self._id)
         writer.write_str_value('atomicity_group', self._atomicity_group)
         writer.write_int_value('status', self._status)
-        writer.write_collection_of_primitive_values('headers', self._headers) # type: ignore # need method to serialize dicts
+        writer.write_collection_of_primitive_values(
+            'headers',
+            self._headers  # type: ignore
+        )  # need method to serialize dicts
         if self._body:
             writer.write_bytes_value('body', self._body.getvalue())
         else:

@@ -98,12 +98,14 @@ class BatchRequestContent(Parsable):
         Args:
             request_id (str): The request id to remove.
         """
-        request_to_remove = self._request_by_id(request_id)
+        request_to_remove = None
+        for request in self.requests:
+            if request.id == request_id:
+                request_to_remove = request
+            if hasattr(request, 'depends_on') and request.depends_on:
+                if request_id in request.depends_on:
+                    request.depends_on.remove(request_id)
         if request_to_remove:
-            if hasattr(request_to_remove, 'depends_on') and request_to_remove.depends_on:
-                for dependent_id in request_to_remove.depends_on:
-                    if self._request_by_id(dependent_id):
-                        del self._requests[dependent_id]
             del self._requests[request_to_remove.id]
         else:
             raise ValueError(f"Request ID {request_id} not found in requests.")

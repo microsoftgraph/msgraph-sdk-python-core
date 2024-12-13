@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional, List, Tuple, Any, Dict
+from typing import Callable, Optional, List, Tuple, Any, Dict, TypeVar, Union, Type
 from io import BytesIO
 from asyncio import Future
 from datetime import datetime, timedelta, timezone
@@ -8,23 +8,23 @@ import logging
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
-from kiota_abstractions.serialization.parsable_factory import ParsableFactory
+from kiota_abstractions.serialization import Parsable, ParsableFactory, AdditionalDataHolder
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
 from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
 
+T = TypeVar('T', bound=Parsable)
 
 # pylint: disable=too-many-instance-attributes
 class LargeFileUploadTask:
 
     def __init__(
         self,
-        upload_session: LargeFileUploadSession,
+        upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,
-        parsable_factory: Optional[ParsableFactory] = None,
+        parsable_factory: Optional[ParsableFactory[T]] = None,
         max_chunk_size: int = 5 * 1024 * 1024
     ):
         self._upload_session = upload_session
@@ -63,12 +63,12 @@ class LargeFileUploadTask:
     def chunks(self, value):
         self._chunks = value
 
-    def upload_session_expired(self, upload_session: Optional[LargeFileUploadSession] = None) -> bool:
+    def upload_session_expired(self, upload_session: Optional[Parsable] = None) -> bool:
         now = datetime.now(timezone.utc)
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
             raise ValueError("Upload session does not have an expiration date time")
-        expiry = upload_session.expiration_date_time
+        expiry = getattr(upload_session, 'expiration_date_time')
         if expiry is None:
             raise ValueError("Expiry is None")
         if isinstance(expiry, str):
@@ -91,7 +91,7 @@ class LargeFileUploadTask:
             raise RuntimeError('The upload session is expired.')
 
         self.on_chunk_upload_complete = after_chunk_upload or self.on_chunk_upload_complete
-        session = await self.next_chunk(
+        session: LargeFileUploadSession = await self.next_chunk(
             self.stream, 0, max(0, min(self.max_chunk_size - 1, self.file_size - 1))
         )
         process_next = session
@@ -112,9 +112,11 @@ class LargeFileUploadTask:
                 lfu_session = session
                 if lfu_session is None:
                     continue
-                next_range = lfu_session.next_expected_ranges
+                if hasattr(lfu_session, 'next_expected_ranges'):
+                    next_range = lfu_session.next_expected_ranges
                 old_url = self.get_validated_upload_url(self.upload_session)
-                lfu_session.upload_url = old_url
+                if hasattr(lfu_session, 'upload_url'):
+                    lfu_session.upload_url = old_url
                 if self.on_chunk_upload_complete is not None:
                     self.on_chunk_upload_complete(uploaded_range)
                 if not next_range:
@@ -131,7 +133,8 @@ class LargeFileUploadTask:
                 self.chunks -= 1
         upload_result: UploadResult[Any] = UploadResult()
         upload_result.item_response = response
-        upload_result.location = self.upload_session.upload_url
+        if hasattr(self.upload_session, 'upload_url'):
+            upload_result.location = self.upload_session.upload_url
         return upload_result
 
     @property
@@ -142,7 +145,7 @@ class LargeFileUploadTask:
     def next_range(self, value: Optional[str]) -> None:
         self._next_range = value
 
-    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> Optional[LargeFileUploadSession]:
+    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> LargeFileUploadSession:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
@@ -174,16 +177,15 @@ class LargeFileUploadTask:
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
-        parsable_factory = LargeFileUploadSession
-        return await self.request_adapter.send_async(info, parsable_factory, error_map)
+        return await self.request_adapter.send_async(info, LargeFileUploadSession, error_map)
 
     async def last_chunk(
         self,
         file: BytesIO,
         range_start: int = 0,
         range_end: int = 0,
-        parsable_factory: Optional[ParsableFactory] = None
-    ) -> Future:
+        parsable_factory: Optional[ParsableFactory[T]] = None
+    ) -> Optional[Union[T, bytes]]:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
@@ -215,13 +217,15 @@ class LargeFileUploadTask:
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
-        parsable_factory = self.factory or parsable_factory
-        return await self.request_adapter.send_async(info, parsable_factory, error_map)
+        factory = self.factory or parsable_factory
+        if factory:
+            return await self.request_adapter.send_async(info, factory, error_map)
+        return await self.request_adapter.send_primitive_async(info, "bytes", error_map)
 
     def get_file(self) -> BytesIO:
         return self.stream
 
-    async def cancel(self) -> Optional[Future]:
+    async def cancel(self) -> Parsable:
         upload_url = self.get_validated_upload_url(self.upload_session)
         request_information = RequestInformation(method=Method.DELETE, url_template=upload_url)
 
@@ -237,7 +241,7 @@ class LargeFileUploadTask:
 
         return self.upload_session
 
-    def additional_data_contains(self, parsable: LargeFileUploadSession,
+    def additional_data_contains(self, parsable: Parsable,
                                  property_candidates: List[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
@@ -245,6 +249,8 @@ class LargeFileUploadTask:
                 f'{",".join(property_candidates)} and does not implement '
                 f'AdditionalDataHolder'
             )
+        if not hasattr(parsable, 'additional_data'):
+            raise ValueError(f'The object passed does not contain an additional_data property')
         additional_data = parsable.additional_data
         for property_candidate in property_candidates:
             if property_candidate in additional_data:
@@ -252,7 +258,7 @@ class LargeFileUploadTask:
         return False, None
 
     def check_value_exists(
-        self, parsable: LargeFileUploadSession, attribute_name: str, property_names_in_additional_data: List[str]
+        self, parsable: Parsable, attribute_name: str, property_names_in_additional_data: List[str]
     ) -> Tuple[bool, Any]:
         checked_additional_data = self.additional_data_contains(
             parsable, property_names_in_additional_data
@@ -286,7 +292,7 @@ class LargeFileUploadTask:
         self.next_range = next_range
         return await self.upload()
 
-    def get_validated_upload_url(self, upload_session: LargeFileUploadSession) -> str:
+    def get_validated_upload_url(self, upload_session: Parsable) -> str:
         if not hasattr(upload_session, 'upload_url'):
             raise RuntimeError('The upload session does not contain a valid upload url')
         result = upload_session.upload_url

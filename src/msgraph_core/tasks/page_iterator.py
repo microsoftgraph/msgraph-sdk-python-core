@@ -60,7 +60,7 @@ Methods:
         response: Union[T, list, object],
         request_adapter: RequestAdapter,
         constructor_callable: Optional[Callable] = None,
-        error_mapping: Optional[Dict[str, type[ParsableFactory]]] = None,
+        error_mapping: Optional[Dict[str, Type[ParsableFactory]]] = None,
     ):
         self.request_adapter = request_adapter
 

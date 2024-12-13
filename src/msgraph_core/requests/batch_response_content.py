@@ -1,15 +1,15 @@
-from typing import Optional, Dict, Type, TypeVar, Callable
+from typing import Optional, Dict, Type, TypeVar, Callable, Union
 from io import BytesIO
 import base64
 
-from kiota_abstractions.serialization import Parsable
+from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
 from kiota_abstractions.serialization import ParseNodeFactoryRegistry
 from kiota_abstractions.serialization import SerializationWriter
 
 from .batch_response_item import BatchResponseItem
 
-T = TypeVar('T', bound='Parsable')
+T = TypeVar('T', bound=ParsableFactory)
 
 
 class BatchResponseContent(Parsable):
@@ -20,10 +20,10 @@ class BatchResponseContent(Parsable):
         BatchResponseContent is a collection of BatchResponseItem items,
          each with a unique request ID.
         """
-        self._responses: Optional[Dict[str, 'BatchResponseItem']] = {}
+        self._responses: Optional[Dict[str, BatchResponseItem]] = {}
 
     @property
-    def responses(self) -> Optional[Dict[str, 'BatchResponseItem']]:
+    def responses(self) -> Optional[Dict[str, BatchResponseItem]]:
         """
         Get the responses in the collection
         :return: A dictionary of response IDs and their BatchResponseItem objects
@@ -32,7 +32,7 @@ class BatchResponseContent(Parsable):
         return self._responses
 
     @responses.setter
-    def responses(self, responses: Optional[Dict[str, 'BatchResponseItem']]) -> None:
+    def responses(self, responses: Optional[Dict[str, BatchResponseItem]]) -> None:
         """
         Set the responses in the collection
         :param responses: The responses to set in the collection
@@ -44,7 +44,7 @@ class BatchResponseContent(Parsable):
         self,
         request_id: str,
         response_type: Optional[Type[T]] = None,
-    ) -> Optional['BatchResponseItem']:
+    ) -> Optional[Union[T, BatchResponseItem]]:
         """
         Get a response by its request ID from the collection
         :param request_id: The request ID of the response to get
@@ -55,7 +55,7 @@ class BatchResponseContent(Parsable):
         if self._responses is None:
             return None
         if response_type is not None:
-            return response_type.create_from_discriminator_value(self._responses.get(request_id))
+            return self.response_body(request_id, response_type)
         return self._responses.get(request_id)
 
     def get_response_stream_by_id(self, request_id: str) -> Optional[BytesIO]:
@@ -91,7 +91,7 @@ class BatchResponseContent(Parsable):
         return status_codes
 
     def response_body(self, request_id: str, type: Type[T]) -> Optional[T]:
-        """ 
+        """
         Get the body of a response by its request ID from the collection
         :param request_id: The request ID of the response to get
         :type request_id: str
@@ -129,26 +129,30 @@ class BatchResponseContent(Parsable):
                     content_type, base64_decoded_body
                 )
                 response.body = base64_decoded_body
-            return parse_node.get_object_value(type.create_from_discriminator_value)
+            return parse_node.get_object_value(type)
         except Exception:
             raise ValueError(
                 f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
-        """ 
+        """
         Gets the deserialization information for this object.
         :return: The deserialization information for this object
         :rtype: Dict[str, Callable[[ParseNode], None]]
         """
 
+        def set_responses(n: ParseNode):
+            values = n.get_collection_of_object_values(BatchResponseItem)
+            if values:
+                setattr(self, '_responses', {item.id: item for item in values})
+            else:
+                setattr(self, '_responses', {})
+
+
         return {
             'responses':
-            lambda n: setattr(
-                self, '_responses',
-                {item.id: item
-                 for item in n.get_collection_of_object_values(BatchResponseItem)}
-            )
+            lambda n: set_responses(n)
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
@@ -159,7 +163,7 @@ class BatchResponseContent(Parsable):
         if self._responses is not None:
             writer.write_collection_of_object_values('responses', list(self._responses.values()))
         else:
-            writer.write_collection_of_object_values('responses', [])  # type: ignore
+            writer.write_collection_of_object_values('responses', [])
 
     @staticmethod
     def create_from_discriminator_value(

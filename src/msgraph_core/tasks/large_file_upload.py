@@ -249,12 +249,12 @@ class LargeFileUploadTask:
                                  property_candidates: List[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
-                f'The object passed does not contain property/properties '
+                'The object passed does not contain property/properties '
                 f'{",".join(property_candidates)} and does not implement '
-                f'AdditionalDataHolder'
+                'AdditionalDataHolder'
             )
         if not hasattr(parsable, 'additional_data'):
-            raise ValueError(f'The object passed does not contain an additional_data property')
+            raise ValueError('The object passed does not contain an additional_data property')
         additional_data = parsable.additional_data
         for property_candidate in property_candidates:
             if property_candidate in additional_data:

@@ -17,7 +17,7 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict, List
+from typing import Callable, Optional, Union, Dict, Type
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL
@@ -65,7 +65,7 @@ Methods:
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            parsable_factory = type(response) # type: ignore
+            parsable_factory: Type[Parsable] = type(response)
         elif constructor_callable is None:
             parsable_factory = PageResult
         else:
@@ -75,7 +75,7 @@ Methods:
         self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
-        self.request_options = []  # type: ignore
+        self.request_options: list = []
         self.current_page = self.convert_to_page(response)
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
@@ -148,8 +148,9 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = await self.fetch_next_page()
-        page: PageResult = PageResult(response.odata_next_link, response.value)  # type: ignore
-        return page
+        next_link = response.odata_next_link if response and hasattr(response, 'odata_next_link') else None
+        value = response.value if response and hasattr(response, 'value') else None
+        return PageResult(next_link, value)
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> PageResult:
@@ -169,9 +170,9 @@ Methods:
             raise ValueError('Response cannot be null.')
         value = None
         if isinstance(response, list):
-            value = response.value  # type: ignore
+            value = response
         elif hasattr(response, 'value'):
-            value = getattr(response, 'value')
+            value = response.value
         elif isinstance(response, object):
             value = getattr(response, 'value', [])
         if value is None:
@@ -181,8 +182,7 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page: PageResult = PageResult(next_link, value)
-        return page
+        return PageResult(next_link, value)
 
     async def fetch_next_page(self) -> Optional[Union[T, PageResult]]:
         """
@@ -205,10 +205,9 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        response = await self.request_adapter.send_async(
+        return await self.request_adapter.send_async(
             request_info, self.parsable_factory, self.error_mapping # type: ignore
         )
-        return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         """

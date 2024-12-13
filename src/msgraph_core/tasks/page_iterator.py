@@ -90,7 +90,7 @@ Methods:
         if page is not None:
             self.current_page = page
             self.has_next = bool(page.odata_next_link)
-        self.error_mapping = error_mapping if error_mapping else dict()
+        self.error_mapping = error_mapping if error_mapping else {}
 
     def set_headers(self, headers: dict) -> HeadersCollection:
         """

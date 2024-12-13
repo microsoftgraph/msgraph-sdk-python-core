@@ -53,7 +53,8 @@ class PageResult(Parsable):
                 self,
                 "value",
                 x.get_collection_of_object_values(
-                    Parsable  # type: ignore # Bug. Should get a collection of primitive dictionary objects
+                    Parsable  # type: ignore
+                    # Bug. Should get a collection of primitive dictionary objects
                 )
             )
         }

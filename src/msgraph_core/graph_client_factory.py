@@ -22,7 +22,8 @@ class GraphClientFactory(KiotaClientFactory):
     """
 
     @staticmethod
-    def create_with_default_middleware( # type: ignore # Breaking change to remove KiotaClientFactory as base class
+    def create_with_default_middleware( # type: ignore
+        # Breaking change to remove KiotaClientFactory as base class
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
@@ -53,7 +54,8 @@ class GraphClientFactory(KiotaClientFactory):
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
-    def create_with_custom_middleware( # type: ignore # Breaking change to remove Kiota client factory as base class
+    def create_with_custom_middleware( # type: ignore
+        # Breaking change to remove Kiota client factory as base class
         middleware: Optional[List[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,

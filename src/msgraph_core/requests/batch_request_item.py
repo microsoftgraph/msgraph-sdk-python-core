@@ -267,7 +267,8 @@ class BatchRequestItem(Parsable):
             is_json_string = json_object and isinstance(json_object, dict)
             # /$batch API expects JSON object or base 64 encoded value for the body
             if is_json_string:
-                writer.write_collection_of_object_values(   # type: ignore # need method to serialize dicts
+                writer.write_collection_of_object_values(   # type: ignore
+                    # need method to serialize dicts
                     'body',
                     json_object
                 )

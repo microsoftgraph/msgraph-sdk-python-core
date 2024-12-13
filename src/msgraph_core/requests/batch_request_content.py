@@ -1,11 +1,10 @@
 import uuid
 from typing import List, Dict, Union, Optional
+from urllib.request import Request
 
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable, ParseNode
 from kiota_abstractions.serialization import SerializationWriter
-
-from urllib.request import Request
 
 from .batch_request_item import BatchRequestItem
 
@@ -68,7 +67,9 @@ class BatchRequestContent(Parsable):
             for dependent_id in request.depends_on:
                 if not self._request_by_id(dependent_id):
                     raise ValueError(
-                        f"Request depends on request id: {dependent_id} which was not found in requests. Add request id: {dependent_id} first"
+                        f"""
+                        Request depends on request id: {dependent_id}
+                        which was not found in requests. Add request id: {dependent_id} first"""
                     )
         self._requests[request.id] = request
 

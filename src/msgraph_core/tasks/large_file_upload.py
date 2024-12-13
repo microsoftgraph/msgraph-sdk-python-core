@@ -113,6 +113,7 @@ class LargeFileUploadTask:
                 lfu_session = session
                 if lfu_session is None:
                     continue
+                next_range = None
                 if hasattr(lfu_session, 'next_expected_ranges'):
                     next_range = lfu_session.next_expected_ranges
                 old_url = self.get_validated_upload_url(self.upload_session)

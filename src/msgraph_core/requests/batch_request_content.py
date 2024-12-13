@@ -99,7 +99,7 @@ class BatchRequestContent(Parsable):
             request_id (str): The request id to remove.
         """
         request_to_remove = None
-        for request in self.requests:
+        for request in self.requests.values():
             if request.id == request_id:
                 request_to_remove = request
             if hasattr(request, 'depends_on') and request.depends_on:

@@ -1,9 +1,14 @@
 from typing import Optional, Dict, Any, Callable
 from io import BytesIO
+from deprecated import deprecated
 
 from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
 from kiota_abstractions.serialization import SerializationWriter
+
+@deprecated("Use BytesIO type instead")
+class StreamInterface(BytesIO):
+    pass
 
 
 class BatchResponseItem(Parsable):
@@ -104,7 +109,7 @@ class BatchResponseItem(Parsable):
         """
         Set the body of the response
         :param body: The body of the response
-        :type body: Optional[StreamInterface]
+        :type body: Optional[BytesIO]
         """
         self._body = body
 

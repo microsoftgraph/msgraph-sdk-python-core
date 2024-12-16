@@ -6,6 +6,7 @@ from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
 from kiota_abstractions.serialization import SerializationWriter
 
+
 @deprecated("Use BytesIO type instead")
 class StreamInterface(BytesIO):
     pass

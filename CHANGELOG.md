@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.8](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.7...v1.1.8) (2024-12-18)
+
+
+### Bug Fixes
+
+* Fixes type hints and failing mypy checks ([85e8935](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/85e8935971adef13d4f5d1e55970c570ad267dda))
+
 ## [1.1.7](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.6...v1.1.7) (2024-11-21)
 
 

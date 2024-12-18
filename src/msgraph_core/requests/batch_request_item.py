@@ -9,6 +9,7 @@ import urllib.request
 from urllib.parse import urlparse
 
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
+from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable
 from kiota_abstractions.serialization import SerializationWriter
@@ -29,7 +30,7 @@ class BatchRequestItem(Parsable):
         id: str = "",
         depends_on: Optional[List[Union[str, 'BatchRequestItem']]] = []
     ):
-        """ 
+        """
         Initializes a new instance of the BatchRequestItem class.
         Args:
             request_information (RequestInformation): The request information.
@@ -44,7 +45,7 @@ class BatchRequestItem(Parsable):
             self._method = request_information.http_method.name
         else:
             self._method = request_information.http_method
-        self._headers = request_information.request_headers
+        self._headers: Optional[Dict[str, str]] = request_information.request_headers
         self._body = request_information.content
         self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
         self._depends_on: Optional[List[str]] = []
@@ -57,30 +58,38 @@ class BatchRequestItem(Parsable):
         id: str = "",
         depends_on: Optional[List[str]] = None
     ) -> 'BatchRequestItem':
-        """ 
+        """
         Creates a new instance of the BatchRequestItem class from a urllib request.
         Args:
             request (urllib.request.Request): The urllib request.
             id (str, optional): The ID of the request item. Defaults to "".
             depends_on (Optional[List[str]], optional): The IDs of
                  the requests that this request depends on. Defaults to None.
-        Returns:    
+        Returns:
             BatchRequestItem: A new instance of the BatchRequestItem class.
         """
         request_info = RequestInformation()
-        request_info.http_method = request.get_method()
+        try:
+            request_info.http_method = Method[request.get_method().upper()]
+        except KeyError:
+            raise KeyError(f"Request Method: {request.get_method()} is invalid")
+
         request_info.url = request.full_url
         request_info.headers = RequestHeaders()
         for key, value in request.headers.items():
             request_info.headers.try_add(header_name=key, header_value=value)
-        request_info.content = request.data
-        return BatchRequestItem(request_info, id, depends_on)
+        request_info.content = request.data  # type: ignore
+        return BatchRequestItem(
+            request_info,
+            id,
+            depends_on  # type: ignore # union types not analysed correctly
+        )
 
     def set_depends_on(self, requests: Optional[List[Union[str, 'BatchRequestItem']]]) -> None:
         """
         Sets the IDs of the requests that this request depends on.
         Args:
-            requests (Optional[List[Union[str, BatchRequestItem]]): The 
+            requests (Optional[List[Union[str, BatchRequestItem]]): The
                 IDs of the requests that this request depends on.
         """
         if requests:
@@ -119,7 +128,7 @@ class BatchRequestItem(Parsable):
 
     @property
     def id(self) -> str:
-        """ 
+        """
         Gets the ID of the request item.
         Returns:
             str: The ID of the request item.
@@ -136,11 +145,11 @@ class BatchRequestItem(Parsable):
         self._id = value
 
     @property
-    def headers(self) -> List[RequestHeaders]:
+    def headers(self) -> Optional[Dict[str, str]]:
         """
         Gets the headers of the request item.
         Returns:
-            List[RequestHeaders]: The headers of the request item.
+            Optional[Dict[str, str]]: The headers of the request item.
         """
         return self._headers
 
@@ -151,15 +160,22 @@ class BatchRequestItem(Parsable):
         Args:
             headers (Dict[str, Union[List[str], str]]): The headers of the request item.
         """
-        self._headers.clear()
-        self._headers.update(headers)
+        if self._headers:
+            self._headers.clear()
+        else:
+            self._headers = {}
+        headers_collection = RequestHeaders()
+        for header, value in headers.items():
+            headers_collection.add(header, value)
+        for key, values in headers_collection.get_all().items():
+            self._headers[key] = ', '.join(values)
 
     @property
-    def body(self) -> None:
+    def body(self) -> Optional[bytes]:
         """
         Gets the body of the request item.
         Returns:
-            None: The body of the request item.
+            Optional[bytes]: The body of the request item.
         """
         return self._body
 
@@ -170,7 +186,7 @@ class BatchRequestItem(Parsable):
         Args:
             body : (BytesIO): The body of the request item.
         """
-        self._body = body
+        self._body = body.getvalue()
 
     @property
     def method(self) -> str:
@@ -207,7 +223,7 @@ class BatchRequestItem(Parsable):
     ) -> 'BatchRequestItem':
         """
         Creates a new instance of the appropriate class based
-        on discriminator value param parse_node: The parse node    
+        on discriminator value param parse_node: The parse node
         to use to read the discriminator value and create the object
         Returns: BatchRequestItem
         """
@@ -216,10 +232,10 @@ class BatchRequestItem(Parsable):
         return BatchRequestItem()
 
     def get_field_deserializers(self) -> Dict[str, Any]:
-        """ 
+        """
         Gets the deserialization information for this object.
         Returns:
-            Dict[str, Any]: The deserialization information for 
+            Dict[str, Any]: The deserialization information for
             this object where each entry is a property key with its
              deserialization callback.
         """
@@ -233,7 +249,7 @@ class BatchRequestItem(Parsable):
         }
 
     def serialize(self, writer: SerializationWriter) -> None:
-        """ 
+        """
         Writes the objects properties to the current writer.
         Args:
             writer (SerializationWriter): The writer to write to.
@@ -242,12 +258,19 @@ class BatchRequestItem(Parsable):
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
-        headers = {key: ", ".join(val) for key, val in self._headers.items()}
-        writer.write_collection_of_object_values('headers', headers)
+        writer.write_collection_of_object_values(
+            'headers',
+            self._headers  # type: ignore # need method to serialize dicts
+        )
         if self._body:
             json_object = json.loads(self._body)
             is_json_string = json_object and isinstance(json_object, dict)
-            writer.write_collection_of_object_values(
-                'body',
-                json_object if is_json_string else base64.b64encode(self._body).decode('utf-8')
-            )
+            # /$batch API expects JSON object or base 64 encoded value for the body
+            if is_json_string:
+                writer.write_collection_of_object_values(   # type: ignore
+                    # need method to serialize dicts
+                    'body',
+                    json_object
+                )
+            else:
+                writer.write_str_value('body', base64.b64encode(self._body).decode('utf-8'))

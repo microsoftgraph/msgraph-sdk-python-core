@@ -1,20 +1,20 @@
 import os
-from typing import Callable, Optional, List, Tuple, Any, Dict
+from typing import Callable, Optional, List, Tuple, Any, Dict, TypeVar, Union, Type
 from io import BytesIO
 from asyncio import Future
 from datetime import datetime, timedelta, timezone
 import logging
 
-from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization.additional_data_holder import AdditionalDataHolder
-from kiota_abstractions.serialization.parsable_factory import ParsableFactory
+from kiota_abstractions.serialization import Parsable, ParsableFactory, AdditionalDataHolder
 
 from kiota_abstractions.request_adapter import RequestAdapter
 
 from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
+
+T = TypeVar('T', bound=Parsable)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -25,7 +25,7 @@ class LargeFileUploadTask:
         upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,
-        parsable_factory: Optional[ParsableFactory] = None,
+        parsable_factory: Optional[ParsableFactory[T]] = None,
         max_chunk_size: int = 5 * 1024 * 1024
     ):
         self._upload_session = upload_session
@@ -69,7 +69,7 @@ class LargeFileUploadTask:
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
             raise ValueError("Upload session does not have an expiration date time")
-        expiry = upload_session.expiration_date_time
+        expiry = getattr(upload_session, 'expiration_date_time')
         if expiry is None:
             raise ValueError("Expiry is None")
         if isinstance(expiry, str):
@@ -92,7 +92,7 @@ class LargeFileUploadTask:
             raise RuntimeError('The upload session is expired.')
 
         self.on_chunk_upload_complete = after_chunk_upload or self.on_chunk_upload_complete
-        session = await self.next_chunk(
+        session: LargeFileUploadSession = await self.next_chunk(
             self.stream, 0, max(0, min(self.max_chunk_size - 1, self.file_size - 1))
         )
         process_next = session
@@ -110,12 +110,15 @@ class LargeFileUploadTask:
                 response = await self.last_chunk(self.stream)
 
             try:
-                lfu_session: LargeFileUploadSession = session  # type: ignore
+                lfu_session = session
                 if lfu_session is None:
                     continue
-                next_range = lfu_session.next_expected_ranges
+                next_range = None
+                if hasattr(lfu_session, 'next_expected_ranges'):
+                    next_range = lfu_session.next_expected_ranges
                 old_url = self.get_validated_upload_url(self.upload_session)
-                lfu_session.upload_url = old_url
+                if hasattr(lfu_session, 'upload_url'):
+                    lfu_session.upload_url = old_url
                 if self.on_chunk_upload_complete is not None:
                     self.on_chunk_upload_complete(uploaded_range)
                 if not next_range:
@@ -132,7 +135,8 @@ class LargeFileUploadTask:
                 self.chunks -= 1
         upload_result: UploadResult[Any] = UploadResult()
         upload_result.item_response = response
-        upload_result.location = self.upload_session.upload_url
+        if hasattr(self.upload_session, 'upload_url'):
+            upload_result.location = self.upload_session.upload_url
         return upload_result
 
     @property
@@ -143,7 +147,9 @@ class LargeFileUploadTask:
     def next_range(self, value: Optional[str]) -> None:
         self._next_range = value
 
-    async def next_chunk(self, file: BytesIO, range_start: int = 0, range_end: int = 0) -> Future:
+    async def next_chunk(
+        self, file: BytesIO, range_start: int = 0, range_end: int = 0
+    ) -> LargeFileUploadSession:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
@@ -175,16 +181,15 @@ class LargeFileUploadTask:
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
-        parsable_factory = LargeFileUploadSession
-        return await self.request_adapter.send_async(info, parsable_factory, error_map)
+        return await self.request_adapter.send_async(info, LargeFileUploadSession, error_map)
 
     async def last_chunk(
         self,
         file: BytesIO,
         range_start: int = 0,
         range_end: int = 0,
-        parsable_factory: Optional[ParsableFactory] = None
-    ) -> Future:
+        parsable_factory: Optional[ParsableFactory[T]] = None
+    ) -> Optional[Union[T, bytes]]:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:
             raise ValueError('The upload session URL must not be empty.')
@@ -216,13 +221,15 @@ class LargeFileUploadTask:
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
         error_map: Dict[str, int] = {}
-        parsable_factory = self.factory or parsable_factory
-        return await self.request_adapter.send_async(info, parsable_factory, error_map)
+        factory = self.factory or parsable_factory
+        if factory:
+            return await self.request_adapter.send_async(info, factory, error_map)
+        return await self.request_adapter.send_primitive_async(info, "bytes", error_map)
 
     def get_file(self) -> BytesIO:
         return self.stream
 
-    async def cancel(self) -> Optional[Future]:
+    async def cancel(self) -> Parsable:
         upload_url = self.get_validated_upload_url(self.upload_session)
         request_information = RequestInformation(method=Method.DELETE, url_template=upload_url)
 
@@ -242,10 +249,12 @@ class LargeFileUploadTask:
                                  property_candidates: List[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
-                f'The object passed does not contain property/properties '
+                'The object passed does not contain property/properties '
                 f'{",".join(property_candidates)} and does not implement '
-                f'AdditionalDataHolder'
+                'AdditionalDataHolder'
             )
+        if not hasattr(parsable, 'additional_data'):
+            raise ValueError('The object passed does not contain an additional_data property')
         additional_data = parsable.additional_data
         for property_candidate in property_candidates:
             if property_candidate in additional_data:

@@ -23,7 +23,7 @@ class BatchResponseContentCollection(Parsable):
         self._responses: List[BatchResponseContent] = []
 
     def add_response(self, response: BatchResponseContent) -> None:
-        """ 
+        """
         Adds a response to the collection.
         Args:
             keys: The keys of the response to add.
@@ -32,7 +32,7 @@ class BatchResponseContentCollection(Parsable):
         self._responses.append(response)
 
     def get_responses(self):
-        """ 
+        """
         Gets the responses in the collection.
         Returns:
             List[Tuple[str, BatchResponseContent]]: The responses in the collection.
@@ -50,7 +50,7 @@ class BatchResponseContentCollection(Parsable):
         for response in self._responses:
             if isinstance(response, BatchResponseItem):
                 if response.id is not None:
-                    status_codes[response.id] = response.status_code
+                    status_codes[response.id] = response.status
                 else:
                     raise ValueError("Response ID cannot be None")
             else:
@@ -58,7 +58,7 @@ class BatchResponseContentCollection(Parsable):
         return status_codes
 
     def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
-        """ 
+        """
         Gets the deserialization information for this object.
         :return: The deserialization information for this object where each entry is a property key
         with its deserialization callback.
@@ -66,11 +66,8 @@ class BatchResponseContentCollection(Parsable):
         """
         return {
             'responses':
-            lambda n: setattr(
-                self, "_responses",
-                n.
-                get_collection_of_object_values(BatchResponseItem.create_from_discriminator_value)
-            )
+            lambda n:
+            setattr(self, "_responses", n.get_collection_of_object_values(BatchResponseItem))
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

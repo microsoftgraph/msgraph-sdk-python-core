@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Callable, Dict, List, Optional
 import datetime
 from dataclasses import dataclass, field
 
@@ -25,7 +25,7 @@ class LargeFileUploadSession(AdditionalDataHolder, Parsable):
     ) -> LargeFileUploadSession:
         """
         Creates a new instance of the appropriate class based
-        on discriminator value param parse_node: The parse node    
+        on discriminator value param parse_node: The parse node
         to use to read the discriminator value and create the object
         Returns: UploadSession
         """

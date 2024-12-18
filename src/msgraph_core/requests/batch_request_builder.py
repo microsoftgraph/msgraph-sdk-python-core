@@ -4,7 +4,7 @@ import logging
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
-from kiota_abstractions.serialization import Parsable
+from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.api_error import APIError
 
@@ -26,7 +26,7 @@ class BatchRequestBuilder:
     def __init__(
         self,
         request_adapter: RequestAdapter,
-        error_map: Optional[Dict[str, Type[Parsable]]] = None
+        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None
     ):
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
@@ -37,20 +37,19 @@ class BatchRequestBuilder:
     async def post(
         self,
         batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
-        error_map: Optional[Dict[str, Type[Parsable]]] = None,
-    ) -> Union[T, BatchResponseContentCollection]:
+        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None,
+    ) -> Union[BatchResponseContent, BatchResponseContentCollection]:
         """
         Sends a batch request and returns the batch response content.
-        
+
         Args:
-            batch_request_content (Union[BatchRequestContent, 
+            batch_request_content (Union[BatchRequestContent,
             BatchRequestContentCollection]): The batch request content.
-            response_type: Optional[Type[T]] : The type to deserialize the response into.
-            Optional[Dict[str, Type[Parsable]]] = None: 
+            Optional[Dict[str, Type[ParsableFactory]]] = None:
                 Error mappings for response handling.
 
         Returns:
-            Union[T, BatchResponseContentCollection]: The batch response content
+            Union[BatchResponseContent, BatchResponseContentCollection]: The batch response content
              or the specified response type.
 
         """
@@ -60,11 +59,6 @@ class BatchRequestBuilder:
 
         if isinstance(batch_request_content, BatchRequestContent):
             request_info = await self.to_post_request_information(batch_request_content)
-            bytes_content = request_info.content
-            json_content = bytes_content.decode("utf-8")
-            updated_str = '{"requests":' + json_content + '}'
-            updated_bytes = updated_str.encode("utf-8")
-            request_info.content = updated_bytes
             error_map = error_map or self.error_map
             response = None
             try:
@@ -87,15 +81,15 @@ class BatchRequestBuilder:
     async def _post_batch_collection(
         self,
         batch_request_content_collection: BatchRequestContentCollection,
-        error_map: Optional[Dict[str, Type[Parsable]]] = None,
+        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None,
     ) -> BatchResponseContentCollection:
         """
         Sends a collection of batch requests and returns a collection of batch response contents.
-        
+
         Args:
-            batch_request_content_collection (BatchRequestContentCollection): The 
+            batch_request_content_collection (BatchRequestContentCollection): The
             collection of batch request contents.
-            Optional[Dict[str, Type[Parsable]]] = None: 
+            Optional[Dict[str, Type[ParsableFactory]]] = None:
                 Error mappings for response handling.
 
         Returns:
@@ -108,7 +102,8 @@ class BatchRequestBuilder:
         batch_requests = batch_request_content_collection.get_batch_requests_for_execution()
         for batch_request_content in batch_requests:
             response = await self.post(batch_request_content, error_map)
-            batch_responses.add_response(response)
+            if isinstance(response, BatchResponseContent):
+                batch_responses.add_response(response)
 
         return batch_responses
 
@@ -117,7 +112,7 @@ class BatchRequestBuilder:
     ) -> RequestInformation:
         """
         Creates request information for a batch POST request.
-        
+
         Args:
             batch_request_content (BatchRequestContent): The batch request content.
 
@@ -127,7 +122,6 @@ class BatchRequestBuilder:
 
         if batch_request_content is None:
             raise ValueError("batch_request_content cannot be Null.")
-        batch_request_items = list(batch_request_content.requests.values())
 
         request_info = RequestInformation()
         request_info.http_method = Method.POST
@@ -135,7 +129,7 @@ class BatchRequestBuilder:
         request_info.headers = HeadersCollection()
         request_info.headers.try_add("Content-Type", APPLICATION_JSON)
         request_info.set_content_from_parsable(
-            self._request_adapter, APPLICATION_JSON, batch_request_items
+            self._request_adapter, APPLICATION_JSON, batch_request_content
         )
 
         return request_info

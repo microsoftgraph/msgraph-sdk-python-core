@@ -46,8 +46,17 @@ class PageResult(Parsable):
             object where each entry is a property key with its deserialization callback.
         """
         return {
-            "@odata.nextLink": lambda x: setattr(self, "odata_next_link", x.get_str_value()),
-            "value": lambda x: setattr(self, "value", x.get_collection_of_object_values(Parsable))
+            "@odata.nextLink":
+            lambda x: setattr(self, "odata_next_link", x.get_str_value()),
+            "value":
+            lambda x: setattr(
+                self,
+                "value",
+                x.get_collection_of_object_values(
+                    Parsable  # type: ignore
+                    # Bug. Should get a collection of primitive dictionary objects
+                )
+            )
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

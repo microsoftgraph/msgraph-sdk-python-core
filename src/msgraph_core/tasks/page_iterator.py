@@ -17,7 +17,7 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict, List
+from typing import Callable, Optional, Union, Dict, Type
 
 from typing import TypeVar
 from requests.exceptions import InvalidURL
@@ -26,7 +26,7 @@ from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization.parsable import Parsable
+from kiota_abstractions.serialization import Parsable, ParsableFactory
 
 from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
 
@@ -59,12 +59,13 @@ Methods:
         self,
         response: Union[T, list, object],
         request_adapter: RequestAdapter,
-        constructor_callable: Optional[Callable] = None
+        constructor_callable: Optional[Callable] = None,
+        error_mapping: Optional[Dict[str, Type[ParsableFactory]]] = None,
     ):
         self.request_adapter = request_adapter
 
         if isinstance(response, Parsable) and not constructor_callable:
-            parsable_factory = type(response)
+            parsable_factory: Type[Parsable] = type(response)
         elif constructor_callable is None:
             parsable_factory = PageResult
         else:
@@ -74,7 +75,7 @@ Methods:
         self.parsable_factory = parsable_factory
         self.pause_index = 0
         self.headers: HeadersCollection = HeadersCollection()
-        self.request_options = []  # type: ignore
+        self.request_options: list = []
         self.current_page = self.convert_to_page(response)
         self.object_type = self.current_page.value[
             0].__class__.__name__ if self.current_page.value else None
@@ -89,6 +90,7 @@ Methods:
         if page is not None:
             self.current_page = page
             self.has_next = bool(page.odata_next_link)
+        self.error_mapping = error_mapping if error_mapping else {}
 
     def set_headers(self, headers: dict) -> HeadersCollection:
         """
@@ -100,6 +102,7 @@ Methods:
             header names and the values are the header values.
         """
         self.headers.add_all(**headers)
+        return self.headers
 
     @property
     def delta_link(self):
@@ -145,8 +148,11 @@ Methods:
         if self.current_page is not None and not self.current_page.odata_next_link:
             return None
         response = await self.fetch_next_page()
-        page: PageResult = PageResult(response.odata_next_link, response.value)  # type: ignore
-        return page
+        next_link = response.odata_next_link if response and hasattr(
+            response, 'odata_next_link'
+        ) else None
+        value = response.value if response and hasattr(response, 'value') else None
+        return PageResult(next_link, value)
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> PageResult:
@@ -166,9 +172,9 @@ Methods:
             raise ValueError('Response cannot be null.')
         value = None
         if isinstance(response, list):
-            value = response.value  # type: ignore
+            value = response
         elif hasattr(response, 'value'):
-            value = getattr(response, 'value')
+            value = response.value
         elif isinstance(response, object):
             value = getattr(response, 'value', [])
         if value is None:
@@ -178,10 +184,9 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        page: PageResult = PageResult(next_link, value)
-        return page
+        return PageResult(next_link, value)
 
-    async def fetch_next_page(self) -> List[Parsable]:
+    async def fetch_next_page(self) -> Optional[Union[T, PageResult]]:
         """
         Fetches the next page of items from the server.
         Returns:
@@ -202,11 +207,11 @@ Methods:
         request_info.headers = self.headers
         if self.request_options:
             request_info.add_request_options(*self.request_options)
-        error_map: Dict[str, int] = {}
-        response = await self.request_adapter.send_async(
-            request_info, self.parsable_factory, error_map
+        return await self.request_adapter.send_async(
+            request_info,
+            self.parsable_factory,  # type: ignore
+            self.error_mapping
         )
-        return response
 
     def enumerate(self, callback: Optional[Callable] = None) -> bool:
         """

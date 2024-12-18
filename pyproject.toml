@@ -41,7 +41,6 @@ documentation = "https://github.com/microsoftgraph/msgraph-sdk-python-core/docs"
 [tool.mypy]
 warn_unused_configs = true
 files = "src"
-ignore_missing_imports = true
 
 [tool.yapf]
 based_on_style = "pep8"

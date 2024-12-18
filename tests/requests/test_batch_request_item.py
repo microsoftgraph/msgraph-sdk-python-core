@@ -96,13 +96,13 @@ def test_id_property(batch_request_item):
 def test_headers_property(batch_request_item):
     new_headers = {"Authorization": "Bearer token"}
     batch_request_item.headers = new_headers
-    assert batch_request_item.headers["Authorization"] == "Bearer token"
+    assert batch_request_item.headers["authorization"] == "Bearer token"
 
 
 def test_body_property(batch_request_item):
     new_body = StreamInterface(b'{"new_key": "new_value"}')
     batch_request_item.body = new_body
-    assert batch_request_item.body.read() == b'{"new_key": "new_value"}'
+    assert batch_request_item.body == b'{"new_key": "new_value"}'
 
 
 def test_method_property(batch_request_item):

@@ -1,11 +1,13 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Callable
 from io import BytesIO
+from deprecated import deprecated
 
 from kiota_abstractions.serialization import Parsable, ParsableFactory
 from kiota_abstractions.serialization import ParseNode
 from kiota_abstractions.serialization import SerializationWriter
 
 
+@deprecated("Use BytesIO type instead")
 class StreamInterface(BytesIO):
     pass
 
@@ -24,7 +26,7 @@ class BatchResponseItem(Parsable):
 
     @property
     def id(self) -> Optional[str]:
-        """ 
+        """
         Get the ID of the response
         :return: The ID of the response
         :rtype: Optional[str]
@@ -69,7 +71,7 @@ class BatchResponseItem(Parsable):
 
     @status.setter
     def status(self, status_code: Optional[int]) -> None:
-        """ 
+        """
         Set the status code of the response
         :param status_code: The status code of the response
         :type status_code: Optional[int]
@@ -104,11 +106,11 @@ class BatchResponseItem(Parsable):
         return self._body
 
     @body.setter
-    def body(self, body: Optional[StreamInterface]) -> None:
+    def body(self, body: Optional[BytesIO]) -> None:
         """
         Set the body of the response
         :param body: The body of the response
-        :type body: Optional[StreamInterface]
+        :type body: Optional[BytesIO]
         """
         self._body = body
 
@@ -138,7 +140,7 @@ class BatchResponseItem(Parsable):
             raise TypeError("parse_node cannot be null")
         return BatchResponseItem()
 
-    def get_field_deserializers(self) -> Dict[str, Any]:
+    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
         """
         Gets the deserialization information for this object.
 
@@ -146,7 +148,11 @@ class BatchResponseItem(Parsable):
         return {
             "id": lambda x: setattr(self, "id", x.get_str_value()),
             "status": lambda x: setattr(self, "status", x.get_int_value()),
-            "headers": lambda x: setattr(self, "headers", x.try_get_anything(x._json_node)),
+            "headers": lambda x: setattr(
+                self,
+                "headers",
+                x.try_get_anything(x._json_node)  # type: ignore
+            ),  # need interface to return a dictionary
             "body": lambda x: setattr(self, "body", x.get_bytes_value()),
         }
 
@@ -157,5 +163,11 @@ class BatchResponseItem(Parsable):
         writer.write_str_value('id', self._id)
         writer.write_str_value('atomicity_group', self._atomicity_group)
         writer.write_int_value('status', self._status)
-        writer.write_collection_of_primitive_values('headers', self._headers)
-        writer.write_bytes_value('body', self._body)
+        writer.write_collection_of_primitive_values(
+            'headers',
+            self._headers  # type: ignore
+        )  # need method to serialize dicts
+        if self._body:
+            writer.write_bytes_value('body', self._body.getvalue())
+        else:
+            writer.write_bytes_value('body', None)

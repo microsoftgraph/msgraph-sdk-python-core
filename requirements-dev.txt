@@ -30,7 +30,7 @@ cryptography==44.0.0 ; python_version >= '3.7'
 
 dill==0.3.9 ; python_version < '3.11'
 
-exceptiongroup==1.1.1 ; python_version < '3.11'
+exceptiongroup==1.2.2 ; python_version < '3.11'
 
 idna==3.10 ; python_version >= '3.5'
 

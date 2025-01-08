@@ -25,7 +25,7 @@ class LargeFileUploadTask:
         upload_session: Parsable,
         request_adapter: RequestAdapter,
         stream: BytesIO,
-        parsable_factory: Optional[ParsableFactory[T]] = None,
+        parsable_factory: Optional[ParsableFactory] = None,
         max_chunk_size: int = 5 * 1024 * 1024
     ):
         self._upload_session = upload_session
@@ -188,7 +188,7 @@ class LargeFileUploadTask:
         file: BytesIO,
         range_start: int = 0,
         range_end: int = 0,
-        parsable_factory: Optional[ParsableFactory[T]] = None
+        parsable_factory: Optional[ParsableFactory] = None
     ) -> Optional[Union[T, bytes]]:
         upload_url = self.get_validated_upload_url(self.upload_session)
         if not upload_url:

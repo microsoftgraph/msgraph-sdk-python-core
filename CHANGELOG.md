@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.8...v1.2.0) (2025-01-14)
+
+
+### Features
+
+* drop support for python 3.8 and drops deprecated type aliases ([d5d925e](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/d5d925e35d1a3a20be3e106ee55ec253d1599ebd))
+
+
+### Bug Fixes
+
+* drop support for python 3.8 and drops deprecated type aliases ([8c11aaf](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/8c11aaf50f9b62bca2b863b0881dc3ccde7e9f37))
+
 ## [1.1.8](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.7...v1.1.8) (2024-12-18)
 
 

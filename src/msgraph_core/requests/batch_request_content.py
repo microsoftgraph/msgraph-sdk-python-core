@@ -1,10 +1,9 @@
 import uuid
-from typing import List, Dict, Union, Optional
+from typing import Optional, Union
 from urllib.request import Request
 
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization import Parsable, ParseNode
-from kiota_abstractions.serialization import SerializationWriter
+from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
 from .batch_request_item import BatchRequestItem
 
@@ -16,13 +15,13 @@ class BatchRequestContent(Parsable):
 
     MAX_REQUESTS = 20
 
-    def __init__(self, requests: Dict[str, Union[BatchRequestItem, RequestInformation]] = {}):
+    def __init__(self, requests: dict[str, Union[BatchRequestItem, RequestInformation]] = {}):
         """
         Initializes a new instance of the BatchRequestContent class.
         Args:
-            Requests (Dict[str, Union[BatchRequestItem, RequestInformation]]): The requests to add.
+            Requests (dict[str, Union[BatchRequestItem, RequestInformation]]): The requests to add.
         """
-        self._requests: Dict[str, BatchRequestItem] = {}
+        self._requests: dict[str, BatchRequestItem] = {}
 
         self.is_finalized = False
         for request_id, request in requests.items():
@@ -32,20 +31,20 @@ class BatchRequestContent(Parsable):
             self.add_request(request_id, request)
 
     @property
-    def requests(self) -> Dict[str, BatchRequestItem]:
+    def requests(self) -> dict[str, BatchRequestItem]:
         """
         Gets  the requests.
         Returns:
-            Dict[str, BatchRequestItem]: requests in the batch request content.
+            dict[str, BatchRequestItem]: requests in the batch request content.
         """
         return self._requests
 
     @requests.setter
-    def requests(self, requests: List[BatchRequestItem]) -> None:
+    def requests(self, requests: list[BatchRequestItem]) -> None:
         """
         Sets the requests.
         Args:
-            requests (List[BatchRequestItem]): The requests to set.
+            requests (list[BatchRequestItem]): The requests to set.
         """
         if len(requests) >= BatchRequestContent.MAX_REQUESTS:
             raise ValueError(f"Maximum number of requests is {BatchRequestContent.MAX_REQUESTS}")
@@ -148,7 +147,7 @@ class BatchRequestContent(Parsable):
             raise ValueError("parse_node cannot be None")
         return BatchRequestContent()
 
-    def get_field_deserializers(self, ) -> Dict:
+    def get_field_deserializers(self, ) -> dict:
         """
         The deserialization information for the current model
         """

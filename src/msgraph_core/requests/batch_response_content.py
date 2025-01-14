@@ -1,11 +1,15 @@
-from typing import Optional, Dict, Type, TypeVar, Callable, Union
-from io import BytesIO
 import base64
+from collections.abc import Callable
+from io import BytesIO
+from typing import Optional, Type, TypeVar, Union
 
-from kiota_abstractions.serialization import Parsable, ParsableFactory
-from kiota_abstractions.serialization import ParseNode
-from kiota_abstractions.serialization import ParseNodeFactoryRegistry
-from kiota_abstractions.serialization import SerializationWriter
+from kiota_abstractions.serialization import (
+    Parsable,
+    ParsableFactory,
+    ParseNode,
+    ParseNodeFactoryRegistry,
+    SerializationWriter,
+)
 
 from .batch_response_item import BatchResponseItem
 
@@ -20,23 +24,23 @@ class BatchResponseContent(Parsable):
         BatchResponseContent is a collection of BatchResponseItem items,
          each with a unique request ID.
         """
-        self._responses: Optional[Dict[str, BatchResponseItem]] = {}
+        self._responses: Optional[dict[str, BatchResponseItem]] = {}
 
     @property
-    def responses(self) -> Optional[Dict[str, BatchResponseItem]]:
+    def responses(self) -> Optional[dict[str, BatchResponseItem]]:
         """
         Get the responses in the collection
         :return: A dictionary of response IDs and their BatchResponseItem objects
-        :rtype: Optional[Dict[str, BatchResponseItem]]
+        :rtype: Optional[dict[str, BatchResponseItem]]
         """
         return self._responses
 
     @responses.setter
-    def responses(self, responses: Optional[Dict[str, BatchResponseItem]]) -> None:
+    def responses(self, responses: Optional[dict[str, BatchResponseItem]]) -> None:
         """
         Set the responses in the collection
         :param responses: The responses to set in the collection
-        :type responses: Optional[Dict[str, BatchResponseItem]]
+        :type responses: Optional[dict[str, BatchResponseItem]]
         """
         self._responses = responses
 
@@ -74,13 +78,13 @@ class BatchResponseContent(Parsable):
             return response_item.body
         return BytesIO(response_item.body)
 
-    def get_response_status_codes(self) -> Dict[str, int]:
+    def get_response_status_codes(self) -> dict[str, int]:
         """
         Go through responses and for each, append {'request-id': status_code} to a dictionary.
         :return: A dictionary with request_id as keys and status_code as values.
         :rtype: dict
         """
-        status_codes: Dict[str, int] = {}
+        status_codes: dict[str, int] = {}
         if self._responses is None:
             return status_codes
 
@@ -135,11 +139,11 @@ class BatchResponseContent(Parsable):
                 f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """
         Gets the deserialization information for this object.
         :return: The deserialization information for this object
-        :rtype: Dict[str, Callable[[ParseNode], None]]
+        :rtype: dict[str, Callable[[ParseNode], None]]
         """
 
         def set_responses(n: ParseNode):

@@ -1,12 +1,12 @@
-from typing import TypeVar, Type, Dict, Optional, Union
 import logging
+from typing import Optional, Type, TypeVar, Union
 
+from kiota_abstractions.api_error import APIError
+from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.method import Method
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.method import Method
 from kiota_abstractions.serialization import Parsable, ParsableFactory
-from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.api_error import APIError
 
 from .batch_request_content import BatchRequestContent
 from .batch_request_content_collection import BatchRequestContentCollection
@@ -26,7 +26,7 @@ class BatchRequestBuilder:
     def __init__(
         self,
         request_adapter: RequestAdapter,
-        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None
+        error_map: Optional[dict[str, Type[ParsableFactory]]] = None
     ):
         if request_adapter is None:
             raise ValueError("request_adapter cannot be Null.")
@@ -37,7 +37,7 @@ class BatchRequestBuilder:
     async def post(
         self,
         batch_request_content: Union[BatchRequestContent, BatchRequestContentCollection],
-        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None,
+        error_map: Optional[dict[str, Type[ParsableFactory]]] = None,
     ) -> Union[BatchResponseContent, BatchResponseContentCollection]:
         """
         Sends a batch request and returns the batch response content.
@@ -45,7 +45,7 @@ class BatchRequestBuilder:
         Args:
             batch_request_content (Union[BatchRequestContent,
             BatchRequestContentCollection]): The batch request content.
-            Optional[Dict[str, Type[ParsableFactory]]] = None:
+            Optional[dict[str, Type[ParsableFactory]]] = None:
                 Error mappings for response handling.
 
         Returns:
@@ -81,7 +81,7 @@ class BatchRequestBuilder:
     async def _post_batch_collection(
         self,
         batch_request_content_collection: BatchRequestContentCollection,
-        error_map: Optional[Dict[str, Type[ParsableFactory]]] = None,
+        error_map: Optional[dict[str, Type[ParsableFactory]]] = None,
     ) -> BatchResponseContentCollection:
         """
         Sends a collection of batch requests and returns a collection of batch response contents.
@@ -89,7 +89,7 @@ class BatchRequestBuilder:
         Args:
             batch_request_content_collection (BatchRequestContentCollection): The
             collection of batch request contents.
-            Optional[Dict[str, Type[ParsableFactory]]] = None:
+            Optional[dict[str, Type[ParsableFactory]]] = None:
                 Error mappings for response handling.
 
         Returns:

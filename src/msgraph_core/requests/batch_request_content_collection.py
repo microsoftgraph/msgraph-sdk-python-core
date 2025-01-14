@@ -1,6 +1,5 @@
-from typing import List, Optional
+from typing import Optional
 
-from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import SerializationWriter
 
 from .batch_request_content import BatchRequestContent
@@ -17,7 +16,7 @@ class BatchRequestContentCollection:
 
         """
         self.max_requests_per_batch = BatchRequestContent.MAX_REQUESTS
-        self.batches: List[BatchRequestContent] = []
+        self.batches: list[BatchRequestContent] = []
         self.current_batch: BatchRequestContent = BatchRequestContent()
 
     def add_batch_request_item(self, request: BatchRequestItem) -> None:
@@ -65,11 +64,11 @@ class BatchRequestContentCollection:
                         raise ValueError("batch_with_failed_responses is None")
         return batch_with_failed_responses
 
-    def get_batch_requests_for_execution(self) -> List[BatchRequestContent]:
+    def get_batch_requests_for_execution(self) -> list[BatchRequestContent]:
         """
         Gets the batch requests for execution.
         Returns:
-            List[BatchRequestContent]: The batch requests for execution.
+            list[BatchRequestContent]: The batch requests for execution.
         """
         return self.batches
 

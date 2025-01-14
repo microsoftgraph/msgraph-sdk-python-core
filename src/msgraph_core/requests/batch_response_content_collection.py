@@ -1,8 +1,6 @@
-from typing import Optional, Dict, Callable, List
+from collections.abc import Callable
 
-from kiota_abstractions.serialization import Parsable
-from kiota_abstractions.serialization import ParseNode
-from kiota_abstractions.serialization import SerializationWriter
+from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
 from .batch_response_content import BatchResponseContent
 from .batch_response_item import BatchResponseItem
@@ -15,12 +13,12 @@ class BatchResponseContentCollection(Parsable):
         Initializes a new instance of the BatchResponseContentCollection class.
         BatchResponseContentCollection is a collection of BatchResponseContent items, each with
         a unique request ID.
-        headers: Optional[Dict[str, str]] = {}
+        headers: Optional[dict[str, str]] = {}
         status_code: Optional[int] = None
         body: Optional[StreamInterface] = None
 
         """
-        self._responses: List[BatchResponseContent] = []
+        self._responses: list[BatchResponseContent] = []
 
     def add_response(self, response: BatchResponseContent) -> None:
         """
@@ -35,18 +33,18 @@ class BatchResponseContentCollection(Parsable):
         """
         Gets the responses in the collection.
         Returns:
-            List[Tuple[str, BatchResponseContent]]: The responses in the collection.
+            list[Tuple[str, BatchResponseContent]]: The responses in the collection.
         """
         return self._responses
 
     @property
-    async def responses_status_codes(self) -> Dict[str, int]:
+    async def responses_status_codes(self) -> dict[str, int]:
         """
         Get the status codes of all responses in the collection
         :return: A dictionary of response IDs and their status codes
-        :rtype: Dict[str, int]
+        :rtype: dict[str, int]
         """
-        status_codes: Dict[str, int] = {}
+        status_codes: dict[str, int] = {}
         for response in self._responses:
             if isinstance(response, BatchResponseItem):
                 if response.id is not None:
@@ -57,12 +55,12 @@ class BatchResponseContentCollection(Parsable):
                 raise TypeError("Invalid type: Collection must be of type BatchResponseContent")
         return status_codes
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """
         Gets the deserialization information for this object.
         :return: The deserialization information for this object where each entry is a property key
         with its deserialization callback.
-        :rtype: Dict[str, Callable[[ParseNode], None]]
+        :rtype: dict[str, Callable[[ParseNode], None]]
         """
         return {
             'responses':

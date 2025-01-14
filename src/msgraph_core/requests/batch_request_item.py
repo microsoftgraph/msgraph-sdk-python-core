@@ -1,19 +1,17 @@
-import re
+import base64
 import enum
 import json
-from uuid import uuid4
-from typing import List, Optional, Dict, Union, Any
-from io import BytesIO
-import base64
+import re
 import urllib.request
+from io import BytesIO
+from typing import Any, Optional, Union
 from urllib.parse import urlparse
+from uuid import uuid4
 
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization import Parsable
-from kiota_abstractions.serialization import SerializationWriter
-from kiota_abstractions.serialization import ParseNode
+from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
 
 class StreamInterface(BytesIO):
@@ -28,14 +26,14 @@ class BatchRequestItem(Parsable):
         self,
         request_information: Optional[RequestInformation] = None,
         id: str = "",
-        depends_on: Optional[List[Union[str, 'BatchRequestItem']]] = []
+        depends_on: Optional[list[Union[str, 'BatchRequestItem']]] = []
     ):
         """
         Initializes a new instance of the BatchRequestItem class.
         Args:
             request_information (RequestInformation): The request information.
             id (str, optional): The ID of the request item. Defaults to "".
-            depends_on (Optional[List[Union[str, BatchRequestItem]], optional):
+            depends_on (Optional[list[Union[str, BatchRequestItem]], optional):
             The IDs of the requests that this request depends on. Defaults to None.
         """
         if request_information is None or not request_information.http_method:
@@ -45,10 +43,10 @@ class BatchRequestItem(Parsable):
             self._method = request_information.http_method.name
         else:
             self._method = request_information.http_method
-        self._headers: Optional[Dict[str, str]] = request_information.request_headers
+        self._headers: Optional[dict[str, str]] = request_information.request_headers
         self._body = request_information.content
         self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
-        self._depends_on: Optional[List[str]] = []
+        self._depends_on: Optional[list[str]] = []
         if depends_on is not None:
             self.set_depends_on(depends_on)
 
@@ -56,14 +54,14 @@ class BatchRequestItem(Parsable):
     def create_with_urllib_request(
         request: urllib.request.Request,
         id: str = "",
-        depends_on: Optional[List[str]] = None
+        depends_on: Optional[list[str]] = None
     ) -> 'BatchRequestItem':
         """
         Creates a new instance of the BatchRequestItem class from a urllib request.
         Args:
             request (urllib.request.Request): The urllib request.
             id (str, optional): The ID of the request item. Defaults to "".
-            depends_on (Optional[List[str]], optional): The IDs of
+            depends_on (Optional[list[str]], optional): The IDs of
                  the requests that this request depends on. Defaults to None.
         Returns:
             BatchRequestItem: A new instance of the BatchRequestItem class.
@@ -85,11 +83,11 @@ class BatchRequestItem(Parsable):
             depends_on  # type: ignore # union types not analysed correctly
         )
 
-    def set_depends_on(self, requests: Optional[List[Union[str, 'BatchRequestItem']]]) -> None:
+    def set_depends_on(self, requests: Optional[list[Union[str, 'BatchRequestItem']]]) -> None:
         """
         Sets the IDs of the requests that this request depends on.
         Args:
-            requests (Optional[List[Union[str, BatchRequestItem]]): The
+            requests (Optional[list[Union[str, BatchRequestItem]]): The
                 IDs of the requests that this request depends on.
         """
         if requests:
@@ -145,20 +143,20 @@ class BatchRequestItem(Parsable):
         self._id = value
 
     @property
-    def headers(self) -> Optional[Dict[str, str]]:
+    def headers(self) -> Optional[dict[str, str]]:
         """
         Gets the headers of the request item.
         Returns:
-            Optional[Dict[str, str]]: The headers of the request item.
+            Optional[dict[str, str]]: The headers of the request item.
         """
         return self._headers
 
     @headers.setter
-    def headers(self, headers: Dict[str, Union[List[str], str]]) -> None:
+    def headers(self, headers: dict[str, Union[list[str], str]]) -> None:
         """
         Sets the headers of the request item.
         Args:
-            headers (Dict[str, Union[List[str], str]]): The headers of the request item.
+            headers (dict[str, Union[list[str], str]]): The headers of the request item.
         """
         if self._headers:
             self._headers.clear()
@@ -209,11 +207,11 @@ class BatchRequestItem(Parsable):
         self._method = value
 
     @property
-    def depends_on(self) -> Optional[List[str]]:
+    def depends_on(self) -> Optional[list[str]]:
         """
         Gets the IDs of the requests that this request depends on.
         Returns:
-            Optional[List[str]]: The IDs of the requests that this request depends on.
+            Optional[list[str]]: The IDs of the requests that this request depends on.
         """
         return self._depends_on
 
@@ -231,11 +229,11 @@ class BatchRequestItem(Parsable):
             raise TypeError("parse_node cannot be null.")
         return BatchRequestItem()
 
-    def get_field_deserializers(self) -> Dict[str, Any]:
+    def get_field_deserializers(self) -> dict[str, Any]:
         """
         Gets the deserialization information for this object.
         Returns:
-            Dict[str, Any]: The deserialization information for
+            dict[str, Any]: The deserialization information for
             this object where each entry is a property key with its
              deserialization callback.
         """

@@ -1,16 +1,16 @@
-import os
-from typing import Callable, Optional, List, Tuple, Any, Dict, TypeVar, Union, Type
-from io import BytesIO
-from asyncio import Future
-from datetime import datetime, timedelta, timezone
 import logging
+import os
+from asyncio import Future
+from collections.abc import Callable
+from datetime import datetime, timedelta, timezone
+from io import BytesIO
+from typing import Any, Optional, Tuple, TypeVar, Union
 
-from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
-from kiota_abstractions.request_information import RequestInformation
-from kiota_abstractions.serialization import Parsable, ParsableFactory, AdditionalDataHolder
-
+from kiota_abstractions.method import Method
 from kiota_abstractions.request_adapter import RequestAdapter
+from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization import AdditionalDataHolder, Parsable, ParsableFactory
 
 from msgraph_core.models import LargeFileUploadSession, UploadResult  # check imports
 
@@ -42,7 +42,7 @@ class LargeFileUploadTask:
         )
         self.next_range = cleaned_value[0]
         self._chunks = int((self.file_size / max_chunk_size) + 0.5)
-        self.on_chunk_upload_complete: Optional[Callable[[List[int]], None]] = None
+        self.on_chunk_upload_complete: Optional[Callable[[list[int]], None]] = None
 
     @property
     def upload_session(self):
@@ -180,7 +180,7 @@ class LargeFileUploadTask:
         info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
-        error_map: Dict[str, int] = {}
+        error_map: dict[str, int] = {}
         return await self.request_adapter.send_async(info, LargeFileUploadSession, error_map)
 
     async def last_chunk(
@@ -220,7 +220,7 @@ class LargeFileUploadTask:
         info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
-        error_map: Dict[str, int] = {}
+        error_map: dict[str, int] = {}
         factory = self.factory or parsable_factory
         if factory:
             return await self.request_adapter.send_async(info, factory, error_map)
@@ -246,7 +246,7 @@ class LargeFileUploadTask:
         return self.upload_session
 
     def additional_data_contains(self, parsable: Parsable,
-                                 property_candidates: List[str]) -> Tuple[bool, Any]:
+                                 property_candidates: list[str]) -> Tuple[bool, Any]:
         if not issubclass(type(parsable), AdditionalDataHolder):
             raise ValueError(
                 'The object passed does not contain property/properties '
@@ -262,7 +262,7 @@ class LargeFileUploadTask:
         return False, None
 
     def check_value_exists(
-        self, parsable: Parsable, attribute_name: str, property_names_in_additional_data: List[str]
+        self, parsable: Parsable, attribute_name: str, property_names_in_additional_data: list[str]
     ) -> Tuple[bool, Any]:
         checked_additional_data = self.additional_data_contains(
             parsable, property_names_in_additional_data
@@ -288,7 +288,7 @@ class LargeFileUploadTask:
                 'The object passed does not contain a valid "nextExpectedRanges" property.'
             )
 
-        next_ranges: List[str] = validated_value[1]
+        next_ranges: list[str] = validated_value[1]
         if len(next_ranges) == 0:
             raise RuntimeError('No more bytes expected.')
 

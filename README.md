@@ -12,7 +12,7 @@ The Microsoft Graph Core Python Client Library contains core classes used by [Mi
 
 ## Prerequisites
 
-    Python 3.8+
+    Python 3.9+
 
 This library doesn't support [older](https://devguide.python.org/versions/) versions of Python.
 

@@ -10,13 +10,14 @@ Classes:
     PageResult: Represents a page of items in a paged response.
 """
 from __future__ import annotations
-from typing import List, Optional, Dict, Callable, TypeVar
+
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Optional, TypeVar
 
 from kiota_abstractions.serialization.parsable import Parsable
-from kiota_abstractions.serialization.serialization_writer \
-     import SerializationWriter
 from kiota_abstractions.serialization.parse_node import ParseNode
+from kiota_abstractions.serialization.serialization_writer import SerializationWriter
 
 T = TypeVar('T')
 
@@ -24,7 +25,7 @@ T = TypeVar('T')
 @dataclass
 class PageResult(Parsable):
     odata_next_link: Optional[str] = None
-    value: Optional[List[Parsable]] = None
+    value: Optional[list[Parsable]] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> PageResult:
@@ -38,11 +39,11 @@ class PageResult(Parsable):
             raise TypeError("parse_node cannot be null")
         return PageResult()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """Gets the deserialization information for this object.
 
         Returns:
-            Dict[str, Callable[[ParseNode], None]]: The deserialization information for this
+            dict[str, Callable[[ParseNode], None]]: The deserialization information for this
             object where each entry is a property key with its deserialization callback.
         """
         return {

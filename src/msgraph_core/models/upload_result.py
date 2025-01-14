@@ -1,10 +1,13 @@
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Generic
-
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Generic, Optional, TypeVar
 
 from kiota_abstractions.serialization import (
-    AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+    AdditionalDataHolder,
+    Parsable,
+    ParseNode,
+    SerializationWriter,
 )
 
 T = TypeVar('T')
@@ -13,16 +16,16 @@ T = TypeVar('T')
 @dataclass
 class UploadSessionDataHolder(AdditionalDataHolder, Parsable):
     expiration_date_time: Optional[datetime] = None
-    next_expected_ranges: Optional[List[str]] = None
+    next_expected_ranges: Optional[list[str]] = None
     upload_url: Optional[str] = None
     odata_type: Optional[str] = None
 
-    def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self, ) -> dict[str, Callable[[ParseNode], None]]:
         """
         The deserialization information for the current model
-        Returns: Dict[str, Callable[[ParseNode], None]]
+        Returns: dict[str, Callable[[ParseNode], None]]
         """
-        fields: Dict[str, Callable[[Any], None]] = {
+        fields: dict[str, Callable[[Any], None]] = {
             "expirationDateTime":
             lambda n: setattr(self, 'expiration_date_time', n.get_datetime_value()),
             "nextExpectedRanges":

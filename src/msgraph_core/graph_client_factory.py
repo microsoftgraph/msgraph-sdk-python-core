@@ -4,7 +4,7 @@
 # ------------------------------------
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 import httpx
 from kiota_abstractions.request_option import RequestOption
@@ -27,7 +27,7 @@ class GraphClientFactory(KiotaClientFactory):
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
-        options: Optional[Dict[str, RequestOption]] = None
+        options: Optional[dict[str, RequestOption]] = None
     ) -> httpx.AsyncClient:
         """Constructs native HTTP AsyncClient(httpx.AsyncClient) instances configured with
         a custom transport loaded with a default pipeline of middleware.
@@ -39,8 +39,8 @@ class GraphClientFactory(KiotaClientFactory):
             Defaults to KiotaClientFactory.get_default_client().
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
-            options (Optional[Dict[str, RequestOption]]): The request options to use when
-            instantiating default middleware. Defaults to Dict[str, RequestOption]=None.
+            options (Optional[dict[str, RequestOption]]): The request options to use when
+            instantiating default middleware. Defaults to dict[str, RequestOption]=None.
 
         Returns:
             httpx.AsyncClient: An instance of the AsyncClient object
@@ -56,7 +56,7 @@ class GraphClientFactory(KiotaClientFactory):
     @staticmethod
     def create_with_custom_middleware( # type: ignore
         # Breaking change to remove Kiota client factory as base class
-        middleware: Optional[List[BaseMiddleware]],
+        middleware: Optional[list[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
@@ -64,7 +64,7 @@ class GraphClientFactory(KiotaClientFactory):
         """Applies a custom middleware chain to the HTTP Client
 
         Args:
-            middleware(List[BaseMiddleware]): Custom middleware list that will be used to create
+            middleware(list[BaseMiddleware]): Custom middleware list that will be used to create
             a middleware pipeline. The middleware should be arranged in the order in which they will
             modify the request.
             api_version (APIVersion): The Graph API version to be used.
@@ -87,7 +87,7 @@ class GraphClientFactory(KiotaClientFactory):
 
     @staticmethod
     def _get_telemetry_handler(
-        options: Optional[Dict[str, RequestOption]]
+        options: Optional[dict[str, RequestOption]]
     ) -> GraphTelemetryHandler:
         """Helper method to get the graph telemetry handler instantiated with appropriate
         options"""
@@ -102,7 +102,7 @@ class GraphClientFactory(KiotaClientFactory):
 
     @staticmethod
     def _load_middleware_to_client(
-        client: httpx.AsyncClient, middleware: Optional[List[BaseMiddleware]]
+        client: httpx.AsyncClient, middleware: Optional[list[BaseMiddleware]]
     ) -> httpx.AsyncClient:
         current_transport = client._transport
         client._transport = GraphClientFactory._replace_transport_with_custom_graph_transport(
@@ -123,7 +123,7 @@ class GraphClientFactory(KiotaClientFactory):
 
     @staticmethod
     def _replace_transport_with_custom_graph_transport(
-        current_transport: httpx.AsyncBaseTransport, middleware: Optional[List[BaseMiddleware]]
+        current_transport: httpx.AsyncBaseTransport, middleware: Optional[list[BaseMiddleware]]
     ) -> AsyncGraphTransport:
         middleware_pipeline = KiotaClientFactory.create_middleware_pipeline(
             middleware, current_transport

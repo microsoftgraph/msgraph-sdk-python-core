@@ -1,4 +1,5 @@
 from typing import Optional
+
 import httpx
 from kiota_abstractions.authentication import AuthenticationProvider
 from kiota_abstractions.serialization import (

@@ -17,18 +17,19 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from typing import Callable, Optional, Union, Dict, Type
+from collections.abc import Callable
+from typing import Optional, Type, TypeVar, Union
 
-from typing import TypeVar
-from requests.exceptions import InvalidURL
-
-from kiota_abstractions.request_adapter import RequestAdapter
-from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection
+from kiota_abstractions.method import Method
+from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable, ParsableFactory
+from requests.exceptions import InvalidURL
 
-from msgraph_core.models.page_result import PageResult  # pylint: disable=no-name-in-module, import-error
+from msgraph_core.models.page_result import (
+    PageResult,  # pylint: disable=no-name-in-module, import-error
+)
 
 T = TypeVar('T', bound=Parsable)
 
@@ -60,7 +61,7 @@ Methods:
         response: Union[T, list, object],
         request_adapter: RequestAdapter,
         constructor_callable: Optional[Callable] = None,
-        error_mapping: Optional[Dict[str, Type[ParsableFactory]]] = None,
+        error_mapping: Optional[dict[str, Type[ParsableFactory]]] = None,
     ):
         self.request_adapter = request_adapter
 

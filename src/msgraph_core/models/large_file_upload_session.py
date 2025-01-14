@@ -1,19 +1,24 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional
+
 import datetime
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import Any, Optional
 
 from kiota_abstractions.serialization import (
-    AdditionalDataHolder, Parsable, ParseNode, SerializationWriter
+    AdditionalDataHolder,
+    Parsable,
+    ParseNode,
+    SerializationWriter,
 )
 
 
 @dataclass
 class LargeFileUploadSession(AdditionalDataHolder, Parsable):
 
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=dict)
     expiration_date_time: Optional[datetime.datetime] = None
-    next_expected_ranges: Optional[List[str]] = None
+    next_expected_ranges: Optional[list[str]] = None
     is_cancelled: Optional[bool] = False
     odata_type: Optional[str] = None
     # The URL endpoint that accepts PUT requests for byte ranges of the file.
@@ -33,12 +38,12 @@ class LargeFileUploadSession(AdditionalDataHolder, Parsable):
             raise TypeError("parse_node cannot be null.")
         return LargeFileUploadSession()
 
-    def get_field_deserializers(self, ) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self, ) -> dict[str, Callable[[ParseNode], None]]:
         """
         The deserialization information for the current model
-        Returns: Dict[str, Callable[[ParseNode], None]]
+        Returns: dict[str, Callable[[ParseNode], None]]
         """
-        fields: Dict[str, Callable[[Any], None]] = {
+        fields: dict[str, Callable[[Any], None]] = {
             "expirationDateTime":
             lambda n: setattr(self, 'expiration_date_time', n.get_datetime_value()),
             "nextExpectedRanges":

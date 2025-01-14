@@ -1,10 +1,13 @@
-from typing import Optional, Dict, Any, Callable
 from io import BytesIO
-from deprecated import deprecated
+from typing import Callable, Optional
 
-from kiota_abstractions.serialization import Parsable, ParsableFactory
-from kiota_abstractions.serialization import ParseNode
-from kiota_abstractions.serialization import SerializationWriter
+from deprecated import deprecated
+from kiota_abstractions.serialization import (
+    Parsable,
+    ParsableFactory,
+    ParseNode,
+    SerializationWriter,
+)
 
 
 @deprecated("Use BytesIO type instead")
@@ -21,7 +24,7 @@ class BatchResponseItem(Parsable):
         self._id: Optional[str] = None
         self._atomicity_group: Optional[str] = None
         self._status: Optional[int] = None
-        self._headers: Optional[Dict[str, str]] = {}
+        self._headers: Optional[dict[str, str]] = {}
         self._body: Optional[BytesIO] = None
 
     @property
@@ -79,20 +82,20 @@ class BatchResponseItem(Parsable):
         self._status = status_code
 
     @property
-    def headers(self) -> Optional[Dict[str, str]]:
+    def headers(self) -> Optional[dict[str, str]]:
         """
         Get the headers of the response
         :return: The headers of the response
-        :rtype: Optional[Dict[str, str]]
+        :rtype: Optional[dict[str, str]]
         """
         return self._headers
 
     @headers.setter
-    def headers(self, headers: Optional[Dict[str, str]]) -> None:
+    def headers(self, headers: Optional[dict[str, str]]) -> None:
         """
         Set the headers of the response
         :param headers: The headers of the response
-        :type headers: Optional[Dict[str, str]]
+        :type headers: Optional[dict[str, str]]
         """
         self._headers = headers
 
@@ -140,7 +143,7 @@ class BatchResponseItem(Parsable):
             raise TypeError("parse_node cannot be null")
         return BatchResponseItem()
 
-    def get_field_deserializers(self) -> Dict[str, Callable[[ParseNode], None]]:
+    def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
         """
         Gets the deserialization information for this object.
 

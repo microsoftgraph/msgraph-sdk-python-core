@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from kiota_abstractions.request_option import RequestOption
 

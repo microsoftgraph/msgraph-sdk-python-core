@@ -1,7 +1,6 @@
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Callable, Generic, Optional, TypeVar
 
 from kiota_abstractions.serialization import (
     AdditionalDataHolder,

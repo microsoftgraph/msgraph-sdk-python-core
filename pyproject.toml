@@ -16,7 +16,7 @@ dependencies = [
     "microsoft-kiota-http >=1.8.0,<2.0.0",
     "httpx[http2] >=0.23.0",
 ]
-requires-python = ">=3.9, <3.14"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 readme = "README.md"
 keywords = ["msgraph", "openAPI", "Microsoft", "Graph"]

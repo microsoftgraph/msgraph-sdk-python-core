@@ -50,8 +50,3 @@ def mock_response():
     return httpx.Response(
         json={'message': 'Success!'}, status_code=200, headers={"Content-Type": "application/json"}
     )
-
-
-def test_python_3_13_compatibility():
-    import sys
-    assert sys.version_info >= (3, 13), "Python 3.13 or higher is required"

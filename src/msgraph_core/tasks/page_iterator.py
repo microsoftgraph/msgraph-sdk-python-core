@@ -17,8 +17,7 @@ kiota_abstractions.request_information, kiota_abstractions.serialization.parsabl
 and models modules.
 """
 
-from collections.abc import Callable
-from typing import Optional, Type, TypeVar, Union
+from typing import Callable, Optional, Type, TypeVar, Union
 
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.method import Method
@@ -152,7 +151,8 @@ Methods:
         next_link = response.odata_next_link if response and hasattr(
             response, 'odata_next_link'
         ) else None
-        value = response.value if response and hasattr(response, 'value') else None
+        value = response.value if response and hasattr(
+            response, 'value') else None
         return PageResult(next_link, value)
 
     @staticmethod
@@ -180,7 +180,8 @@ Methods:
             value = getattr(response, 'value', [])
         if value is None:
             raise ValueError('The response does not contain a value.')
-        parsable_page = response if isinstance(response, dict) else vars(response)
+        parsable_page = response if isinstance(
+            response, dict) else vars(response)
         next_link = parsable_page.get('odata_next_link', '') if isinstance(
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
@@ -230,7 +231,8 @@ Methods:
         if not page_items:
             return False
         for i in range(self.pause_index, len(page_items)):
-            keep_iterating = callback(page_items[i]) if callback is not None else True
+            keep_iterating = callback(
+                page_items[i]) if callback is not None else True
             if not keep_iterating:
                 self.pause_index = i + 1
                 break

@@ -1,5 +1,4 @@
-from collections.abc import Callable
-
+from typing import Callable
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
 from .batch_response_content import BatchResponseContent
@@ -52,7 +51,8 @@ class BatchResponseContentCollection(Parsable):
                 else:
                     raise ValueError("Response ID cannot be None")
             else:
-                raise TypeError("Invalid type: Collection must be of type BatchResponseContent")
+                raise TypeError(
+                    "Invalid type: Collection must be of type BatchResponseContent")
         return status_codes
 
     def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
@@ -65,7 +65,8 @@ class BatchResponseContentCollection(Parsable):
         return {
             'responses':
             lambda n:
-            setattr(self, "_responses", n.get_collection_of_object_values(BatchResponseItem))
+            setattr(self, "_responses",
+                    n.get_collection_of_object_values(BatchResponseItem))
         }
 
     def serialize(self, writer: SerializationWriter) -> None:

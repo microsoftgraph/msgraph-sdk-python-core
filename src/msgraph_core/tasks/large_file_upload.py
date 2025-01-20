@@ -1,10 +1,9 @@
 import logging
 import os
 from asyncio import Future
-from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
-from typing import Any, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Optional, Tuple, TypeVar, Union
 
 from kiota_abstractions.headers_collection import HeadersCollection
 from kiota_abstractions.method import Method
@@ -38,11 +37,13 @@ class LargeFileUploadTask:
         self.max_chunk_size = max_chunk_size
         self.factory = parsable_factory
         cleaned_value = self.check_value_exists(
-            upload_session, 'get_next_expected_range', ['next_expected_range', 'NextExpectedRange']
+            upload_session, 'get_next_expected_range', [
+                'next_expected_range', 'NextExpectedRange']
         )
         self.next_range = cleaned_value[0]
         self._chunks = int((self.file_size / max_chunk_size) + 0.5)
-        self.on_chunk_upload_complete: Optional[Callable[[list[int]], None]] = None
+        self.on_chunk_upload_complete: Optional[Callable[[
+            list[int]], None]] = None
 
     @property
     def upload_session(self):
@@ -68,7 +69,8 @@ class LargeFileUploadTask:
         now = datetime.now(timezone.utc)
         upload_session = upload_session or self.upload_session
         if not hasattr(upload_session, "expiration_date_time"):
-            raise ValueError("Upload session does not have an expiration date time")
+            raise ValueError(
+                "Upload session does not have an expiration date time")
         expiry = getattr(upload_session, 'expiration_date_time')
         if expiry is None:
             raise ValueError("Expiry is None")
@@ -93,13 +95,16 @@ class LargeFileUploadTask:
 
         self.on_chunk_upload_complete = after_chunk_upload or self.on_chunk_upload_complete
         session: LargeFileUploadSession = await self.next_chunk(
-            self.stream, 0, max(0, min(self.max_chunk_size - 1, self.file_size - 1))
+            self.stream, 0, max(
+                0, min(self.max_chunk_size - 1, self.file_size - 1))
         )
         process_next = session
         # determine the range  to be uploaded
         # even when resuming existing upload sessions.
-        range_parts = self.next_range[0].split("-") if self.next_range else ['0', '0']
-        end = min(int(range_parts[0]) + self.max_chunk_size - 1, self.file_size)
+        range_parts = self.next_range[0].split(
+            "-") if self.next_range else ['0', '0']
+        end = min(int(range_parts[0]) +
+                  self.max_chunk_size - 1, self.file_size)
         uploaded_range = [range_parts[0], end]
         response = None
 
@@ -124,12 +129,13 @@ class LargeFileUploadTask:
                 if not next_range:
                     continue
                 range_parts = str(next_range[0]).split("-")
-                end = min(int(range_parts[0]) + self.max_chunk_size, self.file_size)
+                end = min(int(range_parts[0]) +
+                          self.max_chunk_size, self.file_size)
                 uploaded_range = [range_parts[0], end]
                 self.next_range = next_range[0] + "-"
                 process_next = await self.next_chunk(self.stream)
 
-            except Exception as error:  #pylint: disable=broad-except
+            except Exception as error:  # pylint: disable=broad-except
                 logging.error("Error uploading chunk  %s", error)
             finally:
                 self.chunks -= 1
@@ -176,7 +182,8 @@ class LargeFileUploadTask:
             chunk_data = file.read(end - start + 1)
         info.headers = HeadersCollection()
 
-        info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
+        info.headers.try_add(
+            'Content-Range', f'bytes {start}-{end}/{self.file_size}')
         info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
@@ -216,7 +223,8 @@ class LargeFileUploadTask:
             chunk_data = file.read(end - start + 1)
         info.headers = HeadersCollection()
 
-        info.headers.try_add('Content-Range', f'bytes {start}-{end}/{self.file_size}')
+        info.headers.try_add(
+            'Content-Range', f'bytes {start}-{end}/{self.file_size}')
         info.headers.try_add('Content-Length', str(len(chunk_data)))
         info.headers.try_add("Content-Type", "application/octet-stream")
         info.set_stream_content(bytes(chunk_data))
@@ -231,7 +239,8 @@ class LargeFileUploadTask:
 
     async def cancel(self) -> Parsable:
         upload_url = self.get_validated_upload_url(self.upload_session)
-        request_information = RequestInformation(method=Method.DELETE, url_template=upload_url)
+        request_information = RequestInformation(
+            method=Method.DELETE, url_template=upload_url)
 
         await self.request_adapter.send_no_response_content_async(request_information)
 
@@ -254,7 +263,8 @@ class LargeFileUploadTask:
                 'AdditionalDataHolder'
             )
         if not hasattr(parsable, 'additional_data'):
-            raise ValueError('The object passed does not contain an additional_data property')
+            raise ValueError(
+                'The object passed does not contain an additional_data property')
         additional_data = parsable.additional_data
         for property_candidate in property_candidates:
             if property_candidate in additional_data:
@@ -298,7 +308,8 @@ class LargeFileUploadTask:
 
     def get_validated_upload_url(self, upload_session: Parsable) -> str:
         if not hasattr(upload_session, 'upload_url'):
-            raise RuntimeError('The upload session does not contain a valid upload url')
+            raise RuntimeError(
+                'The upload session does not contain a valid upload url')
         result = upload_session.upload_url
 
         if result is None or result.strip() == '':

@@ -157,6 +157,6 @@ uritemplate==4.1.1 ; python_version >= '3.6'
 
 yarl==1.15.2 ; python_version >= '3.7'
 
-deprecated==1.2.15
+deprecated==1.2.17
 
 types-Deprecated==1.2.15.20241117

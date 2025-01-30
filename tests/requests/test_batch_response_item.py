@@ -4,7 +4,7 @@ from io import BytesIO
 from kiota_abstractions.serialization import ParseNode, SerializationWriter
 from unittest.mock import Mock
 
-from msgraph_core.requests.batch_response_item import BatchResponseItem, StreamInterface
+from msgraph_core.requests.batch_response_item import BatchResponseItem
 
 
 @pytest.fixture
@@ -42,7 +42,7 @@ def test_headers_property(batch_response_item):
 
 
 def test_body_property(batch_response_item):
-    body = StreamInterface(b"response body")
+    body = BytesIO(b"response body")
     batch_response_item.body = body
     assert batch_response_item.body == body
 
@@ -74,7 +74,7 @@ def test_serialize(batch_response_item):
     batch_response_item.atomicity_group = "group1"
     batch_response_item.status = 200
     batch_response_item.headers = {"Content-Type": "application/json"}
-    batch_response_item.body = StreamInterface(b"response body")
+    batch_response_item.body = BytesIO(b"response body")
     batch_response_item.serialize(writer)
     writer.write_str_value.assert_any_call('id', "12345")
     writer.write_str_value.assert_any_call('atomicity_group', "group1")

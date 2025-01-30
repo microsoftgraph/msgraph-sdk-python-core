@@ -1,4 +1,5 @@
 import pytest
+from io import BytesIO
 from unittest.mock import Mock
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
@@ -6,7 +7,7 @@ from kiota_abstractions.serialization import SerializationWriter
 from msgraph_core.requests.batch_request_item import BatchRequestItem
 from msgraph_core.requests.batch_request_content import BatchRequestContent
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
-from msgraph_core.requests.batch_request_item import BatchRequestItem, StreamInterface
+from msgraph_core.requests.batch_request_item import BatchRequestItem
 
 
 @pytest.fixture
@@ -16,7 +17,7 @@ def request_info1():
     request_info.url = "https://graph.microsoft.com/v1.0/me"
     request_info.headers = RequestHeaders()
     request_info.headers.add("Content-Type", "application/json")
-    request_info.content = StreamInterface(b'{"key": "value"}')
+    request_info.content = BytesIO(b'{"key": "value"}')
     return request_info
 
 
@@ -27,7 +28,7 @@ def request_info2():
     request_info.url = "https://graph.microsoft.com/v1.0/users"
     request_info.headers = RequestHeaders()
     request_info.headers.add("Content-Type", "application/json")
-    request_info.content = StreamInterface(b'{"key": "value"}')
+    request_info.content = BytesIO(b'{"key": "value"}')
     return request_info
 
 

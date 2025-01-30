@@ -3,6 +3,7 @@ import enum
 import json
 import re
 import urllib.request
+from deprecated import deprecated
 from io import BytesIO
 from typing import Any, Optional, Union
 from urllib.parse import urlparse
@@ -14,6 +15,7 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable, ParseNode, SerializationWriter
 
 
+@deprecated("Use BytesIO type instead")
 class StreamInterface(BytesIO):
     pass
 

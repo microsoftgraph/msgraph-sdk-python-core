@@ -4,7 +4,7 @@ async-generator==1.10 ; python_version >= '3.5'
 
 asyncmock==0.4.2
 
-attrs==24.3.0 ; python_version >= '3.7'
+attrs==25.1.0 ; python_version >= '3.7'
 
 azure-core==1.32.0 ; python_version >= '3.7'
 
@@ -38,7 +38,7 @@ importlib-metadata==7.1.0 ; python_version >= '3.7'
 
 iniconfig==2.0.0 ; python_version >= '3.7'
 
-isort==5.13.2
+isort==6.0.0
 
 lazy-object-proxy==1.10.0 ; python_version >= '3.7'
 
@@ -74,7 +74,7 @@ pycparser==2.22
 
 pyjwt[crypto]==2.9.0 ; python_version >= '3.7'
 
-pylint==3.3.3
+pylint==3.3.4
 
 pyproject-hooks==1.2.0 ; python_version >= '3.7'
 
@@ -137,19 +137,19 @@ h11==0.14.0 ; python_version >= '3.7'
 
 h2==4.1.0
 
-hpack==4.0.0 ; python_full_version >= '3.6.1'
+hpack==4.1.0 ; python_full_version >= '3.6.1'
 
 httpcore==1.0.7 ; python_version >= '3.7'
 
 httpx[http2]==0.28.1
 
-hyperframe==6.0.1 ; python_full_version >= '3.6.1'
+hyperframe==6.1.0 ; python_full_version >= '3.6.1'
 
-microsoft-kiota-abstractions==1.8.0
+microsoft-kiota-abstractions==1.9.0
 
-microsoft-kiota-authentication-azure==1.8.0
+microsoft-kiota-authentication-azure==1.9.0
 
-microsoft-kiota-http==1.8.0
+microsoft-kiota-http==1.9.0
 
 multidict==6.1.0 ; python_version >= '3.7'
 
@@ -157,6 +157,6 @@ uritemplate==4.1.1 ; python_version >= '3.6'
 
 yarl==1.15.2 ; python_version >= '3.7'
 
-deprecated==1.2.15
+deprecated==1.2.18
 
 types-Deprecated==1.2.15.20241117

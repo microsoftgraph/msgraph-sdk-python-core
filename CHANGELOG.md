@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.2.0...v1.2.1) (2025-01-30)
+
+
+### Bug Fixes
+
+* issue with national cloud/version enums and base url being set [#818](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues/818) ([4ee7887](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/4ee78873cfe176c38e84c4f1d7f469c73eb6dff6))
+
 ## [1.2.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.1.8...v1.2.0) (2025-01-14)
 
 

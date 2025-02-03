@@ -10,6 +10,6 @@ DEFAULT_REQUEST_TIMEOUT = 100
 DEFAULT_CONNECTION_TIMEOUT = 30
 # The SDK version
 # x-release-please-start-version
-SDK_VERSION = '1.2.1'
+SDK_VERSION = '1.3.0'
 # x-release-please-end
 MS_DEFAULT_SCOPE = 'https://graph.microsoft.com/.default'

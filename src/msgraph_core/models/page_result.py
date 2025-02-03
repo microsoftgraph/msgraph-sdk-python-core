@@ -11,8 +11,9 @@ Classes:
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional, TypeVar
+from typing import Optional, TypeVar
 
 from kiota_abstractions.serialization.parsable import Parsable
 from kiota_abstractions.serialization.parse_node import ParseNode

@@ -1,6 +1,7 @@
 import base64
+from collections.abc import Callable
 from io import BytesIO
-from typing import Callable, Optional, Type, TypeVar, Union
+from typing import Optional, Type, TypeVar, Union
 
 from kiota_abstractions.serialization import (
     Parsable,
@@ -107,20 +108,17 @@ class BatchResponseContent(Parsable):
             raise ValueError(f"No response found for id: {request_id}")
 
         if not issubclass(type, Parsable):
-            raise ValueError(
-                "Type passed must implement the Parsable interface")
+            raise ValueError("Type passed must implement the Parsable interface")
 
         response = self.get_response_by_id(request_id)
         if response is not None:
             content_type = response.content_type
         else:
             raise ValueError(
-                f"Unable to get content-type header in response item for request Id: {
-                    request_id}"
+                f"Unable to get content-type header in response item for request Id: {request_id}"
             )
         if not content_type:
-            raise RuntimeError(
-                "Unable to get content-type header in response item")
+            raise RuntimeError("Unable to get content-type header in response item")
 
         response_body = response.body or BytesIO()
         try:
@@ -130,8 +128,7 @@ class BatchResponseContent(Parsable):
                 )
             except Exception:
                 response_body.seek(0)
-                base64_decoded_body = BytesIO(
-                    base64.b64decode(response_body.read()))
+                base64_decoded_body = BytesIO(base64.b64decode(response_body.read()))
                 parse_node = ParseNodeFactoryRegistry().get_root_parse_node(
                     content_type, base64_decoded_body
                 )
@@ -139,8 +136,7 @@ class BatchResponseContent(Parsable):
             return parse_node.get_object_value(type)
         except Exception:
             raise ValueError(
-                f"Unable to deserialize batch response for request Id: {
-                    request_id} to {type}"
+                f"Unable to deserialize batch response for request Id: {request_id} to {type}"
             )
 
     def get_field_deserializers(self) -> dict[str, Callable[[ParseNode], None]]:
@@ -165,8 +161,7 @@ class BatchResponseContent(Parsable):
         :param writer: The writer to write to
         """
         if self._responses is not None:
-            writer.write_collection_of_object_values(
-                'responses', list(self._responses.values()))
+            writer.write_collection_of_object_values('responses', list(self._responses.values()))
         else:
             writer.write_collection_of_object_values('responses', [])
 

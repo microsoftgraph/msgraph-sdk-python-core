@@ -16,7 +16,7 @@ def test_create_graph_request_adapter(mock_auth_provider):
         request_adapter._serialization_writer_factory, SerializationWriterFactoryRegistry
     )
     assert isinstance(request_adapter._http_client, httpx.AsyncClient)
-    assert request_adapter.base_url == ''
+    assert request_adapter.base_url == 'https://graph.microsoft.com/v1.0/'
 
 
 def test_create_request_adapter_no_auth_provider():

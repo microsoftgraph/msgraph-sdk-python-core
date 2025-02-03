@@ -1,11 +1,10 @@
 import pytest
-from unittest.mock import Mock
+from io import BytesIO
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
-from msgraph_core.requests.batch_request_item import BatchRequestItem, StreamInterface
-from kiota_abstractions.serialization import SerializationWriter
+from msgraph_core.requests.batch_request_item import BatchRequestItem
 
 base_url = "https://graph.microsoft.com/v1.0/me"
 
@@ -16,7 +15,7 @@ def request_info():
     request_info.http_method = "GET"
     request_info.url = "f{base_url}/me"
     request_info.headers = RequestHeaders()
-    request_info.content = StreamInterface(b'{"key": "value"}')
+    request_info.content = BytesIO(b'{"key": "value"}')
     return request_info
 
 
@@ -100,7 +99,7 @@ def test_headers_property(batch_request_item):
 
 
 def test_body_property(batch_request_item):
-    new_body = StreamInterface(b'{"new_key": "new_value"}')
+    new_body = BytesIO(b'{"new_key": "new_value"}')
     batch_request_item.body = new_body
     assert batch_request_item.body == b'{"new_key": "new_value"}'
 

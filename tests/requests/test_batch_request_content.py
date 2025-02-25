@@ -88,9 +88,9 @@ def test_add_urllib_request(batch_request_content):
 
 
 def test_finalize(batch_request_content):
-    finalized_requests = batch_request_content.finalize()
+    finalized_batch_request_content = batch_request_content.finalize()
     assert batch_request_content.is_finalized
-    assert finalized_requests == batch_request_content.requests
+    assert finalized_batch_request_content.requests == batch_request_content.requests
 
 
 def test_create_from_discriminator_value():

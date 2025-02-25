@@ -125,7 +125,7 @@ class BatchRequestContent(Parsable):
         Finalizes the batch request content.
         """
         self.is_finalized = True
-        return self._requests
+        return self
 
     def _request_by_id(self, request_id: str) -> Optional[BatchRequestItem]:
         """

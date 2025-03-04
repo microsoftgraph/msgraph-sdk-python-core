@@ -159,4 +159,4 @@ yarl==1.15.2 ; python_version >= '3.7'
 
 deprecated==1.2.18
 
-types-Deprecated==1.2.15.20241117
+types-Deprecated==1.2.15.20250304

@@ -26,7 +26,7 @@ class BatchRequestContentCollection:
             request (BatchRequestItem): The request item to add.
         """
         if len(self.current_batch.requests) >= self.max_requests_per_batch:
-            self.batches.append(self.current_batch.finalize())
+            self.current_batch.finalize()
             self.current_batch = BatchRequestContent()
             self.batches.append(self.current_batch)
         self.current_batch.add_request(request.id, request)

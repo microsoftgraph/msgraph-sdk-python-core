@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.2...v1.3.3) (2025-03-24)
+
+
+### Bug Fixes
+
+* sequencing of batches ([9e14ea3](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/9e14ea3bb3126df47a62ed026ecbd5af471a15e3))
+
 ## [1.3.2](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.1...v1.3.2) (2025-02-25)
 
 

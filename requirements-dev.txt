@@ -155,7 +155,7 @@ multidict==6.4.3 ; python_version >= '3.7'
 
 uritemplate==4.1.1 ; python_version >= '3.6'
 
-yarl==1.19.0 ; python_version >= '3.7'
+yarl==1.20.0 ; python_version >= '3.7'
 
 deprecated==1.2.18
 

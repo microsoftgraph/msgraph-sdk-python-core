@@ -108,7 +108,7 @@ tomli==2.2.1 ; python_version < '3.11'
 
 tomlkit==0.13.2 ; python_version >= '3.7'
 
-trio==0.29.0
+trio==0.30.0
 
 types-python-dateutil==2.9.0.20241206
 

@@ -60,7 +60,7 @@ mypy-extensions==1.1.0 ; python_version >= '3.5'
 
 outcome==1.3.0.post0 ; python_version >= '3.7'
 
-packaging==24.2 ; python_version >= '3.7'
+packaging==25.0 ; python_version >= '3.7'
 
 pathlib2==2.3.7.post1
 

@@ -133,7 +133,7 @@ async-timeout==5.0.1 ; python_version >= '3.6'
 
 frozenlist==1.6.0 ; python_version >= '3.7'
 
-h11==0.14.0 ; python_version >= '3.7'
+h11==0.16.0 ; python_version >= '3.7'
 
 h2==4.2.0
 

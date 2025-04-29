@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.3...v1.3.4) (2025-04-29)
+
+
+### Bug Fixes
+
+* dependecy conflict ([914da4f](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/914da4fc7c5a65a80fbf2411cc5ab4cf333a5e14))
+
 ## [1.3.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.2...v1.3.3) (2025-03-24)
 
 

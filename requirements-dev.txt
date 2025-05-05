@@ -18,7 +18,7 @@ certifi==2025.4.26 ; python_version >= '3.6'
 
 cffi==1.17.1 ; os_name == 'nt' and implementation_name != 'pypy'
 
-charset-normalizer==3.4.1 ; python_full_version >= '3.7.0'
+charset-normalizer==3.4.2 ; python_full_version >= '3.7.0'
 
 click==8.1.8 ; python_version >= '3.6'
 

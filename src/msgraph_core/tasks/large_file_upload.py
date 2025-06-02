@@ -40,7 +40,7 @@ class LargeFileUploadTask:
         cleaned_value = self.check_value_exists(
             upload_session, 'get_next_expected_range', ['next_expected_range', 'NextExpectedRange']
         )
-        self.next_range = cleaned_value[0]
+        self.next_range = cleaned_value[1] if cleaned_value[0] else None
         self._chunks = int((self.file_size / max_chunk_size) + 0.5)
         self.on_chunk_upload_complete: Optional[Callable[[list[int]], None]] = None
 

@@ -153,7 +153,7 @@ microsoft-kiota-http==1.9.3
 
 multidict==6.4.4 ; python_version >= '3.7'
 
-uritemplate==4.1.1 ; python_version >= '3.6'
+uritemplate==4.2.0 ; python_version >= '3.6'
 
 yarl==1.20.0 ; python_version >= '3.7'
 

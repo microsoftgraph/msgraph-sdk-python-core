@@ -131,7 +131,7 @@ anyio==4.9.0 ; python_version >= '3.7'
 
 async-timeout==5.0.1 ; python_version >= '3.6'
 
-frozenlist==1.6.2 ; python_version >= '3.7'
+frozenlist==1.7.0 ; python_version >= '3.7'
 
 h11==0.16.0 ; python_version >= '3.7'
 

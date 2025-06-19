@@ -113,7 +113,7 @@ trio==0.30.0
 types-python-dateutil==2.9.0.20250516
 
 types-requests==2.32.4.20250611; python_version >= '3.7'
-urllib3==2.4.0 ; python_version >= '3.7'
+urllib3==2.5.0 ; python_version >= '3.7'
 typing-extensions==4.14.0 ; python_version >= '3.7'
 
 

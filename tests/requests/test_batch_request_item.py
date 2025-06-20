@@ -1,7 +1,10 @@
 import pytest
+import json
 from io import BytesIO
+from unittest.mock import Mock
 from urllib.request import Request
 from kiota_abstractions.request_information import RequestInformation
+from kiota_abstractions.serialization.serialization_writer import SerializationWriter
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
 from msgraph_core.requests.batch_request_item import BatchRequestItem
@@ -15,7 +18,7 @@ def request_info():
     request_info.http_method = "GET"
     request_info.url = "f{base_url}/me"
     request_info.headers = RequestHeaders()
-    request_info.content = BytesIO(b'{"key": "value"}')
+    request_info.content = b'{"key": "value"}'
     return request_info
 
 
@@ -27,7 +30,7 @@ def batch_request_item(request_info):
 def test_initialization(batch_request_item, request_info):
     assert batch_request_item.method == "GET"
     assert batch_request_item.url == "f{base_url}/me"
-    assert batch_request_item.body.read() == b'{"key": "value"}'
+    assert batch_request_item.body == b'{"key": "value"}'
 
 
 def test_create_with_urllib_request():
@@ -123,3 +126,11 @@ def test_batch_request_item_method_enum():
 def test_depends_on_property(batch_request_item):
     batch_request_item.set_depends_on(["request1", "request2"])
     assert batch_request_item.depends_on == ["request1", "request2"]
+
+
+def test_serialize(batch_request_item):
+    writer = Mock(spec=SerializationWriter)
+    batch_request_item.serialize(writer)
+    writer.write_additional_data_value.assert_any_call({'headers': batch_request_item._headers})
+    json_object = json.loads(batch_request_item._body)
+    writer.write_additional_data_value.assert_called_with({'body': json_object})

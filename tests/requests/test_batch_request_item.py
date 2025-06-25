@@ -7,6 +7,7 @@ from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.serialization_writer import SerializationWriter
 from kiota_abstractions.method import Method
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
+from kiota_serialization_json.json_serialization_writer_factory import JsonSerializationWriterFactory
 from msgraph_core.requests.batch_request_item import BatchRequestItem
 
 base_url = "https://graph.microsoft.com/v1.0/me"
@@ -14,22 +15,25 @@ base_url = "https://graph.microsoft.com/v1.0/me"
 
 @pytest.fixture
 def request_info():
-    request_info = RequestInformation()
+    request_info = RequestInformation() 
     request_info.http_method = "GET"
-    request_info.url = "f{base_url}/me"
+    request_info.url = base_url
     request_info.headers = RequestHeaders()
+    request_info.headers.add("Content-Type", "application/json")
     request_info.content = b'{"key": "value"}'
     return request_info
 
 
 @pytest.fixture
 def batch_request_item(request_info):
-    return BatchRequestItem(request_information=request_info)
+    return BatchRequestItem(request_information=request_info, id="123")
 
 
 def test_initialization(batch_request_item, request_info):
+    assert batch_request_item.id == "123"
     assert batch_request_item.method == "GET"
-    assert batch_request_item.url == "f{base_url}/me"
+    assert batch_request_item.url == base_url
+    assert batch_request_item.headers == {"content-type": "application/json"}
     assert batch_request_item.body == b'{"key": "value"}'
 
 
@@ -128,9 +132,13 @@ def test_depends_on_property(batch_request_item):
     assert batch_request_item.depends_on == ["request1", "request2"]
 
 
-def test_serialize(batch_request_item):
-    writer = Mock(spec=SerializationWriter)
+def test_serialize_json(batch_request_item):
+    writer = JsonSerializationWriterFactory().get_serialization_writer('application/json')
     batch_request_item.serialize(writer)
-    writer.write_additional_data_value.assert_any_call({'headers': batch_request_item._headers})
-    json_object = json.loads(batch_request_item._body)
-    writer.write_additional_data_value.assert_called_with({'body': json_object})
+    content = json.loads(writer.get_serialized_content())
+    assert content["id"] == "123"
+    assert content["method"] == "GET"
+    assert content["url"] == base_url
+    assert content["headers"] == {"content-type": "application/json"}
+    assert content["body"] == {"key": "value"}
+

@@ -151,6 +151,8 @@ microsoft-kiota-authentication-azure==1.9.3
 
 microsoft-kiota-http==1.9.3
 
+microsoft-kiota-serialization-json==1.9.3
+
 multidict==6.5.0 ; python_version >= '3.7'
 
 uritemplate==4.2.0 ; python_version >= '3.6'

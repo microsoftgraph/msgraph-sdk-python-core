@@ -22,8 +22,7 @@ class GraphClientFactory():
     """
 
     @staticmethod
-    def create_with_default_middleware( # type: ignore
-        # Breaking change to remove KiotaClientFactory as base class
+    def create_with_default_middleware(
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
@@ -50,15 +49,16 @@ class GraphClientFactory():
         """
         if client is None:
             client = KiotaClientFactory.get_default_client()
-            client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
+            client.base_url = GraphClientFactory._get_base_url(
+                host, api_version)
+
         middleware = KiotaClientFactory.get_default_middleware(options)
         telemetry_handler = GraphClientFactory._get_telemetry_handler(options)
         middleware.append(telemetry_handler)
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
-    def create_with_custom_middleware( # type: ignore
-        # Breaking change to remove Kiota client factory as base class
+    def create_with_custom_middleware(
         middleware: Optional[list[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
@@ -83,7 +83,9 @@ class GraphClientFactory():
         """
         if client is None:
             client = KiotaClientFactory.get_default_client()
-            client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
+            client.base_url = GraphClientFactory._get_base_url(
+                host, api_version)
+
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
@@ -124,7 +126,7 @@ class GraphClientFactory():
                     mounts[pattern
                            ] = GraphClientFactory._replace_transport_with_custom_graph_transport(
                                transport, middleware
-                           )
+                    )
             client._mounts = dict(sorted(mounts.items()))
         return client
 

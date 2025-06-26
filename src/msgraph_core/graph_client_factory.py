@@ -37,7 +37,7 @@ class GraphClientFactory():
             This is only used if the client parameter is None.
             client (Optional[httpx.AsyncClient]]): The httpx.AsyncClient instance to be used.
             Defaults to None.
-            When None, a default client will be created with the base url set to https://{host}/{api_version}.
+            When None, a client will be created with base url set to https://{host}/{api_version}.
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
             This is only used if the client parameter is None.
@@ -66,16 +66,16 @@ class GraphClientFactory():
         """Applies a custom middleware chain to the HTTP Client
 
         Args:
-            middleware(Optional[list[BaseMiddleware]]): Custom middleware list that will be used to create
-            a middleware pipeline. The middleware should be arranged in the order in which they will
-            modify the request.
+            middleware(Optional[list[BaseMiddleware]]): Custom middleware list that will be used to
+            create a middleware pipeline. The middleware should be arranged in the order in which 
+            they will modify the request.
             Defaults to None,
             api_version (APIVersion): The Graph API version to be used. 
             Defaults to APIVersion.v1.
             This is only used if the client parameter is None.
             client (Optional[httpx.AsyncClient]): The httpx.AsyncClient instance to be used.
             Defaults to None.
-            When None, a default client will be created with the base url set to https://{host}/{api_version}.
+            When None, a client will be created with base url set to https://{host}/{api_version}.
             host (NationalClouds): The national cloud endpoint to be used.
             Defaults to NationalClouds.Global.
             This is only used if the client parameter is None.

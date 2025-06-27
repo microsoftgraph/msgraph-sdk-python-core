@@ -16,14 +16,13 @@ from .middleware import AsyncGraphTransport, GraphTelemetryHandler
 from .middleware.options import GraphTelemetryHandlerOption
 
 
-class GraphClientFactory(KiotaClientFactory):
+class GraphClientFactory():
     """Constructs httpx.AsyncClient instances configured with either custom or default
     pipeline of graph specific middleware.
     """
 
     @staticmethod
-    def create_with_default_middleware( # type: ignore
-        # Breaking change to remove KiotaClientFactory as base class
+    def create_with_default_middleware(
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
         host: NationalClouds = NationalClouds.Global,
@@ -35,10 +34,13 @@ class GraphClientFactory(KiotaClientFactory):
         Args:
             api_version (APIVersion): The Graph API version to be used.
             Defaults to APIVersion.v1.
-            client  (httpx.AsyncClient): The httpx.AsyncClient instance to be used.
-            Defaults to KiotaClientFactory.get_default_client().
+            This is only used if the client parameter is None.
+            client (Optional[httpx.AsyncClient]]): The httpx.AsyncClient instance to be used.
+            Defaults to None.
+            When None, a client will be created with base url set to https://{host}/{api_version}.
             host (NationalClouds): The national clound endpoint to be used.
             Defaults to NationalClouds.Global.
+            This is only used if the client parameter is None.
             options (Optional[dict[str, RequestOption]]): The request options to use when
             instantiating default middleware. Defaults to dict[str, RequestOption]=None.
 
@@ -47,15 +49,15 @@ class GraphClientFactory(KiotaClientFactory):
         """
         if client is None:
             client = KiotaClientFactory.get_default_client()
-        client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
+            client.base_url = GraphClientFactory._get_base_url(host, api_version)
+
         middleware = KiotaClientFactory.get_default_middleware(options)
         telemetry_handler = GraphClientFactory._get_telemetry_handler(options)
         middleware.append(telemetry_handler)
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod
-    def create_with_custom_middleware( # type: ignore
-        # Breaking change to remove Kiota client factory as base class
+    def create_with_custom_middleware(
         middleware: Optional[list[BaseMiddleware]],
         api_version: APIVersion = APIVersion.v1,
         client: Optional[httpx.AsyncClient] = None,
@@ -64,19 +66,24 @@ class GraphClientFactory(KiotaClientFactory):
         """Applies a custom middleware chain to the HTTP Client
 
         Args:
-            middleware(list[BaseMiddleware]): Custom middleware list that will be used to create
-            a middleware pipeline. The middleware should be arranged in the order in which they will
-            modify the request.
-            api_version (APIVersion): The Graph API version to be used.
+            middleware(Optional[list[BaseMiddleware]]): Custom middleware list that will be used to
+            create a middleware pipeline. The middleware should be arranged in the order in which 
+            they will modify the request.
+            Defaults to None,
+            api_version (APIVersion): The Graph API version to be used. 
             Defaults to APIVersion.v1.
-            client  (httpx.AsyncClient): The httpx.AsyncClient instance to be used.
-            Defaults to KiotaClientFactory.get_default_client().
-            host (NationalClouds): The national clound endpoint to be used.
+            This is only used if the client parameter is None.
+            client (Optional[httpx.AsyncClient]): The httpx.AsyncClient instance to be used.
+            Defaults to None.
+            When None, a client will be created with base url set to https://{host}/{api_version}.
+            host (NationalClouds): The national cloud endpoint to be used.
             Defaults to NationalClouds.Global.
+            This is only used if the client parameter is None.
         """
         if client is None:
             client = KiotaClientFactory.get_default_client()
-        client.base_url = GraphClientFactory._get_base_url(host, api_version)  # type: ignore
+            client.base_url = GraphClientFactory._get_base_url(host, api_version)
+
         return GraphClientFactory._load_middleware_to_client(client, middleware)
 
     @staticmethod

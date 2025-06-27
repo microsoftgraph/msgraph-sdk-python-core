@@ -259,7 +259,7 @@ class BatchRequestItem(Parsable):
         writer.write_str_value('url', self.url)
         writer.write_collection_of_primitive_values('depends_on', self._depends_on)
         writer.write_additional_data_value(
-            {'headers': self._headers} # need proper method to serialize dicts
+            {'headers': self._headers}  # need proper method to serialize dicts
         )
         if self._body:
             json_object = json.loads(self._body)
@@ -267,7 +267,7 @@ class BatchRequestItem(Parsable):
             # /$batch API expects JSON object or base 64 encoded value for the body
             if is_json_string:
                 writer.write_additional_data_value(
-                    {'body': json_object} # need proper method to serialize dicts
+                    {'body': json_object}  # need proper method to serialize dicts
                 )
             else:
                 writer.write_str_value('body', base64.b64encode(self._body).decode('utf-8'))

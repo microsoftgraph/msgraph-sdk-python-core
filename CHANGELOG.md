@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.5](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.4...v1.3.5) (2025-06-27)
+
+
+### Bug Fixes
+
+* BatchRequestItem now properly serializes the header and body fields ([7b5ad11](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/7b5ad1130f16438579e160aaea1d3aae000b96b6))
+* GraphClientFactory baseUrl setting logic ([5377bba](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/5377bbafdfbd68d9467bf12c1ccdb40e13c4e374))
+
 ## [1.3.4](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.3...v1.3.4) (2025-06-02)
 
 

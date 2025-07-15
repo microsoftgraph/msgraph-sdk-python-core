@@ -90,7 +90,7 @@ pytest-trio==0.8.0
 
 pytest-asyncio==1.0.0
 
-pywin32==310 ; platform_system == 'Windows'
+pywin32==311 ; platform_system == 'Windows'
 
 requests==2.32.4 ; python_version >= '3.7'
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.6](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.5...v1.3.6) (2025-08-05)
+
+
+### Bug Fixes
+
+* Update license field to use proper SPDX identifier ([c91fafd](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/c91fafd15466c74102f0f01b5bb6740222edbf99))
+
 ## [1.3.5](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.4...v1.3.5) (2025-06-27)
 
 

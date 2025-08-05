@@ -17,7 +17,8 @@ dependencies = [
     "httpx[http2] >=0.23.0",
 ]
 requires-python = ">=3.9"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 keywords = ["msgraph", "openAPI", "Microsoft", "Graph"]
 classifiers = [

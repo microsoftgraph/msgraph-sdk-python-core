@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.7](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.6...v1.3.7) (2025-09-11)
+
+
+### Bug Fixes
+
+* dependabot update of core deps ([6f8d997](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/6f8d997f0e52482868969121ad06961ec28ba98a))
+
 ## [1.3.6](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.5...v1.3.6) (2025-08-05)
 
 

@@ -110,7 +110,7 @@ tomlkit==0.13.3 ; python_version >= '3.7'
 
 trio==0.30.0
 
-types-python-dateutil==2.9.0.20250708
+types-python-dateutil==2.9.0.20250822
 
 types-requests==2.32.4.20250611; python_version >= '3.7'
 urllib3==2.5.0 ; python_version >= '3.7'

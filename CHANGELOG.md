@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.8](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.7...v1.3.8) (2025-09-11)
+
+
+### Bug Fixes
+
+* remove MIT License from project classifiers ([a15c2a1](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/a15c2a1f5ebeaad2a5e0806c0d8801608f35f49a))
+
 ## [1.3.7](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.6...v1.3.7) (2025-09-11)
 
 

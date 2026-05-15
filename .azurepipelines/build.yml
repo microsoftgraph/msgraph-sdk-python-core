@@ -58,3 +58,4 @@ extends:
               - script: python -m pytest tests/
                 displayName: Run unit tests
                 workingDirectory: $(Build.SourcesDirectory)
+

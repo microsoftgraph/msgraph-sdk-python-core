@@ -257,7 +257,7 @@ class BatchRequestItem(Parsable):
         writer.write_str_value('id', self.id)
         writer.write_str_value('method', self.method)
         writer.write_str_value('url', self.url)
-        writer.write_collection_of_primitive_values('depends_on', self._depends_on)
+        writer.write_collection_of_primitive_values('dependsOn', self._depends_on)
         writer.write_additional_data_value(
             {'headers': self._headers}  # need proper method to serialize dicts
         )

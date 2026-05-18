@@ -4,7 +4,7 @@
 # ------------------------------------
 #pylint: disable=invalid-name
 
-from enum import Enum
+from enum import Enum, IntFlag
 
 
 class APIVersion(str, Enum):
@@ -16,7 +16,7 @@ class APIVersion(str, Enum):
         return self.value
 
 
-class FeatureUsageFlag(int, Enum):
+class FeatureUsageFlag(IntFlag):
     """Enumerated list of values used to flag usage of specific middleware"""
 
     NONE = 0
@@ -27,7 +27,7 @@ class FeatureUsageFlag(int, Enum):
     LOGGING_HANDLER_ENABLED = 16
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 class NationalClouds(str, Enum):

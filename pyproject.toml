@@ -16,18 +16,18 @@ dependencies = [
     "microsoft-kiota-http >=1.8.0,<2.0.0",
     "httpx[http2] >=0.23.0",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
 keywords = ["msgraph", "openAPI", "Microsoft", "Graph"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.optional-dependencies]

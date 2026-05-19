@@ -70,7 +70,7 @@ pluggy==1.6.0 ; python_version >= '3.7'
 
 portalocker==2.10.1 ; python_version >= '3.5' and platform_system == 'Windows'
 
-pycparser==2.22
+pycparser==2.23
 
 pyjwt[crypto]==2.9.0 ; python_version >= '3.7'
 

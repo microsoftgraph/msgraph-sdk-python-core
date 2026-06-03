@@ -110,7 +110,6 @@ extends:
         jobs:
           - deployment: publish_python_package
             displayName: "Publish msgraph-core package"
-            environment: pypi_prod
             pool:
               name: Azure-Pipelines-1ESPT-ExDShared
               image: ubuntu-latest

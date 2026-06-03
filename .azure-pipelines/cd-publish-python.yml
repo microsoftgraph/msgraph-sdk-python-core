@@ -32,6 +32,11 @@ extends:
       name: Azure-Pipelines-1ESPT-ExDShared
       image: ubuntu-latest
       os: linux
+    sdl:
+      sourceAnalysisPool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        image: windows-2022
+        os: windows
     stages:
       - stage: build
         displayName: "Build and Package msgraph-sdk-python-core"

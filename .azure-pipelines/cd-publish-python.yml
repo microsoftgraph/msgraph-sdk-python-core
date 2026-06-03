@@ -11,12 +11,12 @@ trigger:
       - main
   tags:
     include:
-      - 'v*'
+      - "v*"
 
 pr: none
 
 variables:
-  pythonVersion: '3.14'
+  pythonVersion: "3.14"
 
 resources:
   repositories:
@@ -34,11 +34,11 @@ extends:
       os: linux
     stages:
       - stage: build
-        displayName: 'Build and Package msgraph-sdk-python-core'
+        displayName: "Build and Package msgraph-sdk-python-core"
         condition: or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.Reason'], 'Manual'))
         jobs:
           - job: build_python
-            displayName: 'Build, Test, and Package'
+            displayName: "Build, Test, and Package"
             pool:
               name: Azure-Pipelines-1ESPT-ExDShared
               image: ubuntu-latest
@@ -47,44 +47,44 @@ extends:
               - checkout: self
 
               - task: UsePythonVersion@0
-                displayName: 'Install Python $(pythonVersion)'
+                displayName: "Install Python $(pythonVersion)"
                 inputs:
-                  versionSpec: '$(pythonVersion)'
+                  versionSpec: "$(pythonVersion)"
                   addToPath: true
 
               - script: python -m pip install --upgrade pip
-                displayName: 'Upgrade pip'
+                displayName: "Upgrade pip"
 
               - script: pip install -r requirements-dev.txt
-                displayName: 'Install dependencies'
+                displayName: "Install dependencies"
 
               - script: yapf -dr src
-                displayName: 'Check code format'
+                displayName: "Check code format"
 
               - script: isort src
-                displayName: 'Check import order'
+                displayName: "Check import order"
 
               - script: mypy src
-                displayName: 'Static type checking with Mypy'
+                displayName: "Static type checking with Mypy"
 
               - script: pylint src --disable=W --rcfile=.pylintrc
-                displayName: 'Lint with Pylint'
+                displayName: "Lint with Pylint"
 
               - script: pytest
-                displayName: 'Run unit tests'
+                displayName: "Run unit tests"
 
               - script: pip install build
-                displayName: 'Install package builder'
+                displayName: "Install package builder"
 
               - script: python -m build
-                displayName: 'Build package artifacts'
+                displayName: "Build package artifacts"
 
               - task: CopyFiles@2
-                displayName: 'Copy package artifacts to staging'
+                displayName: "Copy package artifacts to staging"
                 inputs:
                   CleanTargetFolder: true
-                  sourceFolder: '$(Build.SourcesDirectory)'
-                  targetFolder: '$(Build.ArtifactStagingDirectory)/python/msgraph_core'
+                  sourceFolder: "$(Build.SourcesDirectory)"
+                  targetFolder: "$(Build.ArtifactStagingDirectory)/python/msgraph_core"
                   Contents: |
                     dist/*.tar.gz
                     dist/*.whl
@@ -93,18 +93,18 @@ extends:
             templateContext:
               outputs:
                 - output: pipelineArtifact
-                  displayName: 'Stage msgraph-core package artifacts'
+                  displayName: "Stage msgraph-core package artifacts"
                   artifactName: pypi_msgraph_core_package
-                  targetPath: '$(Build.ArtifactStagingDirectory)/python/msgraph_core'
+                  targetPath: "$(Build.ArtifactStagingDirectory)/python/msgraph_core"
                   condition: or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.Reason'], 'Manual'))
 
       - stage: deploy
-        displayName: 'Publish msgraph-sdk-python-core to PyPI'
+        displayName: "Publish msgraph-sdk-python-core to PyPI"
         dependsOn: build
         condition: or(and(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), succeeded()), eq(variables['Build.Reason'], 'Manual'))
         jobs:
           - deployment: publish_python_package
-            displayName: 'Publish msgraph-core package'
+            displayName: "Publish msgraph-core package"
             environment: pypi_prod
             pool:
               name: Azure-Pipelines-1ESPT-ExDShared
@@ -116,27 +116,27 @@ extends:
               inputs:
                 - input: pipelineArtifact
                   artifactName: pypi_msgraph_core_package
-                  targetPath: '$(Build.ArtifactStagingDirectory)/python'
+                  targetPath: "$(Build.ArtifactStagingDirectory)/python"
             strategy:
               runOnce:
                 deploy:
                   steps:
                     - task: EsrpRelease@9
-                      displayName: 'Publish msgraph-core package via ESRP Release'
+                      displayName: "Publish msgraph-core package via ESRP Release"
                       inputs:
-                        connectedservicename: 'Federated DevX ESRP Managed Identity Connection'
+                        connectedservicename: "Federated DevX ESRP Managed Identity Connection"
                         usemanagedidentity: false
-                        keyvaultname: 'akv-prod-eastus'
-                        authcertname: 'ReferenceLibraryPrivateCert'
-                        signcertname: 'ReferencePackagePublisherCertificate'
-                        clientid: '65035b7f-7357-4f29-bf25-c5ee5c3949f8'
-                        intent: 'PackageDistribution'
-                        contenttype: 'PYPI'
-                        contentsource: 'Folder'
-                        folderlocation: '$(Build.ArtifactStagingDirectory)/python'
+                        keyvaultname: "akv-prod-eastus"
+                        authcertname: "ReferenceLibraryPrivateCert"
+                        signcertname: "ReferencePackagePublisherCertificate"
+                        clientid: "65035b7f-7357-4f29-bf25-c5ee5c3949f8"
+                        intent: "PackageDistribution"
+                        contenttype: "PYPI"
+                        contentsource: "Folder"
+                        folderlocation: "$(Build.ArtifactStagingDirectory)/python"
                         waitforreleasecompletion: true
-                        owners: 'graphtooling+python@microsoft.com'
-                        approvers: 'graphtooling+python@microsoft.com'
-                        serviceendpointurl: 'https://api.esrp.microsoft.com'
-                        mainpublisher: 'ESRPRELPACMAN'
-                        domaintenantid: 'cdc5aeea-15c5-4db6-b079-fcadd2505dc2'
+                        owners: "graphtooling+python@microsoft.com"
+                        approvers: "graphtooling+python@microsoft.com"
+                        serviceendpointurl: "https://api.esrp.microsoft.com"
+                        mainpublisher: "ESRPRELPACMAN"
+                        domaintenantid: "cdc5aeea-15c5-4db6-b079-fcadd2505dc2"

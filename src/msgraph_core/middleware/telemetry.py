@@ -115,7 +115,7 @@ class GraphTelemetryHandler(BaseMiddleware):
         """
         system = platform.system()
         version = platform.version()
-        host_os = f'{system} {version}'
+        host_os = f'{system} {version}'.strip()
         request.headers.update({'HostOs': host_os})
 
     def _add_runtime_environment_header(self, request) -> None:

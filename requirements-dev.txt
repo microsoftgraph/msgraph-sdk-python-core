@@ -152,7 +152,7 @@ microsoft-kiota-http==1.10.1
 
 microsoft-kiota-serialization-json==1.10.1
 
-multidict==6.6.4 ; python_version >= '3.7'
+multidict==6.7.1 ; python_version >= '3.7'
 
 uritemplate==4.2.0 ; python_version >= '3.6'
 

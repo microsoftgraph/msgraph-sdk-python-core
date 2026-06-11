@@ -11,7 +11,7 @@ The PageIterator class uses the Parsable interface to parse the responses
  server, and the PageResult class to represent the pages.
 
 This module also imports the necessary types and exceptions from the
-typing, requests.exceptions, kiota_http.httpx_request_adapter,
+typing, kiota_http.httpx_request_adapter,
  kiota_abstractions.method, kiota_abstractions.headers_collection,
 kiota_abstractions.request_information, kiota_abstractions.serialization.parsable,
 and models modules.
@@ -25,7 +25,6 @@ from kiota_abstractions.method import Method
 from kiota_abstractions.request_adapter import RequestAdapter
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization import Parsable, ParsableFactory
-from requests.exceptions import InvalidURL
 
 from msgraph_core.models.page_result import (
     PageResult,  # pylint: disable=no-name-in-module, import-error
@@ -201,6 +200,9 @@ Methods:
         if not next_link:
             raise ValueError('The response does not contain a nextLink.')
         if not next_link.startswith('http'):
+            # Imported lazily: importing requests at module level adds ~350 ms
+            # to every `from msgraph import GraphServiceClient` cold start.
+            from requests.exceptions import InvalidURL
             raise InvalidURL('Could not parse nextLink URL.')
         request_info = RequestInformation()
         request_info.http_method = Method.GET

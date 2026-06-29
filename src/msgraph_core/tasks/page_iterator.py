@@ -202,7 +202,7 @@ Methods:
         if not next_link.startswith('http'):
             # Imported lazily: importing requests at module level adds ~350 ms
             # to every `from msgraph import GraphServiceClient` cold start.
-            from requests.exceptions import InvalidURL
+            from requests.exceptions import InvalidURL  # pylint: disable=import-outside-toplevel
             raise InvalidURL('Could not parse nextLink URL.')
         request_info = RequestInformation()
         request_info.http_method = Method.GET

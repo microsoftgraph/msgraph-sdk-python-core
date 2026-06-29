@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.4.0...v1.5.0) (2026-06-29)
+
+
+### Features
+
+* **pipeline:** add Azure Pipelines configuration for building and publishing library ([73c69e3](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/73c69e3667d36af39367e1e198a1c06f2dc33945))
+* **pipeline:** add Azure Pipelines configuration for building and publishing Python packages to PyPI ([a36e3a1](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/a36e3a1278b153b021114169ad1889f2352318c3))
+* **pipeline:** add Azure Pipelines configuration for building and publishing Python packages to PyPI ([713490c](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/713490c8110fe322692f7d10e8a8063d0f0684ae))
+
+
+### Bug Fixes
+
+* disable pylint C0415 for intentional lazy import ([27b5879](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/27b5879f49f47a8323d1a22a3d60f270fcde3549))
+* HTTP/1.1 requests with truncated kernel versions ([ecc5575](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/ecc5575b84a2efd8e30cd0ae68885e279754d4f2)), closes [#1087](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues/1087)
+* Strip leading and trailing whitespace for HostOs header ([c0a03c8](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/c0a03c86eb2c4398449c908f94ecb2295ac96c2d))
+* update 1ES daily CI pipeline configuration ([9c0ca2b](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/9c0ca2b257caf84277c17615d1d6e9914270acde))
+* update package owners and approvers in Azure Pipelines configuration ([19a5a2d](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/19a5a2d8a8c2fbe835bb2954c079a8776b3be961))
+
 ## [1.4.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.3.8...v1.4.0) (2026-05-19)
 
 

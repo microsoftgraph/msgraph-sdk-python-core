@@ -3,7 +3,7 @@ async-generator==1.10 ; python_version >= '3.5'
 
 asyncmock==0.4.2
 
-attrs==25.3.0 ; python_version >= '3.7'
+attrs==26.1.0 ; python_version >= '3.7'
 
 azure-core==1.41.0 ; python_version >= '3.7'
 

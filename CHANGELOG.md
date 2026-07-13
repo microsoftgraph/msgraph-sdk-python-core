@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.0...v1.5.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* Merge pull request [#1105](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues/1105) from microsoftgraph/ci/update-deployment-approver ([be2a48b](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/be2a48b7fcf4d16cdcafac5c6a49915443f05ea1))
+
 ## [1.5.0](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.4.0...v1.5.0) (2026-06-29)
 
 

@@ -32,6 +32,8 @@ from msgraph_core.models.page_result import (
 
 T = TypeVar('T', bound=Parsable)
 
+ODATA_DELTA_LINK_KEY = '@odata.deltaLink'
+
 
 class PageIterator:
     """
@@ -156,7 +158,7 @@ Methods:
         return PageResult(odata_next_link=next_link, value=value)
 
     @staticmethod
-    def _extract_delta_link(response: Union[T, dict, object]) -> str:
+    def _extract_delta_link(response: T | dict | object) -> str:
         """
         Extracts the '@odata.deltaLink' from a response.
         Checks the additional data bag first (for models that do not
@@ -169,10 +171,10 @@ Methods:
             str: The delta link, or an empty string if none is present.
         """
         if isinstance(response, dict):
-            return response.get('@odata.deltaLink', '')
+            return response.get(ODATA_DELTA_LINK_KEY, '')
         additional_data = getattr(response, 'additional_data', None)
-        if additional_data and additional_data.get('@odata.deltaLink'):
-            return additional_data.get('@odata.deltaLink')
+        if additional_data and additional_data.get(ODATA_DELTA_LINK_KEY):
+            return additional_data.get(ODATA_DELTA_LINK_KEY)
         return getattr(response, 'odata_delta_link', '')
 
     @staticmethod

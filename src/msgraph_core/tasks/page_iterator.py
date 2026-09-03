@@ -83,9 +83,7 @@ Methods:
         self._next_link = response.get('odata_next_link', '') if isinstance(
             response, dict
         ) else getattr(response, 'odata_next_link', '')
-        self._delta_link = response.get('@odata.deltaLink', '') if isinstance(
-            response, dict
-        ) else getattr(response, 'odata_delta_link', '')
+        self._delta_link = self._extract_delta_link(response)
 
         if page is not None:
             self.current_page = page
@@ -151,13 +149,31 @@ Methods:
         next_link = response.odata_next_link if response and hasattr(
             response, 'odata_next_link'
         ) else None
-        delta_link = response.odata_delta_link if response and hasattr(
-            response, 'odata_delta_link'
-        ) else None
+        delta_link = self._extract_delta_link(response) if response else None
         if delta_link:
             self._delta_link = delta_link
         value = response.value if response and hasattr(response, 'value') else None
         return PageResult(odata_next_link=next_link, value=value)
+
+    @staticmethod
+    def _extract_delta_link(response: Union[T, dict, object]) -> str:
+        """
+        Extracts the '@odata.deltaLink' from a response.
+        Checks the additional data bag first (for models that do not
+        explicitly declare the field), then falls back to the typed
+        'odata_delta_link' attribute.
+        Args:
+            response (Union[T, dict, object]): The response to extract the
+            delta link from.
+        Returns:
+            str: The delta link, or an empty string if none is present.
+        """
+        if isinstance(response, dict):
+            return response.get('@odata.deltaLink', '')
+        additional_data = getattr(response, 'additional_data', None)
+        if additional_data and additional_data.get('@odata.deltaLink'):
+            return additional_data.get('@odata.deltaLink')
+        return getattr(response, 'odata_delta_link', '')
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> PageResult:

@@ -125,6 +125,39 @@ async def test_delta_link_updated_from_final_page():
     assert page_iterator.delta_link == 'https://graph.microsoft.com/v1.0/delta?token=final'
 
 
+class _CustomPage:  # pylint: disable=too-few-public-methods
+    """A page response whose model does not declare 'odata_delta_link' and
+    instead carries it in the additional data bag, like a Kiota-generated
+    collection response that doesn't model the deltaLink property."""
+
+    def __init__(self, value, odata_next_link=None, additional_data=None):
+        self.value = value
+        self.odata_next_link = odata_next_link
+        self.additional_data = additional_data or {}
+
+
+@pytest.mark.asyncio
+async def test_delta_link_falls_back_to_additional_data():
+    """Reproduces the gap where a model without a typed 'odata_delta_link'
+    attribute stores the delta link in additional_data instead."""
+    first_page = PageResult(odata_next_link='https://graph.microsoft.com/v1.0/next', value=[1, 2])
+    final_page = _CustomPage(
+        value=[3, 4],
+        additional_data={'@odata.deltaLink': 'https://graph.microsoft.com/v1.0/delta?token=final'},
+    )
+
+    adapter = Mock()
+    adapter.send_async = AsyncMock(return_value=final_page)
+
+    page_iterator = PageIterator(first_page, adapter)
+
+    items = []
+    await page_iterator.iterate(lambda item: items.append(item) or True)
+
+    assert items == [1, 2, 3, 4]
+    assert page_iterator.delta_link == 'https://graph.microsoft.com/v1.0/delta?token=final'
+
+
 @pytest.mark.asyncio
 async def test_iterate():
     # Mock the next method to return None after the first call

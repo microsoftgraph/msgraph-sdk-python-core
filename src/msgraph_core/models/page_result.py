@@ -25,8 +25,8 @@ T = TypeVar('T')
 @dataclass
 class PageResult(Parsable):
     odata_next_link: Optional[str] = None
-    odata_delta_link: Optional[str] = None
     value: Optional[list[Parsable]] = None
+    odata_delta_link: Optional[str] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> PageResult:

@@ -101,6 +101,31 @@ def test_convert_to_page(first_page_data):  # pylint: disable=redefined-outer-na
 
 
 @pytest.mark.asyncio
+async def test_delta_link_updated_from_final_page():
+    """Reproduces the bug where the delta link from the last page of a
+    multi-page delta sync was never captured on the PageIterator."""
+    first_page = PageResult(odata_next_link='https://graph.microsoft.com/v1.0/next', value=[1, 2])
+    final_page = PageResult(
+        odata_next_link=None,
+        odata_delta_link='https://graph.microsoft.com/v1.0/delta?token=final',
+        value=[3, 4],
+    )
+
+    adapter = Mock()
+    adapter.send_async = AsyncMock(return_value=final_page)
+
+    page_iterator = PageIterator(first_page, adapter)
+    # No delta link on the first page, matching the real multi-page scenario.
+    assert not page_iterator.delta_link
+
+    items = []
+    await page_iterator.iterate(lambda item: items.append(item) or True)
+
+    assert items == [1, 2, 3, 4]
+    assert page_iterator.delta_link == 'https://graph.microsoft.com/v1.0/delta?token=final'
+
+
+@pytest.mark.asyncio
 async def test_iterate():
     # Mock the next method to return None after the first call
     with patch.object(PageIterator, 'next', new_callable=AsyncMock) as mock_next:

@@ -85,7 +85,7 @@ Methods:
         ) else getattr(response, 'odata_next_link', '')
         self._delta_link = response.get('@odata.deltaLink', '') if isinstance(
             response, dict
-        ) else getattr(response, '@odata.deltaLink', '')
+        ) else getattr(response, 'odata_delta_link', '')
 
         if page is not None:
             self.current_page = page
@@ -151,8 +151,13 @@ Methods:
         next_link = response.odata_next_link if response and hasattr(
             response, 'odata_next_link'
         ) else None
+        delta_link = response.odata_delta_link if response and hasattr(
+            response, 'odata_delta_link'
+        ) else None
+        if delta_link:
+            self._delta_link = delta_link
         value = response.value if response and hasattr(response, 'value') else None
-        return PageResult(next_link, value)
+        return PageResult(odata_next_link=next_link, value=value)
 
     @staticmethod
     def convert_to_page(response: Union[T, list, object]) -> PageResult:
@@ -184,7 +189,7 @@ Methods:
             parsable_page, dict
         ) else getattr(parsable_page, 'odata_next_link', '')
 
-        return PageResult(next_link, value)
+        return PageResult(odata_next_link=next_link, value=value)
 
     async def fetch_next_page(self) -> Optional[Union[T, PageResult]]:
         """

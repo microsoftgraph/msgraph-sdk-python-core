@@ -73,7 +73,8 @@ class LargeFileUploadTask:
         if expiry is None:
             raise ValueError("Expiry is None")
         if isinstance(expiry, str):
-            then = datetime.fromisoformat(expiry)
+            normalized_expiry = expiry[:-1] + '+00:00' if expiry.endswith('Z') else expiry
+            then = datetime.fromisoformat(normalized_expiry)
         elif isinstance(expiry, datetime):
             then = expiry
         else:

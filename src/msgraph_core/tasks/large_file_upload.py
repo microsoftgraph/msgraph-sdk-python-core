@@ -73,11 +73,18 @@ class LargeFileUploadTask:
         if expiry is None:
             raise ValueError("Expiry is None")
         if isinstance(expiry, str):
-            then = datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%S")
+            normalized_expiry = expiry[:-1] + '+00:00' if expiry.endswith('Z') else expiry
+            then = datetime.fromisoformat(normalized_expiry)
         elif isinstance(expiry, datetime):
             then = expiry
         else:
             raise ValueError("Expiry is not a string or datetime")
+
+        if then.tzinfo is not None and then.tzinfo.utcoffset(then) is not None:
+            then = then.astimezone(timezone.utc)
+        else:
+            then = then.replace(tzinfo=timezone.utc)
+
         interval = now - then
         if not isinstance(interval, timedelta):
             raise ValueError("Interval is not a timedelta")

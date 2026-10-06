@@ -7,6 +7,7 @@ from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
 from kiota_http.httpx_request_adapter import HttpxRequestAdapter
 from kiota_http.kiota_client_factory import KiotaClientFactory
+from kiota_http.middleware.options import RedirectHandlerOption
 
 from msgraph_core._enums import FeatureUsageFlag
 from msgraph_core.graph_client_factory import GraphClientFactory
@@ -118,3 +119,46 @@ def test_extension_only_request_uses_graph_pipeline():
     assert requests[0].context.feature_usage == hex(
         FeatureUsageFlag.RETRY_HANDLER_ENABLED | FeatureUsageFlag.REDIRECT_HANDLER_ENABLED
     )
+
+
+@pytest.mark.parametrize(
+    'legacy_redirect, extension_options, expected_status, expected_calls', [
+        (False, None, 302, 1),
+        (None, None, 200, 2),
+        (True, False, 302, 1),
+        (False, True, 200, 2),
+        (False, {}, 200, 2),
+    ]
+)
+def test_request_redirect_options_are_honored(
+    legacy_redirect, extension_options, expected_status, expected_calls
+):
+    requests = []
+
+    def handle_request(request):
+        requests.append(request)
+        if request.url.path == '/start':
+            return httpx.Response(302, headers={'Location': 'https://example.org/end'})
+        return httpx.Response(200, content=b'body')
+
+    async def send():
+        underlying_transport = httpx.MockTransport(handle_request)
+        middleware = KiotaClientFactory.get_default_middleware(None)
+        pipeline = KiotaClientFactory.create_middleware_pipeline(middleware, underlying_transport)
+        transport = AsyncGraphTransport(underlying_transport, pipeline)
+        request = httpx.Request('GET', 'https://example.org/start')
+        request.options = {}
+        if legacy_redirect is not None:
+            option = RedirectHandlerOption(should_redirect=legacy_redirect)
+            request.options[option.get_key()] = option
+        if extension_options is not None:
+            options = extension_options
+            if isinstance(options, bool):
+                option = RedirectHandlerOption(should_redirect=options)
+                options = {option.get_key(): option}
+            request.extensions[REQUEST_OPTIONS_KEY] = options
+        return await transport.handle_async_request(request)
+
+    assert asyncio.run(send()).status_code == expected_status
+    assert len(requests) == expected_calls
+    assert isinstance(requests[0].context, GraphRequestContext)

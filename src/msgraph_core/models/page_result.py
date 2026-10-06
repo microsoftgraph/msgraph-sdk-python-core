@@ -26,6 +26,7 @@ T = TypeVar('T')
 class PageResult(Parsable):
     odata_next_link: Optional[str] = None
     value: Optional[list[Parsable]] = None
+    odata_delta_link: Optional[str] = None
 
     @staticmethod
     def create_from_discriminator_value(parse_node: Optional[ParseNode] = None) -> PageResult:
@@ -49,6 +50,8 @@ class PageResult(Parsable):
         return {
             "@odata.nextLink":
             lambda x: setattr(self, "odata_next_link", x.get_str_value()),
+            "@odata.deltaLink":
+            lambda x: setattr(self, "odata_delta_link", x.get_str_value()),
             "value":
             lambda x: setattr(
                 self,
@@ -69,4 +72,5 @@ class PageResult(Parsable):
         if not writer:
             raise TypeError("Writer cannot be null")
         writer.write_str_value("@odata.nextLink", self.odata_next_link)
+        writer.write_str_value("@odata.deltaLink", self.odata_delta_link)
         writer.write_collection_of_object_values("value", self.value)

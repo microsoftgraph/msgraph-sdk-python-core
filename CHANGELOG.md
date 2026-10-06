@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.2](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.1...v1.5.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* align Kiota minimum versions and test extension-only transport ([e78dcaf](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/e78dcaf3b669643e076433d697aa3bd3f38580a6))
+* honor Kiota request extensions in Graph transport ([ca47287](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/ca4728778e4b02d655794c62a26bb2da20dda622))
+* honor Kiota request extensions in Graph transport ([b8d5927](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/b8d5927c651c5e049a132021e72f8d01c83d5021))
+* propagate legacy request options to Kiota middleware ([156d947](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/156d94701fad9b30b21b534a853b979c1b3d3d25))
+
 ## [1.5.1](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.0...v1.5.1) (2026-07-13)
 
 

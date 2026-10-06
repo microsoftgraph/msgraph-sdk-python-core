@@ -32,7 +32,7 @@ def batch_request_item(request_info):
 def test_initialization(batch_request_item, request_info):
     assert batch_request_item.id == "123"
     assert batch_request_item.method == "GET"
-    assert batch_request_item.url == base_url
+    assert batch_request_item.url == "/me"
     assert batch_request_item.headers == {"content-type": "application/json"}
     assert batch_request_item.body == b'{"key": "value"}'
 
@@ -43,7 +43,7 @@ def test_create_with_urllib_request():
     urllib_request.data = b'{"key": "value"}'
     batch_request_item = BatchRequestItem.create_with_urllib_request(urllib_request)
     assert batch_request_item.method == "POST"
-    assert batch_request_item.url == "https://graph.microsoft.com/v1.0/me"
+    assert batch_request_item.url == "/me"
     assert batch_request_item.body == b'{"key": "value"}'
 
 
@@ -54,7 +54,22 @@ def test_set_depends_on(batch_request_item):
 
 def test_set_url(batch_request_item):
     batch_request_item.set_url("https://graph.microsoft.com/v1.0/me")
-    assert batch_request_item.url == "/v1.0/me"
+    assert batch_request_item.url == "/me"
+
+
+def test_set_url_beta(batch_request_item):
+    batch_request_item.set_url("https://graph.microsoft.com/beta/me/messages?$top=5#frag")
+    assert batch_request_item.url == "/me/messages?$top=5#frag"
+
+
+def test_set_url_already_relative(batch_request_item):
+    batch_request_item.set_url("/users/u1/messages")
+    assert batch_request_item.url == "/users/u1/messages"
+
+
+def test_set_url_keeps_version_like_segments(batch_request_item):
+    batch_request_item.set_url("https://graph.microsoft.com/v1.0/sites/beta-site/lists")
+    assert batch_request_item.url == "/sites/beta-site/lists"
 
 
 def test_constructor_url_replacement():
@@ -66,7 +81,7 @@ def test_constructor_url_replacement():
 
     batch_request_item = BatchRequestItem(request_info)
 
-    assert batch_request_item.url == "https://graph.microsoft.com/v1.0/me"
+    assert batch_request_item.url == "/me"
 
 
 def test_set_url_replacement():
@@ -79,7 +94,7 @@ def test_set_url_replacement():
     batch_request_item = BatchRequestItem(request_info)
     batch_request_item.set_url("https://graph.microsoft.com/v1.0/users/me-token-to-replace")
 
-    assert batch_request_item.url == "/v1.0/me"
+    assert batch_request_item.url == "/me"
 
 
 def test_constructor_url_replacement_with_query():
@@ -91,7 +106,7 @@ def test_constructor_url_replacement_with_query():
 
     batch_request_item = BatchRequestItem(request_info)
 
-    assert batch_request_item.url == "https://graph.microsoft.com/v1.0/me?param=value"
+    assert batch_request_item.url == "/me?param=value"
 
 
 def test_id_property(batch_request_item):
@@ -138,7 +153,7 @@ def test_serialize_json(batch_request_item):
     content = json.loads(writer.get_serialized_content())
     assert content["id"] == "123"
     assert content["method"] == "GET"
-    assert content["url"] == base_url
+    assert content["url"] == "/me"
     assert content["headers"] == {"content-type": "application/json"}
     assert content["body"] == {"key": "value"}
 

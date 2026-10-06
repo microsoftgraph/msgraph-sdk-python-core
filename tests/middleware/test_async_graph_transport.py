@@ -93,3 +93,28 @@ def test_request_without_options_bypasses_graph_pipeline():
     assert asyncio.run(send()).status_code == 200
     assert len(calls) == 1
     assert not hasattr(calls[0], 'context')
+
+
+def test_extension_only_request_uses_graph_pipeline():
+    requests = []
+
+    def handle_request(request):
+        requests.append(request)
+        return httpx.Response(200, content=b'body')
+
+    async def send():
+        underlying_transport = httpx.MockTransport(handle_request)
+        middleware = KiotaClientFactory.get_default_middleware(None)
+        pipeline = KiotaClientFactory.create_middleware_pipeline(middleware, underlying_transport)
+        transport = AsyncGraphTransport(underlying_transport, pipeline)
+        request = httpx.Request('GET', 'https://example.org', extensions={REQUEST_OPTIONS_KEY: {}})
+        assert not hasattr(request, 'options')
+        return await transport.handle_async_request(request)
+
+    assert asyncio.run(send()).content == b'body'
+    assert len(requests) == 1
+    assert isinstance(requests[0].context, GraphRequestContext)
+    assert requests[0].context.middleware_control == {}
+    assert requests[0].context.feature_usage == hex(
+        FeatureUsageFlag.RETRY_HANDLER_ENABLED | FeatureUsageFlag.REDIRECT_HANDLER_ENABLED
+    )

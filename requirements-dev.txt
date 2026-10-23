@@ -116,7 +116,7 @@ urllib3==2.7.0 ; python_version >= '3.7'
 typing-extensions==4.15.0 ; python_version >= '3.7'
 
 
-wrapt==1.17.3
+wrapt==2.2.1
 
 yapf==0.43.0
 

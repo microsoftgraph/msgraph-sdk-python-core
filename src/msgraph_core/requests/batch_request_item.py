@@ -21,8 +21,8 @@ class StreamInterface(BytesIO):
 
 
 class BatchRequestItem(Parsable):
-    API_VERSION_REGEX = re.compile(r'/\/(v1.0|beta)/')
-    ME_TOKEN_REGEX = re.compile(r'/\/users\/me-token-to-replace/')
+    API_VERSION_REGEX = re.compile(r'/(v1\.0|beta)(?=/|$)')
+    ME_TOKEN_REGEX = re.compile(r'/users/me-token-to-replace')
 
     def __init__(
         self,
@@ -47,7 +47,7 @@ class BatchRequestItem(Parsable):
             self._method = request_information.http_method
         self._headers: Optional[dict[str, str]] = request_information.request_headers
         self._body = request_information.content
-        self.url = request_information.url.replace('/users/me-token-to-replace', '/me', 1)
+        self.set_url(request_information.url)
         self._depends_on: Optional[list[str]] = []
         if depends_on is not None:
             self.set_depends_on(depends_on)

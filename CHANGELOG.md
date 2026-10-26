@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.2...v1.5.3) (2026-10-26)
+
+
+### Bug Fixes
+
+* build BatchRequestItem urls relative to the API version ([20beb4b](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/20beb4bd5d3dc26b855f2789b5934a2690e33fff))
+* only strip the API version as the first path segment ([921d0c8](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/921d0c869c4c6ab275fa061cf6b771ca713339de))
+
 ## [1.5.2](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.1...v1.5.2) (2026-10-06)
 
 

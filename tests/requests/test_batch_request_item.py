@@ -72,6 +72,13 @@ def test_set_url_keeps_version_like_segments(batch_request_item):
     assert batch_request_item.url == "/sites/beta-site/lists"
 
 
+def test_set_url_only_strips_a_leading_version(batch_request_item):
+    batch_request_item.set_url("/sites/beta/lists")
+    assert batch_request_item.url == "/sites/beta/lists"
+    batch_request_item.set_url("https://graph.microsoft.com/v1.0/sites/beta/lists")
+    assert batch_request_item.url == "/sites/beta/lists"
+
+
 def test_constructor_url_replacement():
     request_info = RequestInformation()
     request_info.http_method = "GET"

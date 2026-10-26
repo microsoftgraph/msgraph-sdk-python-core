@@ -21,7 +21,7 @@ class StreamInterface(BytesIO):
 
 
 class BatchRequestItem(Parsable):
-    API_VERSION_REGEX = re.compile(r'/(v1\.0|beta)(?=/|$)')
+    API_VERSION_REGEX = re.compile(r'^/(v1\.0|beta)(?=/|$)')
     ME_TOKEN_REGEX = re.compile(r'/users/me-token-to-replace')
 
     def __init__(
@@ -114,7 +114,7 @@ class BatchRequestItem(Parsable):
                 f"Error occurred during regex replacement of API version in URL string: {url}"
             )
 
-        relative_url = relative_url.replace('/users/me-token-to-replace', '/me', 1)
+        relative_url = re.sub(BatchRequestItem.ME_TOKEN_REGEX, '/me', relative_url, 1)
         if not relative_url:
             raise ValueError(
                 f"""Error occurred during regex replacement

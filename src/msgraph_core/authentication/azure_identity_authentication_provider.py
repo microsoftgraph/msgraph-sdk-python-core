@@ -19,7 +19,8 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
         credentials: Union["TokenCredential", "AsyncTokenCredential"],
         options: Optional[dict] = {},
         scopes: list[str] = [],
-        allowed_hosts: list[str] = [nc.value for nc in NationalClouds]
+        allowed_hosts: list[str] = [nc.value for nc in NationalClouds],
+        is_cae_enabled: bool = True,
     ) -> None:
         """[summary]
 
@@ -31,5 +32,7 @@ class AzureIdentityAuthenticationProvider(KiotaAzureIdentityAuthenticationProvid
                 Defaults to 'https://<national_cloud_domain>/.default'.
             allowed_hosts (Optional[list[str]]): The allowed hosts to use for
                 authentication. Defaults to Microsoft National Clouds.
+            is_cae_enabled (bool): Whether Continuous Access Evaluation is
+                enabled for the authentication provider. Defaults to True.
         """
-        super().__init__(credentials, options, scopes, allowed_hosts)
+        super().__init__(credentials, options, scopes, allowed_hosts, is_cae_enabled=is_cae_enabled)

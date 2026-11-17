@@ -15,6 +15,7 @@ dependencies = [
     "microsoft-kiota-authentication-azure >=1.13.0,<2.0.0",
     "microsoft-kiota-http >=1.13.0,<2.0.0",
     "httpx[http2] >=0.23.0",
+    "deprecated >=1.2.18",
 ]
 requires-python = ">=3.10"
 license = "MIT"

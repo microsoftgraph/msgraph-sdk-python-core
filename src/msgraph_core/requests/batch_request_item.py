@@ -5,10 +5,10 @@ import re
 import urllib.request
 from io import BytesIO
 from typing import Any, Optional, Union
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 from uuid import uuid4
-from deprecated import deprecated
 
+from deprecated import deprecated
 from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
@@ -47,7 +47,15 @@ class BatchRequestItem(Parsable):
             self._method = request_information.http_method
         self._headers: Optional[dict[str, str]] = request_information.request_headers
         self._body = request_information.content
-        self.set_url(request_information.url)
+        request_url = request_information.url
+        if request_information.query_parameters:
+            query = urlencode(request_information.query_parameters, doseq=True)
+            url_parts = urlparse(request_url)
+            separator = '&' if url_parts.query else '?'
+            request_url = request_url.split('#', 1)[0] + separator + query
+            if url_parts.fragment:
+                request_url += f"#{url_parts.fragment}"
+        self.set_url(request_url)
         self._depends_on: Optional[list[str]] = []
         if depends_on is not None:
             self.set_depends_on(depends_on)

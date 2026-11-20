@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.4](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.3...v1.5.4) (2026-11-20)
+
+
+### Bug Fixes
+
+* **ci:** upgrade ESRP release task to v14 ([#1167](https://github.com/microsoftgraph/msgraph-sdk-python-core/issues/1167)) ([0b8911b](https://github.com/microsoftgraph/msgraph-sdk-python-core/commit/0b8911b034b6288e8b9220cf30f03ac73d67b6b1))
+
 ## [1.5.3](https://github.com/microsoftgraph/msgraph-sdk-python-core/compare/v1.5.2...v1.5.3) (2026-10-26)
 
 

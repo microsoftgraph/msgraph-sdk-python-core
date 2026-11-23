@@ -111,3 +111,51 @@ async def test_iterate():
             await page_iterator.iterate(lambda _: True)
             assert mock_next.call_count == 2
             assert mock_enumerate.call_count == 2
+
+
+def _page(next_link, value):
+    return PageResult(odata_next_link=next_link, value=value)
+
+
+async def _iterate_all(first_page, next_pages):
+    adapter = Mock()
+    adapter.send_async = AsyncMock(side_effect=next_pages)
+    seen = []
+    await PageIterator(first_page, adapter).iterate(lambda item: seen.append(item) or True)
+    return seen, adapter.send_async.call_count
+
+
+@pytest.mark.asyncio
+async def test_iterate_continues_past_empty_first_page():
+    seen, requests = await _iterate_all(
+        _page("https://graph.microsoft.com/v1.0/users?$skiptoken=1", []),
+        [
+            _page("https://graph.microsoft.com/v1.0/users?$skiptoken=2", ["a", "b"]),
+            _page(None, ["c"]),
+        ],
+    )
+    assert seen == ["a", "b", "c"]
+    assert requests == 2
+
+
+@pytest.mark.asyncio
+async def test_iterate_continues_past_empty_middle_page():
+    seen, requests = await _iterate_all(
+        _page("https://graph.microsoft.com/v1.0/users?$skiptoken=1", ["a"]),
+        [
+            _page("https://graph.microsoft.com/v1.0/users?$skiptoken=2", []),
+            _page(None, ["b", "c"]),
+        ],
+    )
+    assert seen == ["a", "b", "c"]
+    assert requests == 2
+
+
+@pytest.mark.asyncio
+async def test_iterate_stops_at_empty_last_page():
+    seen, requests = await _iterate_all(
+        _page("https://graph.microsoft.com/v1.0/users?$skiptoken=1", ["a"]),
+        [_page(None, [])],
+    )
+    assert seen == ["a"]
+    assert requests == 1

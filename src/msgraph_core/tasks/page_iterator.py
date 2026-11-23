@@ -224,12 +224,13 @@ Methods:
             callback (Callable, optional): The function to apply to each item.
             It should take one argument (the item) and return a boolean.
         Returns:
-            bool: False if there are no items in the current page or the
-            callback function returns False, True otherwise.
+            bool: False if the current page has no value or the callback
+            function returns False, True otherwise. An empty page returns True,
+            because the service can return an empty page with a nextLink.
         """
         keep_iterating = True
         page_items = self.current_page.value
-        if not page_items:
+        if page_items is None:
             return False
         for i in range(self.pause_index, len(page_items)):
             keep_iterating = callback(page_items[i]) if callback is not None else True

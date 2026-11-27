@@ -1,13 +1,17 @@
-import pytest
 import json
 from io import BytesIO
 from unittest.mock import Mock
 from urllib.request import Request
+
+import pytest
+from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
+from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
 from kiota_abstractions.serialization.serialization_writer import SerializationWriter
-from kiota_abstractions.method import Method
-from kiota_abstractions.headers_collection import HeadersCollection as RequestHeaders
-from kiota_serialization_json.json_serialization_writer_factory import JsonSerializationWriterFactory
+from kiota_serialization_json.json_serialization_writer_factory import (
+    JsonSerializationWriterFactory,
+)
+
 from msgraph_core.requests.batch_request_item import BatchRequestItem
 
 base_url = "https://graph.microsoft.com/v1.0/me"
@@ -114,6 +118,19 @@ def test_constructor_url_replacement_with_query():
     batch_request_item = BatchRequestItem(request_info)
 
     assert batch_request_item.url == "/me?param=value"
+
+
+def test_constructor_includes_query_parameters():
+    request_info = RequestInformation()
+    request_info.http_method = "GET"
+    request_info.url = "https://graph.microsoft.com/v1.0/me?existing=value#fragment"
+    request_info.query_parameters = {"$select": "id,displayName"}
+    request_info.headers = RequestHeaders()
+    request_info.content = None
+
+    batch_request_item = BatchRequestItem(request_info)
+
+    assert batch_request_item.url == "/me?existing=value&%24select=id%2CdisplayName#fragment"
 
 
 def test_id_property(batch_request_item):

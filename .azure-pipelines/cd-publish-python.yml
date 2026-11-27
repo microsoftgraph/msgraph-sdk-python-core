@@ -128,7 +128,7 @@ extends:
               runOnce:
                 deploy:
                   steps:
-                    - task: EsrpRelease@9
+                    - task: EsrpRelease@14
                       displayName: "Publish msgraph-core package via ESRP Release"
                       inputs:
                         connectedservicename: "Federated DevX ESRP Managed Identity Connection"
